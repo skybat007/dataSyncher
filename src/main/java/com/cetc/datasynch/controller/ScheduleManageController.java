@@ -1,5 +1,7 @@
 package com.cetc.datasynch.controller;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
@@ -8,52 +10,69 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledFuture;
 
 /**
- * Description：对定时任务进行管理
+ * Description：定时任务管理器
  * Created by luolinjie on 2018/10/9.
  */
 @RestController
 public class ScheduleManageController {
-    //todo:创建定时任务
 
-    //todo:取消定时任务
-
-    //todo:修改定时规则并重新启动
+    Logger logger = LoggerFactory.getLogger(ScheduleManageController.class);
     @Autowired
     private ThreadPoolTaskScheduler threadPoolTaskScheduler;
 
     private ScheduledFuture<?> future;
+    private Map<String, Future> futures = new HashMap<String, Future>();
 
     @Bean
     public ThreadPoolTaskScheduler threadPoolTaskScheduler() {
         return new ThreadPoolTaskScheduler();
     }
 
-    @RequestMapping("/startCron")
-    public String startCron() {
-
-        future = threadPoolTaskScheduler.schedule(new MyRunnable(), new CronTrigger("0/5 * * * * *"));
-        System.out.println("DynamicTask.startCron()");
-        return "startCron";
+    /**
+     * 根据传入的jobId和run方法的执行体创建内容
+     */
+    @RequestMapping("/startJob")
+    public String startJob(String jobID,String cron, Runnable runnableInstance) {
+        if (null==cron){
+            cron= "0 0 0 * * ?";//默认是每天凌晨0点更新
+        }
+        future = threadPoolTaskScheduler.schedule(runnableInstance, new CronTrigger(cron));
+        futures.put(jobID, future);
+        logger.info("job:"+jobID+"--started!");
+        return "jobID:"+jobID;
     }
 
-    @RequestMapping("/stopCron")
-    public String stopCron() {
+    /**
+     * 通过jobID取消定时任务
+     */
+    @RequestMapping("/stopJob")
+    public String stopJob(String jobID) {
 
         if (future != null) {
+            Future future = futures.get(jobID);
             future.cancel(true);
         }
-        System.out.println("DynamicTask.stopCron()");
+        logger.info("job:"+jobID+"--stopped!");
         return "stopCron";
     }
 
-    @RequestMapping("/changeCron10")
-    public String startCron10() {
-
-        stopCron();// 先停止，在开启.
-        future = threadPoolTaskScheduler.schedule(new MyRunnable(), new CronTrigger("*/10 * * * * *"));
+    /**
+     * 通过jobID修改定时规则并重新启动（需要重新传入运行实体）
+     *  @param  jobID -- 任务标识符
+     *  @param  cron -- cron表达式
+     *  @param  runnableInstance -- 带有run方法的执行实体
+     */
+//   cron表达式： "\*"/"10 * * * * *
+    @RequestMapping("/changeJob")
+    public String changeJob(String jobID, String cron,Runnable runnableInstance) {
+        stopJob(jobID);// 先停止，再开启
+        future = threadPoolTaskScheduler.schedule(runnableInstance, new CronTrigger(cron));
         System.out.println("DynamicTask.startCron10()");
         return "changeCron10";
     }
