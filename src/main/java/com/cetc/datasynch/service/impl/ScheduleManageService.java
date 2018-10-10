@@ -1,5 +1,6 @@
 package com.cetc.datasynch.service.impl;
 
+import com.cetc.datasynch.middleware.SQLCreator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,7 +39,6 @@ public class ScheduleManageService {
     /**
      * 根据传入的jobId和run方法的执行体创建内容
      */
-    @RequestMapping("/startJob")
     public String startJob(String jobID,String cron, Runnable runnableInstance) {
         if (null==cron){
             cron= "0 0 0 * * ?";//默认是每天凌晨0点更新
@@ -52,14 +52,13 @@ public class ScheduleManageService {
     /**
      * 通过jobID取消定时任务
      */
-    @RequestMapping("/stopJob")
     public String stopJob(String jobID) {
 
         if (future != null) {
             Future future = futures.get(jobID);
             future.cancel(true);
         }
-        logger.info("job:"+jobID+"--stopped!");
+        logger.info("job:" + jobID + "--stopped!");
         return "stopCron";
     }
 
@@ -70,13 +69,13 @@ public class ScheduleManageService {
      *  @param  runnableInstance -- 带有run方法的执行实体
      */
 //   cron表达式： "\*"/"10 * * * * *
-    @RequestMapping("/changeJob")
     public String changeJob(String jobID, String cron,Runnable runnableInstance) {
         stopJob(jobID);// 先停止，再开启
         future = threadPoolTaskScheduler.schedule(runnableInstance, new CronTrigger(cron));
         System.out.println("DynamicTask.startCron10()");
         return "changeCron10";
     }
+
 
     private class MyRunnable implements Runnable {
         @Override

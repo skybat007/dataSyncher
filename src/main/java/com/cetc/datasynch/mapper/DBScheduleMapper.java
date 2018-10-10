@@ -16,4 +16,9 @@ public interface DBScheduleMapper {
 
     int deleteJobByJobId(String jobID);
 
+    int updateCronByJobId(String jobID, String cron);
+
+    int updateEnableStatusByJobId(String jobID, int i);
+
+    String queryTableNameByJobId(String jobID);
 }

@@ -17,7 +17,6 @@ public class ExecuteWinCmd {
 
     Logger logger = LoggerFactory.getLogger(ExecuteWinCmd.class);
 
-
     public String executeCmd(String windowcmd) throws IOException, InterruptedException {
         logger.info("start");
         /**
