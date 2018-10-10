@@ -6,13 +6,22 @@ import java.io.Serializable;
  * 接口定时任务表: DP_INTERFACE_SCHEDULE
  * Created by llj on 2018/10/8.
  */
-public class InterfaceSchedule  implements Serializable {
+public class InterfaceScheduleModel implements Serializable {
+    String jobId;
     String tableName;
     String interfaceUrl;
     String scheduleExpression;
     String isEnabled;
     String createTime;
     String updateTime;
+
+    public String getJobId() {
+        return jobId;
+    }
+
+    public void setJobId(String jobId) {
+        this.jobId = jobId;
+    }
 
     public String getTableName() {
         return tableName;

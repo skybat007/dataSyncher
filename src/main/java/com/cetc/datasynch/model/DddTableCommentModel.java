@@ -5,7 +5,7 @@ import java.io.Serializable;
 /**
  * Created by llj on 2018/10/8.
  */
-public class DddTableComment implements Serializable {
+public class DddTableCommentModel implements Serializable {
     String tableName;
     String tableComment;
 

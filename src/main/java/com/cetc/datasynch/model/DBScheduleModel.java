@@ -6,13 +6,22 @@ import java.io.Serializable;
  * 前置机定时任务表: DP_FRONT_MACHINE_SCHEDULE
  * Created by llj on 2018/10/8.
  */
-public class FrontMachineSchedule implements Serializable{
+public class DBScheduleModel implements Serializable{
+    String jobId;
     String tableName;
     String viewName;
     String scheduleExpression;
     String isEnabled;
     String createTime;
     String updateTime;
+
+    public String getJobId() {
+        return jobId;
+    }
+
+    public void setJobId(String jobId) {
+        this.jobId = jobId;
+    }
 
     public String getTableName() {
         return tableName;
@@ -61,4 +70,5 @@ public class FrontMachineSchedule implements Serializable{
     public void setUpdateTime(String updateTime) {
         this.updateTime = updateTime;
     }
+
 }

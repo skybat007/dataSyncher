@@ -6,13 +6,22 @@ import java.io.Serializable;
  * 前置机view方式更新状态日志表: DP_TABLE_LOG_INFO
  * Created by llj on 2018/10/8.
  */
-public class TableLogInfo implements Serializable{
+public class TableLogInfoModel implements Serializable {
+    String uuid;
     String tableName;
     String currentPage;
     String currentRowNum;
     String currentRowId;
     String createTime;
     String updateTime;
+
+    public String getUuid() {
+        return uuid;
+    }
+
+    public void setUuid(String uuid) {
+        this.uuid = uuid;
+    }
 
     public String getTableName() {
         return tableName;

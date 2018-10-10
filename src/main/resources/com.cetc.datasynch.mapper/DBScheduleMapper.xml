@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cetc.cloud.msg.provider.mapper.output.MsgApplicationDetailOutputMapper">
+    <resultMap id="BaseResultMap" type="com.cetc.datasynch.model.DBScheduleModel">
+        <result column="jobId" jdbcType="VARCHAR" property="JOBID"/>
+        <result column="result_code" jdbcType="VARCHAR" property="resultCode" />
+        <result column="application_sn" jdbcType="VARCHAR" property="applicationSn"/>
+        <result column="application_name" jdbcType="VARCHAR" property="applicationName" />
+        <result column="secret_pub_key" jdbcType="VARCHAR" property="secretPubKey" />
+        <result column="secret_pri_key" jdbcType="VARCHAR" property="secretPriKey" />
+        <result column="os_type" jdbcType="VARCHAR" property="osType" />
+        <result column="create_date" jdbcType="TIMESTAMP" property="createDate" />
+        <result column="update_date" jdbcType="TIMESTAMP" property="updateDate" />
+        <result column="state" jdbcType="INTEGER" property="state" />
+        <result column="creator" jdbcType="VARCHAR" property="creator" />
+        <result column="updater" jdbcType="VARCHAR" property="updater" />
+    </resultMap>
+
+    <sql id="BaseTable">
+
+    </sql>
+
+    <sql id="BaseColumns">
+        id, uuid, result_code, application_sn, application_name, secret_pub_key, secret_pri_key, os_type, create_date, update_date, state, creator, updater
+    </sql>
+
+    <select id="queryScheduleJobList"  resultMap="BaseResultMap"  parameterType="java.lang.Long">
+        SELECT
+        <include refid="BaseColumns"/>
+        FROM
+        <include refid="BaseTable"/>
+        WHERE 1=1 AND id = #{id} AND state = 0;
+    </select>
+
+    <select id="deleteJobByJobId"  resultMap="BaseResultMap"  parameterType="java.lang.String">
+        SELECT
+        <include refid="BaseColumns"/>
+        FROM
+        <include refid="BaseTable"/>
+        WHERE 1=1
+        AND  uuid = #{uuId} AND state = 0;
+    </select>
+
+
+</mapper>

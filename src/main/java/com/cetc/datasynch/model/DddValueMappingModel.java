@@ -6,7 +6,7 @@ import java.io.Serializable;
  * 数据字典-值映射表:DDD_VALUE_ MAPPING
  * Created by llj on 2018/10/8.
  */
-public class DddValueMapping implements Serializable {
+public class DddValueMappingModel implements Serializable {
     String tableName;
     String columnname;
     String columnCodeValue;

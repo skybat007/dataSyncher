@@ -6,13 +6,22 @@ import java.io.Serializable;
  * 接口方式更新状态日志表: DP_INTERFACE_LOG_INFO
  * Created by llj on 2018/10/8.
  */
-public class InterfaceLogInfo implements Serializable{
+public class InterfaceLogInfoModel implements Serializable{
+    String uuid;
     String tableName;
     String currentPage;
     String currentRownum;
     String currentRowId;
     String createTime;
     String updateTime;
+
+    public String getUuid() {
+        return uuid;
+    }
+
+    public void setUuid(String uuid) {
+        this.uuid = uuid;
+    }
 
     public String getTableName() {
         return tableName;
