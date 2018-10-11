@@ -73,22 +73,6 @@ BEGIN
 END TRIGGER_DS_SCHEDULE_JOB_INFO;
 
 
-/*
-Navicat Oracle Data Transfer
-Oracle Client Version : 10.2.0.5.0
-
-Source Server         : ZHFTYJJCPT
-Source Server Version : 110200
-Source Host           : localhost:1521
-Source Schema         : ZHFTYJJCPT
-
-Target Server Type    : ORACLE
-Target Server Version : 110200
-File Encoding         : 65001
-
-Date: 2018-10-11 18:02:06
-*/
-
 
 -- ----------------------------
 -- Table structure for DS_SYNCH_JOB_LOG_INFO

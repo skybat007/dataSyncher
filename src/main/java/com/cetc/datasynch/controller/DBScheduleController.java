@@ -3,7 +3,7 @@ package com.cetc.datasynch.controller;
 import com.cetc.datasynch.core.util.UuIdGeneratorUtil;
 import com.cetc.datasynch.middleware.SQLCreator;
 import com.cetc.datasynch.model.DBScheduleModel;
-import com.cetc.datasynch.middleware.MySQLRunnable;
+import com.cetc.datasynch.model.MySQLRunnable;
 import com.cetc.datasynch.service.impl.DBLogInfoService;
 import com.cetc.datasynch.service.impl.DBScheduleService;
 import com.cetc.datasynch.service.impl.DbOperateService;
@@ -35,6 +35,15 @@ public class DBScheduleController {
 
     @Autowired
     DBLogInfoService dbLogInfoService;
+
+    /**
+     * 初始化建表
+     */
+    @RequestMapping(value = "/schedule/init", produces = "application/json", method = RequestMethod.GET)
+    public void initSQL() throws SQLException {
+        dbOperateService.oracleBatchSqlFile("/dataSynch.sql");
+    }
+
     /**
      * 查询表同步任务List
      */
@@ -48,11 +57,10 @@ public class DBScheduleController {
      * 新增一条表同步任务
      */
     @RequestMapping(value = "/schedule/dbjob/create", produces = "application/json", method = RequestMethod.GET)
-    public String createScheduleJob(String SQL,String cron) throws SQLException {
+    public String createScheduleJob(String tableName,String cron) throws SQLException {
 
-        MySQLRunnable mySQLRunnable = new MySQLRunnable(SQL);
-        String uuid = UuIdGeneratorUtil.getCetcCloudUuid("cetc");
-        String res = scheduleManageService.startJob(uuid, cron, mySQLRunnable);
+        MySQLRunnable mySQLRunnable = new MySQLRunnable(tableName);
+        String res = scheduleManageService.startJob(cron, mySQLRunnable);
         return res;
     }
     /**

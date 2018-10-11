@@ -1,28 +1,29 @@
-package com.cetc.datasynch.middleware;
+package com.cetc.datasynch.model;
 
 import com.cetc.datasynch.service.impl.DbOperateService;
+import com.cetc.datasynch.service.impl.HttpOperateService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.sql.SQLException;
 
 /**
- * Description：创建执行实例
+ * Description：创建在线Http执行实例
  * Created by luolinjie on 2018/10/10.
  */
-public class MySQLRunnable implements Runnable {
+public class MyHttpRunnable implements Runnable {
     private String SQL;
 
     @Autowired
-    DbOperateService dbOperateService;
+    HttpOperateService httpOperateService;
 
-    public MySQLRunnable(String SQL){
+    public MyHttpRunnable(String SQL){
         this.SQL = SQL;
     }
     @Override
     public void run() {
         try {
-            dbOperateService.oracleQuerySql(SQL);
-        } catch (SQLException e) {
+//            httpOperateService.doHttpQuery();
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }

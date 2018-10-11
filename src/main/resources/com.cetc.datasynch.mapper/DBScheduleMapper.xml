@@ -21,7 +21,7 @@
     </sql>
 
     <sql id="BaseColumns">
-        id, uuid, result_code, application_sn, application_name, secret_pub_key, secret_pri_key, os_type, create_date, update_date, state, creator, updater
+        id, id, result_code, application_sn, application_name, secret_pub_key, secret_pri_key, os_type, create_date, update_date, state, creator, updater
     </sql>
 
     <select id="queryScheduleJobList"  resultMap="BaseResultMap"  parameterType="java.lang.Long">
@@ -38,7 +38,7 @@
         FROM
         <include refid="BaseTable"/>
         WHERE 1=1
-        AND  uuid = #{uuId} AND state = 0;
+        AND  id = #{uuId} AND state = 0;
     </select>
 
 

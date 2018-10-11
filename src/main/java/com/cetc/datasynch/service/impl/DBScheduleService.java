@@ -2,6 +2,7 @@ package com.cetc.datasynch.service.impl;
 
 import com.cetc.datasynch.mapper.DBScheduleMapper;
 import com.cetc.datasynch.model.DBScheduleModel;
+import com.cetc.datasynch.model.SynchJobLogInfoModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -37,5 +38,9 @@ public class DBScheduleService {
 
     public String queryTableNameByJobId(String jobID) {
         return dbScheduleMapper.queryTableNameByJobId(jobID);
+    }
+
+    public SynchJobLogInfoModel queryModelByJobId(String jobId) {
+        return dbScheduleMapper.queryModelByJobId();
     }
 }

@@ -1,6 +1,7 @@
 package com.cetc.datasynch.mapper;
 
 import com.cetc.datasynch.model.DBScheduleModel;
+import com.cetc.datasynch.model.SynchJobLogInfoModel;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
@@ -21,4 +22,6 @@ public interface DBScheduleMapper {
     int updateEnableStatusByJobId(String jobID, int i);
 
     String queryTableNameByJobId(String jobID);
+
+    SynchJobLogInfoModel queryModelByJobId();
 }
