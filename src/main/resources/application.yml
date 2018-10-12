@@ -1,0 +1,150 @@
+server:
+  port: 8000
+  context-path: /
+  address: ${spring.cloud.client.ipAddress}
+  connection-timeout: 60000
+  session:
+    timeout: 60000
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://10.0.11.226:8000/eureka,http://10.0.11.226:8001/eureka,http://10.0.11.226:8002/eureka
+  instance:
+    instance-id: ${spring.cloud.client.ipAddress}:${server.port}
+    prefer-ip-address: true
+
+# 自定义Redis集群及负载实例配置
+memcatch:
+   type: CluserJedisPool
+   loadInstance: 10.0.11.225:7000,10.0.11.225:7001,10.0.11.225:7002,10.0.11.226:7000,10.0.11.226:7001,10.0.11.226:7002
+   maxToTotal: 300
+   maxIdle: 20
+   minIdle: 10
+   maxWaitMillis: 1000
+   testOnBorrow: true
+   testOnReturn: fasle
+   testWhileIdle: false
+
+hystrix:
+  command:
+    default:
+      circuitBreaker:
+        sleepWindowInMilliseconds: 30000
+        requestVolumeThreshold: 10
+      execution:
+        isolation:
+          strategy: SEMAPHORE
+          thread:
+            timeoutInMilliseconds: 100000
+
+spring:
+  profiles:
+    active: test
+  output:
+    ansi:
+      enabled: detect
+  http:
+    encoding:
+      charset: utf-8
+      enabled: true
+      force: true
+  messages:
+    basename: i18n/messages
+    cache-seconds: -1
+    encoding: utf-8
+#  sleuth:
+#    feign:
+#      enabled: true
+#    hystrix:
+#      strategy:
+#          enabled: true
+#    zuul:
+#      enabled: true
+  zipkin:
+      base-url: http://cetc.zipkin:18100/
+  sleuth:
+       sampler:
+         percentage: 1.0
+
+  input-datasource:
+    type: com.zaxxer.hikari.HikariDataSource
+    driverClassName: com.mysql.jdbc.Driver
+    url: jdbc:mysql://10.0.11.234:3306/db_cetc_msg?tinyInt1isBit=false&useUnicode=true&characterEncoding=utf-8&autoReconnect=true&failOverReadOnly=false&zeroDateTimeBehavior=convertToNull
+    username: cetc_db_usr
+    password: cetc_db_mysql_pwd_1030
+    hikari:
+     connection-test-query: SELECT 1 FROM DUAL
+     minimum-idle: 3
+     maximum-pool-size: 24
+     pool-name: ${spring.application.name}-Input-CP
+     idle-timeout: 10000
+     cachePrepStmts: true
+     prepStmtCacheSize: 250
+     prepStmtCacheSqlLimit: 2048
+     leakDetectionThreshold: 2000
+
+  output-datasource:
+     type: com.zaxxer.hikari.HikariDataSource
+     driverClassName: com.mysql.jdbc.Driver
+     url: jdbc:mysql://10.0.11.234:3306/db_cetc_msg?tinyInt1isBit=false&useUnicode=true&characterEncoding=utf-8&autoReconnect=true&failOverReadOnly=false&zeroDateTimeBehavior=convertToNull
+     username: cetc_db_usr
+     password: cetc_db_mysql_pwd_1030
+     hikari:
+      connection-test-query: SELECT 1 FROM DUAL
+      minimum-idle: 3
+      maximum-pool-size: 24
+      pool-name: ${spring.application.name}-Output-CP
+      idle-timeout: 10000
+      cachePrepStmts: true
+      prepStmtCacheSize: 250
+      prepStmtCacheSqlLimit: 2048
+      leakDetectionThreshold: 2000
+
+  freemarker:
+    allow-request-override: false
+    allow-session-override: false
+    cache: false
+    charset: UTF-8
+    check-template-location: true
+    content-type: text/html
+    enabled: true
+    expose-request-attributes: false
+    expose-session-attributes: false
+    expose-spring-macro-helpers: true
+    prefer-file-system-access: true
+    suffix: .html
+    template-loader-path: classpath:/templates/
+    settings:
+     output_format: HTMLOutputFormat
+     template_update_delay: 0
+     default_encoding: UTF-8
+     url_escaping_charset: UTF-8
+     classic_compatible: true
+     number_format: ###
+
+  resources:
+    chain:
+      strategy:
+        content:
+          enabled: true
+          paths: /**
+
+
+# 服务启动时提前加载，饥饿加载模式启用
+ribbon:
+  eager-load:
+    enabled: true
+    clients: id-generator
+zuul:
+  ribbon-isolation-strategy: semaphore
+
+mybatis:
+    configuration:
+        map-underscore-to-camel-case: true
+        default-fetch-size: 100
+        default-statement-timeout: 30
+    mapperLocations: classpath*:com/cetc/cloud/msg/provider/mapper/**Mapper.xml
+
+
+

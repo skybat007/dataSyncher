@@ -1,6 +1,5 @@
-package com.cetc.datasynch.service.impl;
+package com.cetc.datasynch.service;
 
-import com.cetc.datasynch.middleware.SQLCreator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,7 +7,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.scheduling.support.CronTrigger;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -21,9 +19,9 @@ import java.util.concurrent.ScheduledFuture;
  * Created by luolinjie on 2018/10/9.
  */
 @Service
-public class ScheduleManageService {
+public class JobManageService {
 
-    Logger logger = LoggerFactory.getLogger(ScheduleManageService.class);
+    Logger logger = LoggerFactory.getLogger(JobManageService.class);
 
     @Autowired
     private ThreadPoolTaskScheduler threadPoolTaskScheduler;
@@ -39,20 +37,23 @@ public class ScheduleManageService {
     /**
      * 根据传入的jobId和run方法的执行体创建内容
      */
-    public String startJob(String jobID,String cron, Runnable runnableInstance) {
+    public int startJob(int jobID,String cron, Runnable runnableInstance) {
         if (null==cron){
             cron= "0 0 0 * * ?";//默认是每天凌晨0点更新
         }
+        //创建定时任务并启动
         future = threadPoolTaskScheduler.schedule(runnableInstance, new CronTrigger(cron));
-        futures.put(jobID, future);
+        //将定时任务记录在全局变量中，供其他功能查询
+        futures.put(String.valueOf(jobID), future);
         logger.info("job:"+jobID+"--started!");
-        return "jobID:"+jobID;
+        return jobID;
     }
 
     /**
      * 通过jobID取消定时任务
+     * @param jobID
      */
-    public String stopJob(String jobID) {
+    public String stopJob(int jobID) {
 
         if (future != null) {
             Future future = futures.get(jobID);

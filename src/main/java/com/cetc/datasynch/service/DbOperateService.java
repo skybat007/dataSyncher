@@ -1,4 +1,4 @@
-package com.cetc.datasynch.service.impl;
+package com.cetc.datasynch.service;
 /**********************************************************************
  * Copyright (c) 2018 CETC Company
  * 中电科新型智慧城市研究院有限公司版权所有
@@ -13,6 +13,7 @@ package com.cetc.datasynch.service.impl;
  *************************************************************************/
 
 import com.cetc.datasynch.core.util.JdbcUtil;
+import com.cetc.datasynch.model.ScheduleModel;
 import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.jdbc.ScriptRunner;
 import org.slf4j.Logger;
@@ -257,5 +258,9 @@ public class DbOperateService {
         if (connectionResult && statementResult && resultSetResult)
             result = true;
         return result;
+    }
+
+    public void insertToTargetTable(List<HashMap> queryResult, ScheduleModel scheduleModel) {
+
     }
 }

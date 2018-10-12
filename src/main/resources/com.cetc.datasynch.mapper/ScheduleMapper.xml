@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cetc.cloud.msg.provider.mapper.output.MsgApplicationDetailOutputMapper">
+    <resultMap id="BaseResultMap" type="com.cetc.datasynch.model.ScheduleModel">
+        <result column="ID" jdbcType="INTEGER" property="ID"/>
+        <result column="CONN_TYPE" jdbcType="VARCHAR2" property="CONN_TYPE" />
+        <result column="SOURCE" jdbcType="VARCHAR2" property="SOURCE"/>
+        <result column="TB_NAME" jdbcType="VARCHAR2" property="TB_NAME" />
+        <result column="SCHEDULE_EXPRESSION" jdbcType="VARCHAR2" property="SCHEDULE_EXPRESSION" />
+        <result column="IS_ENABLED" jdbcType="INTEGER" property="IS_ENABLED" />
+        <result column="CREATE_TIME" jdbcType="DATE" property="CREATE_TIME" />
+        <result column="UPDATE_TIME" jdbcType="DATE" property="UPDATE_TIME" />
+    </resultMap>
+
+    <sql id="BaseTable">
+
+    </sql>
+
+    <!-- 单条插入 -->
+    <insert id="addRule" parameterType="com.cetc.cloud.competition_manager.api.model.competition.ScoreRulesModel"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO
+        <include refid="BaseTable"/>
+        (
+        <include refid="Columns_Insert"/>
+        )
+        VALUES
+        (
+        #{uuId},#{competitionId}, #{ruleName}, #{fullMark}, #{ruleDescription}
+        )
+    </insert>
+
+    <sql id="BaseColumns">
+        id, id, result_code, application_sn, application_name, secret_pub_key, secret_pri_key, os_type, create_date, update_date, state, creator, updater
+    </sql>
+
+    <select id="queryScheduleJobList"  resultMap="BaseResultMap"  parameterType="java.lang.Long">
+        SELECT
+        <include refid="BaseColumns"/>
+        FROM
+        <include refid="BaseTable"/>
+        WHERE 1=1 AND id = #{id} AND state = 0;
+    </select>
+
+    <select id="deleteJobByJobId"  resultMap="BaseResultMap"  parameterType="java.lang.String">
+        SELECT
+        <include refid="BaseColumns"/>
+        FROM
+        <include refid="BaseTable"/>
+        WHERE 1=1
+        AND  id = #{uuId} AND state = 0;
+    </select>
+
+
+</mapper>

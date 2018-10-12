@@ -8,12 +8,12 @@ import java.util.Date;
  * Created by llj on 2018/10/8.
  */
 public class SynchJobLogInfoModel implements Serializable{
-    String id;
-    String jobId;
-    String tableName;
+    int id;
+    int jobId;
     int currentPageNum;
     int currentPageSize;
     int currentRownum;
+    int pageSize;
     int updateWay;
     Date createTime;
     Date updateTime;
@@ -26,28 +26,28 @@ public class SynchJobLogInfoModel implements Serializable{
         this.currentPageSize = currentPageSize;
     }
 
-    public String getId() {
+    public int getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(int id) {
         this.id = id;
     }
 
-    public String getJobId() {
+    public int getJobId() {
         return jobId;
     }
 
-    public void setJobId(String jobId) {
+    public void setJobId(int jobId) {
         this.jobId = jobId;
     }
 
-    public String getTableName() {
-        return tableName;
+    public int getPageSize() {
+        return pageSize;
     }
 
-    public void setTableName(String tableName) {
-        this.tableName = tableName;
+    public void setPageSize(int pageSize) {
+        this.pageSize = pageSize;
     }
 
     public int getCurrentPageNum() {

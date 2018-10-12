@@ -1,10 +1,7 @@
 package com.cetc.datasynch.model;
 
-import com.cetc.datasynch.service.impl.DbOperateService;
 import com.cetc.datasynch.service.impl.HttpOperateService;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import java.sql.SQLException;
 
 /**
  * Description：创建在线Http执行实例
