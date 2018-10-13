@@ -11,4 +11,6 @@ import org.apache.ibatis.annotations.Mapper;
 public interface SyhchJobLogInfoMapper {
 
     SynchJobLogInfoModel queryLatestInfoByJobId(int jobId);
+
+    int add(SynchJobLogInfoModel synchJobLogInfoModel);
 }

@@ -14,7 +14,7 @@ public class SynchJobLogInfoModel implements Serializable{
     int currentPageSize;
     int currentRownum;
     int pageSize;
-    int updateWay;
+    int connType;
     Date createTime;
     Date updateTime;
 
@@ -66,12 +66,12 @@ public class SynchJobLogInfoModel implements Serializable{
         this.currentRownum = currentRownum;
     }
 
-    public int getUpdateWay() {
-        return updateWay;
+    public int getConnType() {
+        return connType;
     }
 
-    public void setUpdateWay(int updateWay) {
-        this.updateWay = updateWay;
+    public void setConnType(int connType) {
+        this.connType = connType;
     }
 
     public Date getCreateTime() {

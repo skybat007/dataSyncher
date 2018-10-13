@@ -15,17 +15,22 @@ import java.util.List;
 public class SynchJobLogInfoService {
 
     @Mapper
-    SyhchJobLogInfoMapper syhchJobLogInfoMapper;
+    SyhchJobLogInfoMapper synchJobLogInfoMapper;
 
     /**
      * todo:根据jobID查询最近一次成功请求的分页参数
      */
     public SynchJobLogInfoModel queryLatestInfoByJobId(int jobId) {
-        return syhchJobLogInfoMapper.queryLatestInfoByJobId(jobId);
+        return synchJobLogInfoMapper.queryLatestInfoByJobId(jobId);
     }
 
     public List<Integer> queryLatestPageParamsByJobID(int jobId) {
 
         return null;
+    }
+
+    public int add(SynchJobLogInfoModel synchJobLogInfoModel) {
+
+        return synchJobLogInfoMapper.add(synchJobLogInfoModel);
     }
 }

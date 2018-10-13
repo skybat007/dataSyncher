@@ -11,8 +11,8 @@ public class ScheduleModel implements Serializable {
     int id;                         //jobId
     int connType;                   //连接方式（0：前置机方式 1：接口方式）
     String source;                  //源(请求URL路径@token/前置机view视图的名称)
-    String token;                   //认证令牌
-    String jsonExtractRule;          //json解析规则
+    Token token;                    //认证令牌
+    String jsonExtractRule;         //json解析规则
     String tableName;               //入库表名
     int pageSize;                   //页大小
     String scheduleExpression;      //定时表达式
@@ -28,11 +28,11 @@ public class ScheduleModel implements Serializable {
         this.id = id;
     }
 
-    public String getToken() {
+    public Token getToken() {
         return token;
     }
 
-    public void setToken(String token) {
+    public void setToken(Token token) {
         this.token = token;
     }
 

@@ -1,5 +1,6 @@
 package com.cetc.datasynch.controller;
 
+import com.cetc.datasynch.common.CommonConfig;
 import com.cetc.datasynch.middleware.SQLCreator;
 import com.cetc.datasynch.model.ScheduleModel;
 import com.cetc.datasynch.model.MyScheduleRunnable;
@@ -47,7 +48,7 @@ public class ScheduleController {
      * 查询表同步任务List
      */
     @RequestMapping(value = "/schedule/job/querylist", produces = "application/json", method = RequestMethod.GET)
-    public List<ScheduleModel> queryScheduleJobList(){
+    public List<ScheduleModel> queryScheduleJobList() {
         List<ScheduleModel> list = scheduleService.queryScheduleJobList();
         return list;
     }
@@ -56,7 +57,7 @@ public class ScheduleController {
      * 新增一条同步任务
      */
     @RequestMapping(value = "/schedule/job/create", produces = "application/json", method = RequestMethod.GET)
-    public HashMap createScheduleJob(int connType,String source,int pageSize,String tableName,String scheduleExpression) throws SQLException {
+    public HashMap createScheduleJob(int connType, String source, String token, String jsonExtractRule, int pageSize, String tableName, String scheduleExpression) throws SQLException {
 
         HashMap res = new HashMap();
 
@@ -67,55 +68,71 @@ public class ScheduleController {
         scheduleModel.setTableName(tableName);
         scheduleModel.setScheduleExpression(scheduleExpression);
 
-
-        //将创建的任务记录在schedule表中
-        int jobId = scheduleService.addScheduleInstance(scheduleModel);
-
-        if (jobId==-1){
-            res.put("failed","error when creating schedule job");
+        //参数完整性判断
+        if (null == source || null == tableName || null == scheduleExpression) {
+            res.put("failed", "param error! please check your params!");
             return res;
         }
-
-        //创建定时任务
-        MyScheduleRunnable myScheduleRunnable = new MyScheduleRunnable(scheduleModel);
-
-        //启动任务
-        int jobid = jobManageService.startJob(jobId,scheduleExpression, myScheduleRunnable);
-
-        if (jobid==jobId){
-            res.put("success","create job:"+jobid+" success!");
+        //
+        if (connType== CommonConfig.TYPE_INTERFACE && null!=token && null!=jsonExtractRule) {
+            scheduleModel.setToken(token);
+            scheduleModel.setJsonExtractRule(jsonExtractRule);
         }
 
+    //将创建的任务记录在schedule表中
+    int jobId = scheduleService.addScheduleInstance(scheduleModel);
 
+    if(jobId==-1)
+
+    {
+        res.put("failed", "error when creating schedule job");
         return res;
     }
+
+    //创建定时任务
+    MyScheduleRunnable myScheduleRunnable = new MyScheduleRunnable(scheduleModel);
+
+    //启动任务
+    int jobid = jobManageService.startJob(jobId, scheduleExpression, myScheduleRunnable);
+
+    if(jobid==jobId)
+
+    {
+        res.put("success", "create job:" + jobid + " success!");
+    }
+
+
+    return res;
+}
+
     /**
      * 删除一条同步任务
      */
     @RequestMapping(value = "/schedule/job/delete", produces = "application/json", method = RequestMethod.GET)
-    public HashMap<String, String> deleteScheduleJobByJobId(int jobID){
+    public HashMap<String, String> deleteScheduleJobByJobId(int jobID) {
 
-        HashMap result = new HashMap<String,String>();
+        HashMap result = new HashMap<String, String>();
         //停止当前任务
         String s = jobManageService.stopJob(jobID);
         //从列表中删除当前定时任务
         int res = scheduleService.deleteScheduleByJobId(jobID);
 
-        if (res==1){
-            result.put("delete success","job:"+jobID);
+        if (res == 1) {
+            result.put("delete success", "job:" + jobID);
             return result;
-        }else {
-            result.put("delete fail","job:"+jobID);
+        } else {
+            result.put("delete fail", "job:" + jobID);
             return result;
         }
     }
+
     /**
      * 修改一条表同步任务的更新频率--仅修改定时表达式
      */
     @RequestMapping(value = "/schedule/dbjob/alter", produces = "application/json", method = RequestMethod.GET)
-    public HashMap<String, String> alterScheduleJob(int jobID,String cron){
+    public HashMap<String, String> alterScheduleJob(int jobID, String cron) {
 
-        HashMap result = new HashMap<String,String>();
+        HashMap result = new HashMap<String, String>();
         //停止当前任务
         String s = jobManageService.stopJob(jobID);
 
@@ -125,25 +142,26 @@ public class ScheduleController {
 
         //重新启动当前任务--通过JobID（前提是必须之前有这个Job）
         boolean restartRes = restartJobByJobId(jobID);
-        if (restartRes==false){
+        if (restartRes == false) {
             //更改当前任务状态为Disabled
             scheduleService.disableStatusByJobId(jobID);
-            result.put( "job:"+jobID,"disableStatusByJobId failed!");
+            result.put("job:" + jobID, "disableStatusByJobId failed!");
             return result;
         }
 
         boolean s1 = restartJobByJobId(jobID);
-        if (s1){
-            result.put("job:"+jobID,"update cron success!");
+        if (s1) {
+            result.put("job:" + jobID, "update cron success!");
             return result;
-        }else {
-            result.put("job:"+jobID,"update cron failed!");
+        } else {
+            result.put("job:" + jobID, "update cron failed!");
             return result;
         }
     }
 
     /**
      * 重新启动任务
+     *
      * @param jobId
      * @return
      */
@@ -154,17 +172,15 @@ public class ScheduleController {
         List<Integer> params = dbLogInfoService.queryLatestPageParamsByJobID(jobId);
         int pageNum = params.get(0);
         int pageSize = params.get(1);
-        String SQL = SQLCreator.createSQLByTbNameAndRowParam(tableName,pageNum,pageSize);
+        String SQL = SQLCreator.createSQLByTbNameAndRowParam(tableName, pageNum, pageSize);
 
         //创建runnable任务
 
         //启动该任务
 
 
-
         return false;
     }
-
 
 
 }

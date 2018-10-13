@@ -1,6 +1,6 @@
 package com.cetc.datasynch.middleware;
 
-import com.cetc.datasynch.common.GlobalConfig;
+import com.cetc.datasynch.common.CommonConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,7 +24,7 @@ public class ExecuteWinCmd {
          */
         logger.info(windowcmd);
 //      ***.exec("你的命令",null,new File("datax安装路径"));
-        Process pr = Runtime.getRuntime().exec(windowcmd, null, new File(GlobalConfig.DataXInstallPath));
+        Process pr = Runtime.getRuntime().exec(windowcmd, null, new File(CommonConfig.DataXInstallPath));
         BufferedReader in = new BufferedReader(new InputStreamReader(pr.getInputStream()));
         String line = null;
         while ((line = in.readLine()) != null) {
