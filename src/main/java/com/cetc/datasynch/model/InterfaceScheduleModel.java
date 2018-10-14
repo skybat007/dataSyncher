@@ -7,6 +7,7 @@ import java.io.Serializable;
  * Created by llj on 2018/10/8.
  */
 public class InterfaceScheduleModel implements Serializable {
+
     String jobId;
     String tableName;
     String interfaceUrl;

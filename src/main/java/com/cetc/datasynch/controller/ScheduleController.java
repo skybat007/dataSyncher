@@ -4,6 +4,7 @@ import com.cetc.datasynch.common.CommonConfig;
 import com.cetc.datasynch.middleware.SQLCreator;
 import com.cetc.datasynch.model.ScheduleModel;
 import com.cetc.datasynch.model.MyScheduleRunnable;
+import com.cetc.datasynch.model.Token;
 import com.cetc.datasynch.service.SynchJobLogInfoService;
 import com.cetc.datasynch.service.ScheduleService;
 import com.cetc.datasynch.service.DbOperateService;
@@ -57,7 +58,7 @@ public class ScheduleController {
      * 新增一条同步任务
      */
     @RequestMapping(value = "/schedule/job/create", produces = "application/json", method = RequestMethod.GET)
-    public HashMap createScheduleJob(int connType, String source, String token, String jsonExtractRule, int pageSize, String tableName, String scheduleExpression) throws SQLException {
+    public HashMap createScheduleJob(int connType, String source, Token token, String jsonExtractRule, int pageSize, String tableName, String scheduleExpression) throws SQLException {
 
         HashMap res = new HashMap();
 

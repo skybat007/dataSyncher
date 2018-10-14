@@ -15,7 +15,7 @@ public interface ScheduleMapper {
 
     List<ScheduleModel> queryScheduleJobList();
 
-    int deleteJobByJobId(String jobID);
+    int deleteJobByJobId(int jobID);
 
     int updateCronByJobId(int jobID, String cron);
 

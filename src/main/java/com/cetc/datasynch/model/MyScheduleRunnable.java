@@ -76,7 +76,7 @@ public class MyScheduleRunnable implements Runnable {
             List<HashMap> queryResult = dbOperateService.oracleQuerySql(SQL);
 
             /**数据入库**/
-            dbOperateService.insertToTargetTable(queryResult,scheduleModel);
+            dbOperateService.insertIntoTargetTable(queryResult, scheduleModel);
 
             //记录在请求日志表中
             SynchJobLogInfoModel synchJobLogInfoModel = new SynchJobLogInfoModel();
@@ -89,7 +89,7 @@ public class MyScheduleRunnable implements Runnable {
             if (count>=1) {
                 logger.info("successfuly do a SQL query: "+SQL+",\ncurrent tableName is: "+scheduleModel.getTableName()+" \n,current page is: "+toDoPage);
             }else {
-                logger.error("faild do a SQL query: " + SQL + ",\ncurrent tableName is: " +scheduleModel.getTableName()+ ",current page is: "+toDoPage);
+                logger.error("failed do a SQL query: " + SQL + ",\ncurrent tableName is: " +scheduleModel.getTableName()+ ",current page is: "+toDoPage);
             }
         }
         return false;
@@ -101,7 +101,7 @@ public class MyScheduleRunnable implements Runnable {
      *
      * @return
      */
-    private boolean doHttpPulling() {
+    private boolean doHttpPulling() throws SQLException {
         //1.根据tableName查询最近一条执行成功的数据同步日志对应的分页参数
         SynchJobLogInfoModel model = synchJobLogInfoService.queryLatestInfoByJobId(scheduleModel.getId());
 
@@ -119,7 +119,7 @@ public class MyScheduleRunnable implements Runnable {
             List<HashMap> queryResult = httpOperateService.doHttpQuery(scheduleModel,toDoPage);
 
             /**数据入库**/
-            dbOperateService.insertToTargetTable(queryResult,scheduleModel);
+            dbOperateService.insertIntoTargetTable(queryResult, scheduleModel);
 
             //记录在请求日志表中
             SynchJobLogInfoModel synchJobLogInfoModel = new SynchJobLogInfoModel();
@@ -132,7 +132,7 @@ public class MyScheduleRunnable implements Runnable {
             if (count>=1) {
                 logger.info("successfuly do a Http query: "+scheduleModel.getSource()+",\nTarget tableName is: "+scheduleModel.getTableName()+" \n,Current page is: "+toDoPage);
             }else {
-                logger.error("faild do a Http query: " + scheduleModel.getSource() + ",\nTarget tableName is: " +scheduleModel.getTableName()+ ",Current page is: "+toDoPage);
+                logger.error("failed do a Http query: " + scheduleModel.getSource() + ",\nTarget tableName is: " +scheduleModel.getTableName()+ ",Current page is: "+toDoPage);
             }
         }
         return false;

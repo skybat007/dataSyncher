@@ -65,12 +65,12 @@ public class JobManageService {
 
     /**
      * 通过jobID修改定时规则并重新启动（需要重新传入运行实体）
-     *  @param  jobID -- 任务标识符
+     * @param  jobID -- 任务标识符
      *  @param  cron -- cron表达式
-     *  @param  runnableInstance -- 带有run方法的执行实体
+     * @param  runnableInstance -- 带有run方法的执行实体
      */
 //   cron表达式： "\*"/"10 * * * * *
-    public String changeJob(String jobID, String cron,Runnable runnableInstance) {
+    public String changeJob(int jobID, String cron,Runnable runnableInstance) {
         stopJob(jobID);// 先停止，再开启
         future = threadPoolTaskScheduler.schedule(runnableInstance, new CronTrigger(cron));
         System.out.println("DynamicTask.startCron10()");
