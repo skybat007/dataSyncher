@@ -20,6 +20,7 @@ import org.apache.ibatis.jdbc.ScriptRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -41,10 +42,14 @@ import java.util.*;
 @Service("dbOperateService")
 public class DbOperateService {
 
+
     @Autowired
     DataSource dataSource;
     @Autowired
     ColumnMappingService columnMappingService;
+
+    @Value("${NAMESPACE}")
+    private String NameSpace;
 
     private static final Logger logger = LoggerFactory.getLogger(DbOperateService.class);
     private static Connection conn = null;
@@ -290,10 +295,9 @@ public class DbOperateService {
 
             conn = JdbcUtil.getConnection(url_oracle, orcl_username, orcl_password);
             statement = conn.createStatement();
-            String sql = "INSERT INTO " + scheduleModel.getTableName()+
-                    ArrayListUtil.toStringWithoutBracket(keyList_SQL)+
-                    " VALUES ";
-
+            String sql = "INSERT INTO \"" +this.NameSpace+"\".\""+ scheduleModel.getTableName()+"\"("+
+                    ArrayListUtil.toStringWithoutBracket(keyList_SQL)+")"+
+                    " VALUES ("+ArrayListUtil.toStringWithoutBracket(valueList_SQL)+")";
 
             logger.debug("sql: " + sql);
             int count = statement.executeUpdate(sql);
