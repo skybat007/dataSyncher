@@ -277,16 +277,17 @@ public class DbOperateService {
      */
     public void insertIntoTargetTable(List<HashMap> queryResult, ScheduleModel scheduleModel) throws SQLException {
 
-        //todo:根据targetTable获取对应的字段映射表
+        //根据targetTable获取对应的字段映射表
         HashMap mapping = columnMappingService.getColumnMappingByTableName(scheduleModel.getTableName());
 
         List keyList_SQL = new ArrayList<String>();
         List valueList_SQL = new ArrayList<String>();
-        //
+        //遍历结果集，并根据结果集中的key，将值通过映射表映射到数据库中
         for (int i = 0; i < queryResult.size(); i++) {
             HashMap valueObj = queryResult.get(i);
             Set set = valueObj.keySet();
             Iterator iterator = set.iterator();
+
             while (iterator.hasNext()) {
                 String k = (String) iterator.next();//value的keyName
                 keyList_SQL.add(mapping.get(k));
@@ -296,13 +297,11 @@ public class DbOperateService {
             conn = JdbcUtil.getConnection(url_oracle, orcl_username, orcl_password);
             statement = conn.createStatement();
             String sql = "INSERT INTO \"" +this.NameSpace+"\".\""+ scheduleModel.getTableName()+"\"("+
-                    ArrayListUtil.toStringWithoutBracket(keyList_SQL)+")"+
-                    " VALUES ("+ArrayListUtil.toStringWithoutBracket(valueList_SQL)+")";
+                    ArrayListUtil.toStringWithoutBracket(keyList_SQL,mapping)+")"+
+                    " VALUES ("+ArrayListUtil.toStringWithoutBracket(valueList_SQL,mapping)+")";
 
             logger.debug("sql: " + sql);
             int count = statement.executeUpdate(sql);
         }
     }
-
-
 }
