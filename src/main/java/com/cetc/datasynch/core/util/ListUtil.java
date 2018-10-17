@@ -8,7 +8,21 @@ import java.util.List;
  * 扩展List的toString()功能
  * Created by llj on 2018/10/14.
  */
-public class ArrayListUtil {
+public class ListUtil {
+
+    /**
+     * 输出字段列表字符串，每个字段带双引号且字段用逗号分隔
+     * @param list
+     * @return
+     */
+    public static String getSQLColumnsListWithQuotes(List<String> list){
+        List resList = new ArrayList<String>();
+        for (String t:list){
+            resList.add("\""+t+"\"");
+        }
+        String s = toStringWithoutBracket(resList);
+        return s;
+    }
     /**
      * 打印List的时候,不显示中括号,每个元素没有双引号
      * @return

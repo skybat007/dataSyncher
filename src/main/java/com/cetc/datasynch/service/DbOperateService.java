@@ -12,7 +12,7 @@ package com.cetc.datasynch.service;
  * 使用本资料必须获得相应的书面授权，承担保密责任和接受相应的法律约束。
  *************************************************************************/
 
-import com.cetc.datasynch.core.util.ArrayListUtil;
+import com.cetc.datasynch.core.util.ListUtil;
 import com.cetc.datasynch.core.util.JdbcUtil;
 import com.cetc.datasynch.model.ScheduleModel;
 import org.apache.ibatis.io.Resources;
@@ -55,11 +55,24 @@ public class DbOperateService {
     private static Connection conn = null;
     private static Statement statement = null;
 
-    private static String IP = "10.192.19.104";
+    private static String IP = "10.192.19.163";
     private static String orcl_username = "ZHFTYJJCPT";
     private static String orcl_password = "ToKreDi*nJ";
-    private static String orcl_servicename = "orclcetc";
+    private static String orcl_servicename = "orcl";
     String url_oracle = "jdbc:oracle:thin:@" + IP + ":1521/" + orcl_servicename;
+
+    private HashMap<String, HashMap> queryTableStructure() throws SQLException {
+        String SQL = "SELECT table_name,column_name,data_type " +
+                "FROM user_tab_columns ";
+        List<HashMap> list = oracleQuerySql(SQL);
+        HashMap<String, HashMap> resMap = new HashMap<String, HashMap>();
+        for (HashMap<String,String> map : list) {
+            HashMap<String,String> colName_type = new HashMap<String,String>();
+            colName_type.put(map.get("COLUMN_NAME"),map.get("DATA_TYPE"));
+            resMap.put(map.get("TABLE_NAME"),colName_type);
+        }
+        return resMap;
+    }
 
     /**
      * 通过表名，查询该表所有数据
@@ -276,7 +289,7 @@ public class DbOperateService {
      * @param scheduleModel
      */
     public void insertIntoTargetTable(List<HashMap> queryResult, ScheduleModel scheduleModel) throws SQLException {
-
+        HashMap<String, HashMap> tbStructureMap = queryTableStructure();
         //根据targetTable获取对应的字段映射表
         HashMap mapping = columnMappingService.getColumnMappingByTableName(scheduleModel.getTableName());
 
@@ -296,12 +309,31 @@ public class DbOperateService {
 
             conn = JdbcUtil.getConnection(url_oracle, orcl_username, orcl_password);
             statement = conn.createStatement();
-            String sql = "INSERT INTO \"" +this.NameSpace+"\".\""+ scheduleModel.getTableName()+"\"("+
-                    ArrayListUtil.toStringWithoutBracket(keyList_SQL,mapping)+")"+
-                    " VALUES ("+ArrayListUtil.toStringWithoutBracket(valueList_SQL,mapping)+")";
+            String tableName = scheduleModel.getTableName();
+            String sql = "INSERT INTO \"" + this.NameSpace + "\".\"" +  tableName+ "\"(" +
+                    //todo:组装key列表
+                    ListUtil.getSQLColumnsListWithQuotes(keyList_SQL)+ ")" +
+                    //todo:组装value列表
+                    " VALUES (" +
+                    getTableValues(tableName,valueList_SQL,tbStructureMap) + ")";
 
             logger.debug("sql: " + sql);
             int count = statement.executeUpdate(sql);
         }
     }
+
+    /**
+     * 根据表名、字段名称、字段类型组装SQL结果
+     * @param tableName
+     * @param valueList_sql
+     * @param tbStructureMap
+     * @return
+     */
+    private String getTableValues(String tableName, List valueList_sql, HashMap<String, HashMap> tbStructureMap) {
+
+        for ()
+
+    }
+
+
 }
