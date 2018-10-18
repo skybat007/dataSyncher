@@ -76,7 +76,7 @@ public class MyScheduleRunnable implements Runnable {
             List<HashMap> queryResult = dbOperateService.oracleQuerySql(SQL);
 
             /**数据入库**/
-            dbOperateService.insertIntoTargetTable(queryResult, scheduleModel);
+            List<Integer> insertResList = dbOperateService.insertIntoTargetTable(queryResult, scheduleModel);
 
             //记录在请求日志表中
             SynchJobLogInfoModel synchJobLogInfoModel = new SynchJobLogInfoModel();
@@ -85,6 +85,8 @@ public class MyScheduleRunnable implements Runnable {
             synchJobLogInfoModel.setCurrentPageNum(toDoPage);
             synchJobLogInfoModel.setCurrentRownum(queryResult.size());
             synchJobLogInfoModel.setConnType(scheduleModel.getConnType());
+            synchJobLogInfoModel.setSuccessCount(insertResList.get(0));
+            synchJobLogInfoModel.setFailCount(insertResList.get(1));
             int count = synchJobLogInfoService.add(synchJobLogInfoModel);
             if (count>=1) {
                 logger.info("successfuly do a SQL query: "+SQL+",\ncurrent tableName is: "+scheduleModel.getTableName()+" \n,current page is: "+toDoPage);
@@ -119,7 +121,7 @@ public class MyScheduleRunnable implements Runnable {
             List<HashMap> queryResult = httpOperateService.doHttpQuery(scheduleModel,toDoPage);
 
             /**数据入库**/
-            dbOperateService.insertIntoTargetTable(queryResult, scheduleModel);
+            List<Integer> insertCount  = dbOperateService.insertIntoTargetTable(queryResult, scheduleModel);
 
             //记录在请求日志表中
             SynchJobLogInfoModel synchJobLogInfoModel = new SynchJobLogInfoModel();
@@ -128,6 +130,8 @@ public class MyScheduleRunnable implements Runnable {
             synchJobLogInfoModel.setCurrentPageNum(toDoPage);
             synchJobLogInfoModel.setCurrentRownum(queryResult.size());
             synchJobLogInfoModel.setConnType(scheduleModel.getConnType());
+            synchJobLogInfoModel.setSuccessCount(insertCount.get(0));
+            synchJobLogInfoModel.setFailCount(insertCount.get(1));
             int count = synchJobLogInfoService.add(synchJobLogInfoModel);
             if (count>=1) {
                 logger.info("successfuly do a Http query: "+scheduleModel.getSource()+",\nTarget tableName is: "+scheduleModel.getTableName()+" \n,Current page is: "+toDoPage);

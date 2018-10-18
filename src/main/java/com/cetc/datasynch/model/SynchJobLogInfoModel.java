@@ -15,8 +15,26 @@ public class SynchJobLogInfoModel implements Serializable{
     int currentRownum;
     int pageSize;
     int connType;
+    int successCount;
+    int failCount;
     Date createTime;
     Date updateTime;
+
+    public int getSuccessCount() {
+        return successCount;
+    }
+
+    public void setSuccessCount(int successCount) {
+        this.successCount = successCount;
+    }
+
+    public int getFailCount() {
+        return failCount;
+    }
+
+    public void setFailCount(int failCount) {
+        this.failCount = failCount;
+    }
 
     public int getCurrentPageSize() {
         return currentPageSize;

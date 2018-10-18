@@ -295,17 +295,17 @@ public class DbOperateService {
 
     /**
      * 将请求到的数据放到数据库里
-     *
-     * @param queryResult
-     * @param scheduleModel
+     * @param queryResult   前期请求到准备存放的数据
+     * @param scheduleModel 定时任务描述，用于获取关键信息
      */
-    public void insertIntoTargetTable(List<HashMap> queryResult, ScheduleModel scheduleModel) throws SQLException {
+    public List<Integer> insertIntoTargetTable(List<HashMap> queryResult, ScheduleModel scheduleModel) throws SQLException {
 
         //获取字段类型映射map
         HashMap<String, HashMap> tbStructureMap = queryTableStructure();
         //根据targetTable获取对应的字段映射表
         HashMap mapping = columnMappingService.getColumnMappingByTableName(scheduleModel.getTableName());
-
+        int successCounter = 0;
+        int failCounter = 0;
         List keyList_SQL = new ArrayList<String>();
         List valueList_SQL = new ArrayList<String>();
         //遍历结果集，并根据结果集中的key，将值通过映射表映射到数据库中
@@ -332,7 +332,19 @@ public class DbOperateService {
 
             logger.debug("sql: " + sql);
             int count = statement.executeUpdate(sql);
+            if (count>0){
+                logger.info("insert successful！");
+                successCounter++;
+            }else {
+                logger.info("insert failed！");
+                failCounter++;
+            }
         }
+
+        List<Integer> resList = new ArrayList<Integer>();
+        resList.add(successCounter);
+        resList.add(failCounter);
+        return resList;
     }
 
     /**
