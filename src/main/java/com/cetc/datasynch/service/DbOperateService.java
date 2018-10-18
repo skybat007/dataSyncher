@@ -15,6 +15,7 @@ package com.cetc.datasynch.service;
 import com.cetc.datasynch.core.util.ListUtil;
 import com.cetc.datasynch.core.util.JdbcUtil;
 import com.cetc.datasynch.model.ScheduleModel;
+import com.cetc.datasynch.tools.DbTools;
 import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.jdbc.ScriptRunner;
 import org.slf4j.Logger;
@@ -61,9 +62,19 @@ public class DbOperateService {
     private static String orcl_servicename = "orcl";
     String url_oracle = "jdbc:oracle:thin:@" + IP + ":1521/" + orcl_servicename;
 
+    /**
+     *
+     * 获取 <表名,<字段名,数据类型 > >组成的Map
+     * 输出keyList：table_name,column_name,data_type
+     * @return
+     * @throws SQLException
+     */
     private HashMap<String, HashMap> queryTableStructure() throws SQLException {
-        String SQL = "SELECT table_name,column_name,data_type " +
-                "FROM user_tab_columns ";
+        String SQL = "SELECT table_name,column_name,data_type \n" +
+                "FROM user_tab_columns \n" +
+                "WHERE table_name in(\n" +
+                "SELECT table_name from user_all_tables \n" +
+                ")";
         List<HashMap> list = oracleQuerySql(SQL);
         HashMap<String, HashMap> resMap = new HashMap<String, HashMap>();
         for (HashMap<String,String> map : list) {
@@ -98,7 +109,7 @@ public class DbOperateService {
                 LinkedHashMap hashMap = new LinkedHashMap();
                 for (int i = 1; i <= columnNumber; ++i) {
                     String colName = resultSetMetaData.getColumnName(i);
-                    String typeName = resultSetMetaData.getColumnTypeName(i);
+                    String colType = resultSetMetaData.getColumnTypeName(i);
                     String value = resultSet.getString(i);
 
                     hashMap.put(colName, value);
@@ -289,6 +300,8 @@ public class DbOperateService {
      * @param scheduleModel
      */
     public void insertIntoTargetTable(List<HashMap> queryResult, ScheduleModel scheduleModel) throws SQLException {
+
+        //获取字段类型映射map
         HashMap<String, HashMap> tbStructureMap = queryTableStructure();
         //根据targetTable获取对应的字段映射表
         HashMap mapping = columnMappingService.getColumnMappingByTableName(scheduleModel.getTableName());
@@ -315,7 +328,7 @@ public class DbOperateService {
                     ListUtil.getSQLColumnsListWithQuotes(keyList_SQL)+ ")" +
                     //todo:组装value列表
                     " VALUES (" +
-                    getTableValues(tableName,valueList_SQL,tbStructureMap) + ")";
+                    getTableValues(tableName,keyList_SQL, valueList_SQL, tbStructureMap) + ")";
 
             logger.debug("sql: " + sql);
             int count = statement.executeUpdate(sql);
@@ -323,16 +336,24 @@ public class DbOperateService {
     }
 
     /**
-     * 根据表名、字段名称、字段类型组装SQL结果
-     * @param tableName
-     * @param valueList_sql
-     * @param tbStructureMap
-     * @return
+     * 根据表名、字段名称、字段类型组装SQL插入值
+     *
+     * @param tableName 表名
+     * @param keyList_SQL 目标表的字段列表
+     * @param valueList_sql 值列表
+     * @param tbStructureMap  字段名称-字段类型 映射表
+     * @return 组装后的SQL值部分
      */
-    private String getTableValues(String tableName, List valueList_sql, HashMap<String, HashMap> tbStructureMap) {
+    private String getTableValues(String tableName, List keyList_SQL, List<String> valueList_sql, HashMap<String, HashMap> tbStructureMap) {
 
-        for ()
-
+        List<String> valueList = new ArrayList<String>();
+        for(int i=0;i<keyList_SQL.size();i++){
+            //todo:通过当前key获取对应的字段类型
+            String column_type = (String) tbStructureMap.get(tableName).get(keyList_SQL.get(i));
+            //todo:根据字段类型判断输出值的形式（加""或者to_date()）, 拼接至值列表中
+            valueList.add(DbTools.getDecoratedColumn(column_type, valueList.get(i)));
+        }
+        return ListUtil.toStringWithoutBracket(valueList);
     }
 
 
