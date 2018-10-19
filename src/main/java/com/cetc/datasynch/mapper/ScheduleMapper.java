@@ -7,7 +7,7 @@ import org.apache.ibatis.annotations.Mapper;
 import java.util.List;
 
 /**
- * Description：
+ * Description：同步任务管理DAO层定义
  * Created by luolinjie on 2018/10/10.
  */
 @Mapper

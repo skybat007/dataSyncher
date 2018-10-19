@@ -9,12 +9,12 @@ import java.sql.Date;
  */
 public class ColumnMappingModel implements Serializable {
     int id;
-    int targetTable;
+    String targetTable;
     String source;
     String sourceColumnName;
     String targetColumnName;
-    Date CreateTime;
-    Date UpdateTime;
+    Date createTime;
+    Date updateTime;
 
     public int getId() {
         return id;
@@ -24,11 +24,11 @@ public class ColumnMappingModel implements Serializable {
         this.id = id;
     }
 
-    public int getTargetTable() {
+    public String getTargetTable() {
         return targetTable;
     }
 
-    public void setTargetTable(int targetTable) {
+    public void setTargetTable(String targetTable) {
         this.targetTable = targetTable;
     }
 
@@ -57,18 +57,18 @@ public class ColumnMappingModel implements Serializable {
     }
 
     public Date getCreateTime() {
-        return CreateTime;
+        return createTime;
     }
 
     public void setCreateTime(Date createTime) {
-        CreateTime = createTime;
+        this.createTime = createTime;
     }
 
     public Date getUpdateTime() {
-        return UpdateTime;
+        return updateTime;
     }
 
     public void setUpdateTime(Date updateTime) {
-        UpdateTime = updateTime;
+        this.updateTime = updateTime;
     }
 }

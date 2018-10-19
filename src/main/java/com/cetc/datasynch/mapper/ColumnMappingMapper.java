@@ -7,13 +7,11 @@ import java.util.HashMap;
 import java.util.List;
 
 /**
+ * 字段映射管理DAO层定义
  * Created by llj on 2018/10/14.
  */
 @Mapper
-public class ColumnMappingMapper {
+public interface ColumnMappingMapper {
 
-    public List<ColumnMappingModel> getMappingByTableName(String targetTable) {
-
-        return null;
-    }
+    List<ColumnMappingModel> getMappingByTableName(String targetTable);
 }

@@ -1,36 +1,30 @@
 package com.cetc.datasynch.service;
 
-import com.cetc.datasynch.mapper.SyhchJobLogInfoMapper;
 import com.cetc.datasynch.model.SynchJobLogInfoModel;
-import org.apache.ibatis.annotations.Mapper;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 /**
- * 数据库方式同步状态记录管理
- * Created by llj on 2018/10/10.
+ * Description：数据同步日志记录服务
+ * Created by luolinjie on 2018/10/20.
  */
-@Service
-public class SynchJobLogInfoService {
-
-    @Mapper
-    SyhchJobLogInfoMapper synchJobLogInfoMapper;
-
+public interface SynchJobLogInfoService {
     /**
      * todo:根据jobID查询最近一次成功请求的分页参数
      */
-    public SynchJobLogInfoModel queryLatestInfoByJobId(int jobId) {
-        return synchJobLogInfoMapper.queryLatestInfoByJobId(jobId);
-    }
+    SynchJobLogInfoModel queryLatestInfoByJobId(int jobId);
 
-    public List<Integer> queryLatestPageParamsByJobID(int jobId) {
+    /**
+     * 查询最近一次分页参数，并以【pageNum,pageSize】返回
+     * @param jobId
+     * @return
+     */
+    List<Integer> queryLatestPageParamsByJobID(int jobId);
 
-        return null;
-    }
-
-    public int add(SynchJobLogInfoModel synchJobLogInfoModel) {
-
-        return synchJobLogInfoMapper.add(synchJobLogInfoModel);
-    }
+    /**
+     * todo:新增一条同步日志
+     * @param synchJobLogInfoModel
+     * @return
+     */
+    int add(SynchJobLogInfoModel synchJobLogInfoModel);
 }

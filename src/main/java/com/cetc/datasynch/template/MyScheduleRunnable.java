@@ -1,10 +1,8 @@
-package com.cetc.datasynch.model;
+package com.cetc.datasynch.template;
 
 import com.cetc.datasynch.middleware.SQLCreator;
-import com.cetc.datasynch.service.HttpOperateService;
-import com.cetc.datasynch.service.ScheduleService;
-import com.cetc.datasynch.service.DbOperateService;
-import com.cetc.datasynch.service.SynchJobLogInfoService;
+import com.cetc.datasynch.model.ScheduleModel;
+import com.cetc.datasynch.model.SynchJobLogInfoModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,13 +20,13 @@ public class MyScheduleRunnable implements Runnable {
 
     private Logger logger = LoggerFactory.getLogger(MyScheduleRunnable.class);
     @Autowired
-    DbOperateService dbOperateService;
+    com.cetc.datasynch.service.DbOperateService dbOperateService;
     @Autowired
-    ScheduleService scheduleService;
+    com.cetc.datasynch.service.ScheduleService scheduleService;
     @Autowired
-    SynchJobLogInfoService synchJobLogInfoService;
+    com.cetc.datasynch.service.SynchJobLogInfoService synchJobLogInfoService;
     @Autowired
-    HttpOperateService httpOperateService;
+    com.cetc.datasynch.service.HttpOperateService httpOperateService;
 
     public MyScheduleRunnable(ScheduleModel scheduleModel) {
         this.scheduleModel = scheduleModel;

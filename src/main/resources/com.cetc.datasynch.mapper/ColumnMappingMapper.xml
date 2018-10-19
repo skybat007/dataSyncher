@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cetc.datasynch.mapper.ColumnMappingMapper">
+  <resultMap id="BaseResultMap" type="com.cetc.datasynch.model.ColumnMappingModel">
+    <id column="ID" jdbcType="INTEGER" property="id" />
+    <result column="TARGET_TABLE" jdbcType="VARCHAR" property="targetTable" />
+    <result column="SOURCE" jdbcType="VARCHAR" property="source" />
+    <result column="SRC_COLUMN_NAME" jdbcType="VARCHAR" property="sourceColumnName" />
+    <result column="TARGET_COLUMN_NAME" jdbcType="VARCHAR" property="targetColumnName" />
+    <result column="CREATE_TIME" jdbcType="DATE" property="createTime" />
+    <result column="UPDATE_TIME" jdbcType="DATE" property="updateTime" />
+  </resultMap>
+
+  <sql id="Base_Table">
+    DS_COLUMN_MAPPING_INFO
+  </sql>
+  <sql id="Base_Column_List_Insert">
+    ID,TARGET_TABLE,SOURCE,SRC_COLUMN_NAME,TARGET_COLUMN_NAME,CREATE_TIME,UPDATE_TIME
+  </sql>
+  <sql id="Base_Column_List">
+    ID,TARGET_TABLE,SOURCE,SRC_COLUMN_NAME,TARGET_COLUMN_NAME,CREATE_TIME,UPDATE_TIME
+  </sql>
+
+  <insert id="add" parameterType="com.cetc.datasynch.model.ColumnMappingModel">
+    INSERT INTO <include refid="Base_Table"/>
+    (<include refid="Base_Column_List_Insert"/>)
+    VALUES
+    (#{targetTable},#{})
+  </insert>
+
+  <select id="getMappingByTableName" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    SELECT
+    <include refid="Base_Column_List" />
+    FROM <include refid="Base_Table"/>
+    WHERE ID={}
+  </select>
+
+</mapper>

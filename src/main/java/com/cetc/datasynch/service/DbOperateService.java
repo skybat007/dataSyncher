@@ -1,89 +1,17 @@
 package com.cetc.datasynch.service;
-/**********************************************************************
- * Copyright (c) 2018 CETC Company
- * 中电科新型智慧城市研究院有限公司版权所有
- * <p>
- * PROPRIETARY RIGHTS of CETC Company are involved in the
- * subject matter of this material. All manufacturing, reproduction, use,
- * and sales rights pertaining to this subject matter are governed by the
- * license agreement. The recipient of this software implicitly accepts
- * the terms of the license.
- * 本软件文档资料是中电科新型智慧城市研究院有限公司的资产，任何人士阅读和
- * 使用本资料必须获得相应的书面授权，承担保密责任和接受相应的法律约束。
- *************************************************************************/
 
-import com.cetc.datasynch.core.util.ListUtil;
-import com.cetc.datasynch.core.util.JdbcUtil;
 import com.cetc.datasynch.model.ScheduleModel;
-import com.cetc.datasynch.tools.DbTools;
-import org.apache.ibatis.io.Resources;
-import org.apache.ibatis.jdbc.ScriptRunner;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import javax.sql.DataSource;
-import java.nio.charset.Charset;
-import java.sql.*;
-import java.util.*;
+import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.List;
 
 /**
- * @Package: com.cetc.cloud.db_operate.provider.service.impl
- * @Project: db_operate
- * @Description: //TODO
- * @Creator: huangzezhou
- * @Create_Date: 2018/7/11 9:36
- * @Updater: huangzezhou
- * @Update_Date：2018/7/11 9:36
- * @Update_Description: huangzezhou 补充
- **/
-@Service("dbOperateService")
-public class DbOperateService {
-
-
-    @Autowired
-    DataSource dataSource;
-    @Autowired
-    ColumnMappingService columnMappingService;
-
-    @Value("${NAMESPACE}")
-    private String NameSpace;
-
-    private static final Logger logger = LoggerFactory.getLogger(DbOperateService.class);
-    private static Connection conn = null;
-    private static Statement statement = null;
-
-    private static String IP = "10.192.19.163";
-    private static String orcl_username = "ZHFTYJJCPT";
-    private static String orcl_password = "ToKreDi*nJ";
-    private static String orcl_servicename = "orcl";
-    String url_oracle = "jdbc:oracle:thin:@" + IP + ":1521/" + orcl_servicename;
-
-    /**
-     *
-     * 获取 <表名,<字段名,数据类型 > >组成的Map
-     * 输出keyList：table_name,column_name,data_type
-     * @return
-     * @throws SQLException
-     */
-    private HashMap<String, HashMap> queryTableStructure() throws SQLException {
-        String SQL = "SELECT table_name,column_name,data_type \n" +
-                "FROM user_tab_columns \n" +
-                "WHERE table_name in(\n" +
-                "SELECT table_name from user_all_tables \n" +
-                ")";
-        List<HashMap> list = oracleQuerySql(SQL);
-        HashMap<String, HashMap> resMap = new HashMap<String, HashMap>();
-        for (HashMap<String,String> map : list) {
-            HashMap<String,String> colName_type = new HashMap<String,String>();
-            colName_type.put(map.get("COLUMN_NAME"),map.get("DATA_TYPE"));
-            resMap.put(map.get("TABLE_NAME"),colName_type);
-        }
-        return resMap;
-    }
+ * Description：
+ * Created by luolinjie on 2018/10/19.
+ */
+public interface DbOperateService {
 
     /**
      * 通过表名，查询该表所有数据
@@ -91,282 +19,44 @@ public class DbOperateService {
      * @param tbName
      * @return
      */
-    public List<HashMap> oracleQueryTable(String tbName) throws SQLException {
-        List<HashMap> list = new ArrayList<HashMap>();
-        Connection connection = null;
-        Statement statement = null;
-        ResultSet resultSet = null;
-
-        try {
-            connection = JdbcUtil.getConnection(url_oracle, orcl_username, orcl_password);
-            statement = connection.createStatement();
-            String sql = "select * from \"" + tbName + "\"";
-            logger.debug("sql: " + sql);
-            resultSet = statement.executeQuery(sql);
-            while (resultSet.next()) {
-                ResultSetMetaData resultSetMetaData = resultSet.getMetaData();
-                int columnNumber = resultSetMetaData.getColumnCount();
-                LinkedHashMap hashMap = new LinkedHashMap();
-                for (int i = 1; i <= columnNumber; ++i) {
-                    String colName = resultSetMetaData.getColumnName(i);
-                    String colType = resultSetMetaData.getColumnTypeName(i);
-                    String value = resultSet.getString(i);
-
-                    hashMap.put(colName, value);
-                }
-                list.add(hashMap);
-            }
-        } catch (SQLException e) {
-            logger.error("database connection error!\n", e);
-        } finally {
-            close(connection, statement, resultSet);
-        }
-        return list;
-    }
+    List<HashMap> oracleQueryTable(String tbName) throws SQLException;
 
     /**
      * @Author huangzezhou
      * @Description //执行oracle sql语句
-     * @Date 2018/7/12 15:14
      * @Param [sql]
      * @Return com.cetc.cloud.framework.api.model.CetcCloudHttpResponse<java.util.List<java.util.HashMap>>
      * @Throws
      */
-    public List<HashMap> oracleQuerySql(String sql) throws SQLException {
-        List<HashMap> data = new ArrayList<HashMap>();
-        Connection connection = null;
-        Statement statement = null;
-        ResultSet rs = null;
-        try {
-            connection = JdbcUtil.getConnection(url_oracle, orcl_username, orcl_password);
-            statement = connection.createStatement();
-            rs = statement.executeQuery(sql);
-            while (rs.next()) {
-                int len = rs.getMetaData().getColumnCount();
-                LinkedHashMap row = new LinkedHashMap();
-                for (int i = 1; i <= len; ++i) {
-                    String colName = rs.getMetaData().getColumnName(i);
-                    String value = rs.getString(colName);
-                    row.put(colName, value);
-                }
-                data.add(row);
-            }
-            logger.debug("sql: " + sql);
-
-        } catch (SQLException e) {
-            logger.error("query oracle error!\nsql=" + sql, e);
-            throw e;
-        } finally {
-            close(connection, statement, rs);
-        }
-        return data;
-    }
+    List<HashMap> oracleQuerySql(String sql) throws SQLException;
 
     /**
      * @Author huangzezhou
      * @Description //执行sql
-     * @Date 2018/7/19 16:54
      * @Param [sql]
      * @Return com.cetc.cloud.framework.api.model.CetcCloudHttpResponse<java.lang.Boolean>
      * @Throws
      */
-    public Boolean oracleSql(@RequestParam("sql") String sql) throws SQLException {
-        Connection connection = null;
-        Statement statement = null;
-        try {
-            connection = JdbcUtil.getConnection(url_oracle, orcl_username, orcl_password);
-            statement = connection.createStatement();
-//            execute 方法返回一个 boolean 值，以指示第一个结果的形式。必须调用 getResultSet 或 getUpdateCount 方法来检索结果，并且必须调用 getMoreResults 移动到任何后面的结果。
-            statement.execute(sql);
-            logger.debug("sql: " + sql);
-            return true;
-        } catch (SQLException e) {
-            logger.error("query oracle error!\nsql=" + sql, e);
-            throw e;
-        } finally {
-            close(connection, statement);
-            return false;
-        }
-    }
+    Boolean oracleSql(@RequestParam("sql") String sql) throws SQLException;
 
-    public List<Integer> oracleBatchSql(@RequestParam("sql") String sql) throws SQLException {
-        Connection connection = null;
-        Statement statement = null;
-        try {
-            connection = JdbcUtil.getConnection(url_oracle, orcl_username, orcl_password);
-            statement = connection.createStatement();
-            String[] temp = sql.split("\\);");
-            for (int i = 0; i < temp.length; ++i) {
-                statement.addBatch(temp[i] + ")");
-            }
-            int[] results = statement.executeBatch();
-            ArrayList arrayList = new ArrayList();
-            for (int i = 0; i < results.length; ++i) {
-                arrayList.add(results[i]);
-            }
-            return arrayList;
-        } catch (SQLException e) {
-            logger.error("", e);
-            throw e;
-        } finally {
-            close(connection, statement);
-        }
-    }
+    List<Integer> oracleBatchSql(@RequestParam("sql") List<String> sql) throws SQLException;
 
-    public void oracleBatchSqlFile(String filePath) throws SQLException {
-        Connection connection = null;
-        Statement statement = null;
-        try {
-            conn = JdbcUtil.getConnection(url_oracle, orcl_username, orcl_password);
-            ScriptRunner runner = new ScriptRunner(conn);
-            Resources.setCharset(Charset.forName("UTF-8")); //设置字符集,不然中文乱码插入错误
-            runner.setLogWriter(null);//设置是否输出日志
-            runner.runScript(Resources.getResourceAsReader(filePath));
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            close(connection, statement);
-        }
-    }
-
-    private boolean close(Connection connection, Statement statement) throws SQLException {
-        boolean result = false;
-        boolean connectionResult = false;
-        boolean statementResult = false;
-        if (connection != null) {
-            try {
-                connection.close();
-                connectionResult = true;
-            } catch (SQLException e) {
-                logger.error("connection close error!\n", e);
-                throw e;
-            }
-        }
-        if (statement != null) {
-            try {
-                statement.close();
-                statementResult = true;
-            } catch (SQLException e) {
-                logger.error("statement close error!\n", e);
-                throw e;
-            }
-        }
-        if (connectionResult && statementResult)
-            result = true;
-        return result;
-    }
-
-    private boolean close(Connection connection, Statement statement, ResultSet resultSet) throws SQLException {
-        boolean result = false;
-        boolean connectionResult = false;
-        boolean statementResult = false;
-        boolean resultSetResult = false;
-        if (connection != null) {
-            try {
-                connection.close();
-                connectionResult = true;
-            } catch (SQLException e) {
-                logger.error("connection close error!\n", e);
-                throw e;
-            }
-        }
-        if (statement != null) {
-            try {
-                statement.close();
-                statementResult = true;
-            } catch (SQLException e) {
-                logger.error("statement close error!\n", e);
-                throw e;
-            }
-        }
-        if (resultSet != null) {
-            try {
-                resultSet.close();
-                resultSetResult = true;
-            } catch (SQLException e) {
-                logger.error("resultSet close error!\n", e);
-                throw e;
-            }
-        }
-        if (connectionResult && statementResult && resultSetResult)
-            result = true;
-        return result;
-    }
+    void oracleBatchSqlFile(String filePath) throws SQLException;
 
     /**
      * 将请求到的数据放到数据库里
+     *
      * @param queryResult   前期请求到准备存放的数据
      * @param scheduleModel 定时任务描述，用于获取关键信息
      */
-    public List<Integer> insertIntoTargetTable(List<HashMap> queryResult, ScheduleModel scheduleModel) throws SQLException {
-
-        //获取字段类型映射map
-        HashMap<String, HashMap> tbStructureMap = queryTableStructure();
-        //根据targetTable获取对应的字段映射表
-        HashMap mapping = columnMappingService.getColumnMappingByTableName(scheduleModel.getTableName());
-        int successCounter = 0;
-        int failCounter = 0;
-        List keyList_SQL = new ArrayList<String>();
-        List valueList_SQL = new ArrayList<String>();
-        //遍历结果集，并根据结果集中的key，将值通过映射表映射到数据库中
-        for (int i = 0; i < queryResult.size(); i++) {
-            HashMap valueObj = queryResult.get(i);
-            Set set = valueObj.keySet();
-            Iterator iterator = set.iterator();
-
-            while (iterator.hasNext()) {
-                String k = (String) iterator.next();//value的keyName
-                keyList_SQL.add(mapping.get(k));
-                valueList_SQL.add(valueObj.get(k));
-            }
-
-            conn = JdbcUtil.getConnection(url_oracle, orcl_username, orcl_password);
-            statement = conn.createStatement();
-            String tableName = scheduleModel.getTableName();
-            String sql = "INSERT INTO \"" + this.NameSpace + "\".\"" +  tableName+ "\"(" +
-                    //todo:组装key列表
-                    ListUtil.getSQLColumnsListWithQuotes(keyList_SQL)+ ")" +
-                    //todo:组装value列表
-                    " VALUES (" +
-                    getTableValues(tableName,keyList_SQL, valueList_SQL, tbStructureMap) + ")";
-
-            logger.debug("sql: " + sql);
-            int count = statement.executeUpdate(sql);
-            if (count>0){
-                logger.info("insert successful！");
-                successCounter++;
-            }else {
-                logger.info("insert failed！");
-                failCounter++;
-            }
-        }
-
-        List<Integer> resList = new ArrayList<Integer>();
-        resList.add(successCounter);
-        resList.add(failCounter);
-        return resList;
-    }
+    List<Integer> insertIntoTargetTable(List<HashMap> queryResult, ScheduleModel scheduleModel) throws SQLException;
 
     /**
-     * 根据表名、字段名称、字段类型组装SQL插入值
+     * 获取表结构信息
      *
-     * @param tableName 表名
-     * @param keyList_SQL 目标表的字段列表
-     * @param valueList_sql 值列表
-     * @param tbStructureMap  字段名称-字段类型 映射表
-     * @return 组装后的SQL值部分
+     * @return <表名：<字段名：字段类型>>的HashMap
+     * @throws SQLException
      */
-    private String getTableValues(String tableName, List keyList_SQL, List<String> valueList_sql, HashMap<String, HashMap> tbStructureMap) {
-
-        List<String> valueList = new ArrayList<String>();
-        for(int i=0;i<keyList_SQL.size();i++){
-            //todo:通过当前key获取对应的字段类型
-            String column_type = (String) tbStructureMap.get(tableName).get(keyList_SQL.get(i));
-            //todo:根据字段类型判断输出值的形式（加""或者to_date()）, 拼接至值列表中
-            valueList.add(DbTools.getDecoratedColumn(column_type, valueList.get(i)));
-        }
-        return ListUtil.toStringWithoutBracket(valueList);
-    }
-
+    HashMap<String, HashMap> queryTableStructure() throws SQLException;
 
 }

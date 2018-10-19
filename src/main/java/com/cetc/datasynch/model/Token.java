@@ -1,6 +1,7 @@
 package com.cetc.datasynch.model;
 
 /**
+ * 认证令牌
  * Created by llj on 2018/10/14.
  */
 public class Token {

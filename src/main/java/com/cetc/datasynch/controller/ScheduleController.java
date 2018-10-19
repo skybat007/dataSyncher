@@ -1,14 +1,11 @@
 package com.cetc.datasynch.controller;
 
+import com.cetc.datasynch.api.ScheduleRemoteService;
 import com.cetc.datasynch.common.CommonConfig;
 import com.cetc.datasynch.middleware.SQLCreator;
 import com.cetc.datasynch.model.ScheduleModel;
-import com.cetc.datasynch.model.MyScheduleRunnable;
+import com.cetc.datasynch.template.MyScheduleRunnable;
 import com.cetc.datasynch.model.Token;
-import com.cetc.datasynch.service.SynchJobLogInfoService;
-import com.cetc.datasynch.service.ScheduleService;
-import com.cetc.datasynch.service.DbOperateService;
-import com.cetc.datasynch.service.JobManageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -23,23 +20,24 @@ import java.util.List;
  * Created by luolinjie on 2018/10/9.
  */
 @RestController
-public class ScheduleController {
+public class ScheduleController implements ScheduleRemoteService {
 
     @Autowired
-    DbOperateService dbOperateService;
+    com.cetc.datasynch.service.DbOperateService dbOperateService;
 
     @Autowired
-    JobManageService jobManageService;
+    com.cetc.datasynch.service.JobManageService jobManageService;
 
     @Autowired
-    ScheduleService scheduleService;
+    com.cetc.datasynch.service.ScheduleService scheduleService;
 
     @Autowired
-    SynchJobLogInfoService dbLogInfoService;
+    com.cetc.datasynch.service.SynchJobLogInfoService dbLogInfoService;
 
     /**
      * 初始化建表SQL
      */
+    @Override
     @RequestMapping(value = "/schedule/init", produces = "application/json", method = RequestMethod.GET)
     public void initSQL() throws SQLException {
         dbOperateService.oracleBatchSqlFile("/dataSynch.sql");
@@ -48,6 +46,7 @@ public class ScheduleController {
     /**
      * 查询表同步任务List
      */
+    @Override
     @RequestMapping(value = "/schedule/job/querylist", produces = "application/json", method = RequestMethod.GET)
     public List<ScheduleModel> queryScheduleJobList() {
         List<ScheduleModel> list = scheduleService.queryScheduleJobList();
@@ -57,6 +56,7 @@ public class ScheduleController {
     /**
      * 新增一条同步任务
      */
+    @Override
     @RequestMapping(value = "/schedule/job/create", produces = "application/json", method = RequestMethod.GET)
     public HashMap createScheduleJob(int connType, String source, Token token, String jsonExtractRule, int pageSize, String tableName, String scheduleExpression) throws SQLException {
 
@@ -75,40 +75,61 @@ public class ScheduleController {
             return res;
         }
         //
-        if (connType== CommonConfig.TYPE_INTERFACE && null!=token && null!=jsonExtractRule) {
+        if (connType == CommonConfig.TYPE_INTERFACE && null != token && null != jsonExtractRule) {
             scheduleModel.setToken(token);
             scheduleModel.setJsonExtractRule(jsonExtractRule);
         }
 
-    //将创建的任务记录在schedule表中
-    int jobId = scheduleService.addScheduleInstance(scheduleModel);
+        //将创建的任务记录在schedule表中
+        int jobId = scheduleService.addScheduleInstance(scheduleModel);
 
-    if(jobId==-1)
+        if (jobId == -1)
 
-    {
-        res.put("failed", "error when creating schedule job");
+        {
+            res.put("failed", "error when creating schedule job");
+            return res;
+        }
+
+        //创建定时任务
+        MyScheduleRunnable myScheduleRunnable = new MyScheduleRunnable(scheduleModel);
+
+        //启动任务
+        int jobid = jobManageService.startJob(jobId, scheduleExpression, myScheduleRunnable);
+
+        if (jobid == jobId)
+
+        {
+            res.put("success", "create job:" + jobid + " success!");
+        }
+
+
         return res;
     }
 
-    //创建定时任务
-    MyScheduleRunnable myScheduleRunnable = new MyScheduleRunnable(scheduleModel);
+    /**
+     * 根据jobID启动任务
+     * @param jobID
+     * @return
+     */
+    @Override
+    public HashMap<String, String> startScheduleJobByJobId(int jobID, String scheduleExpression, Runnable myScheduleRunnable) {
+        HashMap res = new HashMap();
+        //启动任务
+        int jobid = jobManageService.startJob(jobID, scheduleExpression, myScheduleRunnable);
 
-    //启动任务
-    int jobid = jobManageService.startJob(jobId, scheduleExpression, myScheduleRunnable);
+        if (jobid == jobID)
+        {
+            res.put("success", "create job:" + jobid + " success!");
+        }
 
-    if(jobid==jobId)
 
-    {
-        res.put("success", "create job:" + jobid + " success!");
+        return res;
     }
-
-
-    return res;
-}
 
     /**
      * 删除一条同步任务
      */
+    @Override
     @RequestMapping(value = "/schedule/job/delete", produces = "application/json", method = RequestMethod.GET)
     public HashMap<String, String> deleteScheduleJobByJobId(int jobID) {
 
@@ -130,6 +151,7 @@ public class ScheduleController {
     /**
      * 修改一条表同步任务的更新频率--仅修改定时表达式
      */
+    @Override
     @RequestMapping(value = "/schedule/dbjob/alter", produces = "application/json", method = RequestMethod.GET)
     public HashMap<String, String> alterScheduleJob(int jobID, String cron) {
 
@@ -166,6 +188,7 @@ public class ScheduleController {
      * @param jobId
      * @return
      */
+    @Override
     public boolean restartJobByJobId(int jobId) {
         //查询tableName，通过jobID查询当前操作的tableName
         String tableName = scheduleService.queryTableNameByJobId(jobId);
