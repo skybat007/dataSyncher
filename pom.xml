@@ -4,15 +4,32 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>con.cetc.datasynch</groupId>
+    <groupId>com.cetc.datasynch</groupId>
     <artifactId>dataSyncher</artifactId>
+    <packaging>pom</packaging>
     <version>1.0-SNAPSHOT</version>
+    <modules>
+        <module>datasynch_api</module>
+        <module>datasynch_client</module>
+        <module>datasynch_provider</module>
+    </modules>
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
         <version>1.5.7.RELEASE</version>
         <relativePath/>
     </parent>
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>Dalston.RELEASE</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -28,6 +45,17 @@
             <groupId>org.mybatis.spring.boot</groupId>
             <artifactId>mybatis-spring-boot-starter</artifactId>
             <version>1.3.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-hystrix</artifactId>
+            <version>1.4.3.RELEASE</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-feign</artifactId>
+            <!--<version>RELEASE</version>-->
         </dependency>
         <dependency>
             <groupId>io.springfox</groupId>
