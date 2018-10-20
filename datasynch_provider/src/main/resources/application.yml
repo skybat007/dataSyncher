@@ -14,17 +14,17 @@ eureka:
     instance-id: ${spring.cloud.client.ipAddress}:${server.port}
     prefer-ip-address: true
 
-# 自定义Redis集群及负载实例配置
-memcatch:
-   type: CluserJedisPool
-   loadInstance: 10.0.11.225:7000,10.0.11.225:7001,10.0.11.225:7002,10.0.11.226:7000,10.0.11.226:7001,10.0.11.226:7002
-   maxToTotal: 300
-   maxIdle: 20
-   minIdle: 10
-   maxWaitMillis: 1000
-   testOnBorrow: true
-   testOnReturn: fasle
-   testWhileIdle: false
+## 自定义Redis集群及负载实例配置
+#memcatch:
+#   type: CluserJedisPool
+#   loadInstance: 10.0.11.225:7000,10.0.11.225:7001,10.0.11.225:7002,10.0.11.226:7000,10.0.11.226:7001,10.0.11.226:7002
+#   maxToTotal: 300
+#   maxIdle: 20
+#   minIdle: 10
+#   maxWaitMillis: 1000
+#   testOnBorrow: true
+#   testOnReturn: fasle
+#   testWhileIdle: false
 
 hystrix:
   command:
@@ -61,18 +61,19 @@ spring:
 #          enabled: true
 #    zuul:
 #      enabled: true
-  zipkin:
-      base-url: http://cetc.zipkin:18100/
-  sleuth:
-       sampler:
-         percentage: 1.0
+#  zipkin:
+#      base-url: http://cetc.zipkin:18100/
+#  sleuth:
+#       sampler:
+#         percentage: 1.0
 
-  input-datasource:
+  primary-datasource:
     type: com.zaxxer.hikari.HikariDataSource
-    driverClassName: com.mysql.jdbc.Driver
-    url: jdbc:mysql://10.0.11.234:3306/db_cetc_msg?tinyInt1isBit=false&useUnicode=true&characterEncoding=utf-8&autoReconnect=true&failOverReadOnly=false&zeroDateTimeBehavior=convertToNull
-    username: cetc_db_usr
-    password: cetc_db_mysql_pwd_1030
+#    driverClassName: com.mysql.jdbc.Driver
+    driverClassName: oracle.jdbc.driver.OracleDriver
+    url: jdbc:mysql://10.192.19.108:3306/ORCL?tinyInt1isBit=false&useUnicode=true&characterEncoding=utf-8&autoReconnect=true&failOverReadOnly=false&zeroDateTimeBehavior=convertToNull
+    username: ZHFT123
+    password: 123456
     hikari:
      connection-test-query: SELECT 1 FROM DUAL
      minimum-idle: 3
@@ -83,23 +84,6 @@ spring:
      prepStmtCacheSize: 250
      prepStmtCacheSqlLimit: 2048
      leakDetectionThreshold: 2000
-
-  output-datasource:
-     type: com.zaxxer.hikari.HikariDataSource
-     driverClassName: com.mysql.jdbc.Driver
-     url: jdbc:mysql://10.0.11.234:3306/db_cetc_msg?tinyInt1isBit=false&useUnicode=true&characterEncoding=utf-8&autoReconnect=true&failOverReadOnly=false&zeroDateTimeBehavior=convertToNull
-     username: cetc_db_usr
-     password: cetc_db_mysql_pwd_1030
-     hikari:
-      connection-test-query: SELECT 1 FROM DUAL
-      minimum-idle: 3
-      maximum-pool-size: 24
-      pool-name: ${spring.application.name}-Output-CP
-      idle-timeout: 10000
-      cachePrepStmts: true
-      prepStmtCacheSize: 250
-      prepStmtCacheSqlLimit: 2048
-      leakDetectionThreshold: 2000
 
   freemarker:
     allow-request-override: false
@@ -144,7 +128,7 @@ mybatis:
         map-underscore-to-camel-case: true
         default-fetch-size: 100
         default-statement-timeout: 30
-    mapperLocations: classpath*:com/cetc/cloud/msg/provider/mapper/**Mapper.xml
+    mapperLocations: classpath*:com/cetc/cloud/datasynch/provider/mapper/**Mapper.xml
 
-
+NAMESPACE: ZHFTYJJCPT
 

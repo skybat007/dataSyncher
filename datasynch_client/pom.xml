@@ -4,16 +4,16 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>dataSyncher</artifactId>
-        <groupId>com.cetc.datasynch</groupId>
+        <groupId>com.cetc.cloud.datasynch</groupId>
         <version>1.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>com.cetc.datasynch.client</artifactId>
+    <artifactId>com.cetc.cloud.datasynch.client</artifactId>
     <dependencies>
         <dependency>
-            <groupId>com.cetc.datasynch</groupId>
-            <artifactId>com.cetc.datasynch.api</artifactId>
+            <groupId>com.cetc.cloud.datasynch</groupId>
+            <artifactId>com.cetc.cloud.datasynch.api</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
     </dependencies>
