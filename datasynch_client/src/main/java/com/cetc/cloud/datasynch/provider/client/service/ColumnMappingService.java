@@ -34,12 +34,22 @@ public interface ColumnMappingService extends ColumnMappingRemoteService {
         }
 
         @Override
-        public List<ColumnMappingModel> getListInfoByTargetTableName(ColumnMappingModel model) {
+        public List<ColumnMappingModel> getListInfoByTargetTableName(String model) {
             return null;
         }
 
         @Override
-        public Map<String, String> getMapInfoByTargetTableName(ColumnMappingModel model) {
+        public List<ColumnMappingModel> getListInfoBySourceName(String sourceName) {
+            return null;
+        }
+
+        @Override
+        public List<ColumnMappingModel> getListInfoByTargetColumnName(String targetColumnName) {
+            return null;
+        }
+
+        @Override
+        public Map<String, String> getMapInfoByTargetTableName(String targetTableName) {
             return null;
         }
 
@@ -59,9 +69,8 @@ public interface ColumnMappingService extends ColumnMappingRemoteService {
         }
 
         @Override
-        public int updateById(int id, ColumnMappingModel model) {
+        public int updateById(int id, String targetTable, String source, String srcColumnName, String targetColumnName) {
             return 0;
         }
-
     }
 }
