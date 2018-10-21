@@ -18,6 +18,7 @@ import com.cetc.cloud.datasynch.provider.tools.DbTools;
 import com.cetc.cloud.datasynch.provider.core.util.JdbcUtil;
 import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.jdbc.ScriptRunner;
+import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +27,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.sql.DataSource;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.nio.charset.Charset;
 import java.sql.*;
 import java.util.*;
@@ -49,18 +54,21 @@ public class DbOperateService implements com.cetc.cloud.datasynch.provider.servi
     @Autowired
     com.cetc.cloud.datasynch.provider.service.ColumnMappingService columnMappingService;
 
-    @Value("${NAMESPACE}")
-    private String NameSpace;
+//    @Value("${NAMESPACE}")
+//    private String NameSpace;
 
     private static final Logger logger = LoggerFactory.getLogger(DbOperateService.class);
     private static Connection conn = null;
     private static Statement statement = null;
 
-    private static String IP = "10.192.19.163";
-    private static String orcl_username = "ZHFTYJJCPT";
-    private static String orcl_password = "ToKreDi*nJ";
-    private static String orcl_servicename = "orcl";
-    String url_oracle = "jdbc:oracle:thin:@" + IP + ":1521/" + orcl_servicename;
+    private static String orclUsername = "ZHFT123";
+//    private static String orclUsername = "ZHFTYJJCPT";
+
+    private static String IP = "10.192.19.108";
+    //    private static String orclPassword = "ToKreDi*nJ";
+    private static String orclPassword = "123456";
+    private static String orclServicename = "orcl";
+    private static String urlOracle = "jdbc:oracle:thin:@" + IP + ":1521/" + orclServicename;
 
     /**
      * 获取 <表名,<字段名,数据类型 > >组成的Map
@@ -94,7 +102,7 @@ public class DbOperateService implements com.cetc.cloud.datasynch.provider.servi
         ResultSet resultSet = null;
 
         try {
-            connection = JdbcUtil.getConnection(url_oracle, orcl_username, orcl_password);
+            connection = JdbcUtil.getConnection(urlOracle, orclUsername, orclPassword);
             statement = connection.createStatement();
             String sql = "select * from \"" + tbName + "\"";
             logger.debug("sql: " + sql);
@@ -127,7 +135,7 @@ public class DbOperateService implements com.cetc.cloud.datasynch.provider.servi
         Statement statement = null;
         ResultSet rs = null;
         try {
-            connection = JdbcUtil.getConnection(url_oracle, orcl_username, orcl_password);
+            connection = JdbcUtil.getConnection(urlOracle, orclUsername, orclPassword);
             statement = connection.createStatement();
             rs = statement.executeQuery(sql);
             while (rs.next()) {
@@ -156,7 +164,7 @@ public class DbOperateService implements com.cetc.cloud.datasynch.provider.servi
         Connection connection = null;
         Statement statement = null;
         try {
-            connection = JdbcUtil.getConnection(url_oracle, orcl_username, orcl_password);
+            connection = JdbcUtil.getConnection(urlOracle, orclUsername, orclPassword);
             statement = connection.createStatement();
 //            execute 方法返回一个 boolean 值，以指示第一个结果的形式。必须调用 getResultSet 或 getUpdateCount 方法来检索结果，并且必须调用 getMoreResults 移动到任何后面的结果。
             statement.execute(sql);
@@ -176,7 +184,7 @@ public class DbOperateService implements com.cetc.cloud.datasynch.provider.servi
         Connection connection = null;
         Statement statement = null;
         try {
-            connection = JdbcUtil.getConnection(url_oracle, orcl_username, orcl_password);
+            connection = JdbcUtil.getConnection(urlOracle, orclUsername, orclPassword);
             statement = connection.createStatement();
             for (int i = 0; i < sql.size(); ++i) {
                 statement.addBatch(sql.get(i));
@@ -196,20 +204,20 @@ public class DbOperateService implements com.cetc.cloud.datasynch.provider.servi
     }
 
     @Override
-    public void oracleBatchSqlFile(String filePath) throws SQLException {
+    public void oracleBatchSqlFile(String filePath) throws SQLException, IOException {
         Connection connection = null;
         Statement statement = null;
-        try {
-            conn = JdbcUtil.getConnection(url_oracle, orcl_username, orcl_password);
-            ScriptRunner runner = new ScriptRunner(conn);
-            Resources.setCharset(Charset.forName("UTF-8")); //设置字符集,不然中文乱码插入错误
-            runner.setLogWriter(null);//设置是否输出日志
-            runner.runScript(Resources.getResourceAsReader(filePath));
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            close(connection, statement);
-        }
+        conn = JdbcUtil.getConnection(urlOracle, orclUsername, orclPassword);
+        ScriptRunner runner = new ScriptRunner(conn);
+
+        runner.setDelimiter(";");//每条命令间的分隔符
+        Resources.setCharset(Charset.forName("UTF-8")); //设置字符集,不然中文乱码插入错误
+        runner.setLogWriter(null);//设置是否输出日志
+
+        Reader resourceReader = Resources.getResourceAsReader(filePath);
+        runner.runScript(resourceReader);
+//        runner.runScript(new InputStreamReader(new FileInputStream(filePath), "UTF-8"));
+        close(connection, statement);
     }
 
     private boolean close(Connection connection, Statement statement) throws SQLException {
@@ -299,14 +307,14 @@ public class DbOperateService implements com.cetc.cloud.datasynch.provider.servi
                 valueList_SQL.add(valueObj.get(k));
             }
 
-            conn = JdbcUtil.getConnection(url_oracle, orcl_username, orcl_password);
+            conn = JdbcUtil.getConnection(urlOracle, orclUsername, orclPassword);
             statement = conn.createStatement();
             String tableName = scheduleModel.getTableName();
             String tableValues = getTableValues(tableName, keyList_SQL, valueList_SQL, tbStructureMap);
             if (null == tableValues) {
                 continue;
             }
-            String sql = "INSERT INTO \"" + this.NameSpace + "\".\"" + tableName + "\"(" +
+            String sql = "INSERT INTO \"" + tableName + "\"(" +
                     //组装key列表
                     ListUtil.getSQLColumnsListWithQuotes(keyList_SQL) + ")" +
                     //组装value列表

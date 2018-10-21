@@ -1,5 +1,8 @@
 package com.cetc.cloud.datasynch.provider.core.util;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -11,21 +14,11 @@ import java.sql.Statement;
  * @author llj
  */
 public class JdbcUtil {
-    private static String url = "jdbc:mysql://localhost:3306/db_31project_alpha?tinyInt1isBit=false&useUnicode=true&characterEncoding=utf-8&autoReconnect=true&failOverReadOnly=false&zeroDateTimeBehavior=convertToNull";
+
+    private static Logger logger = LoggerFactory.getLogger(JdbcUtil.class);
+    private static String url = "jdbc:mysql://10.192.19.108:3306/db_31project_alpha?tinyInt1isBit=false&useUnicode=true&characterEncoding=utf-8&autoReconnect=true&failOverReadOnly=false&zeroDateTimeBehavior=convertToNull";
     private static String user = "root";
     private static String password = "123456";
-
-    /**
-     * 将注册驱动程序放在静态代码块中
-     */
-//    static {
-//        try {
-//            Class.forName("com.mysql.jdbc.Driver");
-//        } catch (ClassNotFoundException e) {
-//            e.printStackTrace();
-//            System.out.println("jdbc驱动程序注册失败！");
-//        }
-//    }
 
 
     public static JdbcUtil getInstance() {
@@ -52,9 +45,13 @@ public class JdbcUtil {
         try {
             if (url.contains("jdbc:oracle")) {
                 Class.forName("oracle.jdbc.driver.OracleDriver");
+                conn = DriverManager.getConnection(url, user, password);
+            }else {
+                Class.forName("mysql.jdbc.driver.MysqlDriver");
+                conn = DriverManager.getConnection(url, user, password);
             }
-            conn = DriverManager.getConnection(url, user, password);
         } catch (Exception e) {
+            logger.error("\r\nurl:"+url+"\r\n user:"+user+"\r\n password:"+password);
             e.printStackTrace();
         }
         return conn;

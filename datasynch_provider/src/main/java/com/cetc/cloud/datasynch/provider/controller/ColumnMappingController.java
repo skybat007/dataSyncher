@@ -69,7 +69,7 @@ public class ColumnMappingController implements ColumnMappingRemoteService {
             }
 
             ColumnMappingModel model = new ColumnMappingModel();
-
+            /**源，源字段名，目标字段名，目标表*/
             model.setSource(row.getCell(0).getStringCellValue());
             model.setSourceColumnName(row.getCell(1).getStringCellValue());
             model.setTargetColumnName(row.getCell(2).getStringCellValue());
@@ -78,32 +78,34 @@ public class ColumnMappingController implements ColumnMappingRemoteService {
             modelList.add(model);
         }
         int i = columnMappingService.addList(modelList);
-        if (i>0){
-            res.put("success","successfully imported file"+originalFilename);
+        if (i > 0) {
+            res.put("success", "successfully imported file" + originalFilename);
             return res.toJSONString();
-        }else {
+        } else {
             //入库
-            res.put("faild","faild imported file"+originalFilename);
+            res.put("faild", "faild imported file" + originalFilename);
             return res.toJSONString();
         }
     }
 
     @Override
-    public List<ColumnMappingModel> getListInfo(ColumnMappingModel model) {
-        List<ColumnMappingModel> modelList = null;
-        if (model.getSource() != null) {//源表名称或源URL
-            return columnMappingService.getListInfoBySource(model.getSource());
-        } else if (model.getTargetTable() != null) {//目标表
-            return columnMappingService.getListInfoByTargetTable(model.getTargetTable());
-        } else if (model.getTargetColumnName() != null) {//目标表字段名称
-            return columnMappingService.getListInfoByTargetColumnName(model.getTargetColumnName());
-        }
-        return modelList;
+    public List<ColumnMappingModel> getListInfoByTargetTableName(String targetTbName) {
+        return columnMappingService.getListInfoByTargetTableName(targetTbName);
     }
 
     @Override
-    public Map<String, String> getMapInfo(ColumnMappingModel model) {
-        return columnMappingService.getColumnMappingByTargetTableName(model.getTargetTable());
+    public List<ColumnMappingModel> getListInfoBySourceName(String sourceName) {
+        return columnMappingService.getListInfoBySource(sourceName);
+    }
+
+    @Override
+    public List<ColumnMappingModel> getListInfoByTargetColumnName(String targetColumnName) {
+        return columnMappingService.getListInfoByTargetColumnName(targetColumnName);
+    }
+
+    @Override
+    public Map<String, String> getMapInfoByTargetTableName(String targetTableName) {
+        return columnMappingService.getColumnMappingByTargetTableName(targetTableName);
     }
 
     @Override
@@ -122,7 +124,7 @@ public class ColumnMappingController implements ColumnMappingRemoteService {
     }
 
     @Override
-    public int updateById(int id, ColumnMappingModel model) {
-        return columnMappingService.updateById(id,model);
+    public int updateById(int id, String targetTable, String source, String srcColumnName, String targetColumnName) {
+        return columnMappingService.updateById(id, targetTable, source, srcColumnName, targetColumnName);
     }
 }

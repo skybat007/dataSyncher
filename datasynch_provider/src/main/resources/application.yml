@@ -40,7 +40,7 @@ hystrix:
 
 spring:
   profiles:
-    active: test
+    active: dev
   output:
     ansi:
       enabled: detect
@@ -71,20 +71,23 @@ spring:
     type: com.zaxxer.hikari.HikariDataSource
 #    driverClassName: com.mysql.jdbc.Driver
     driverClassName: oracle.jdbc.driver.OracleDriver
-    url: jdbc:mysql://10.192.19.108:3306/ORCL?tinyInt1isBit=false&useUnicode=true&characterEncoding=utf-8&autoReconnect=true&failOverReadOnly=false&zeroDateTimeBehavior=convertToNull
+    url: jdbc:oracle:thin:@10.192.19.108:1521/ORCL
     username: ZHFT123
     password: 123456
     hikari:
-     connection-test-query: SELECT 1 FROM DUAL
-     minimum-idle: 3
-     maximum-pool-size: 24
-     pool-name: ${spring.application.name}-Input-CP
-     idle-timeout: 10000
-     cachePrepStmts: true
-     prepStmtCacheSize: 250
-     prepStmtCacheSqlLimit: 2048
-     leakDetectionThreshold: 2000
-
+      connection-test-query: SELECT 1 FROM DUAL
+      minimum-idle: 3
+      maximum-pool-size: 24
+      pool-name: ${spring.application.name}-Input-CP
+      idle-timeout: 10000
+      cachePrepStmts: true
+      prepStmtCacheSize: 250
+      prepStmtCacheSqlLimit: 2048
+      leakDetectionThreshold: 2000
+      validation-interval: 5000
+      validation-query-timeout: 5000
+      max-lifetime: 5
+      test-while-idle: true
   freemarker:
     allow-request-override: false
     allow-session-override: false
@@ -128,7 +131,11 @@ mybatis:
         map-underscore-to-camel-case: true
         default-fetch-size: 100
         default-statement-timeout: 30
-    mapperLocations: classpath*:com/cetc/cloud/datasynch/provider/mapper/**Mapper.xml
-
-NAMESPACE: ZHFTYJJCPT
+    mapperLocations: classpath*:com.cetc.cloud.datasynch.provider.mapper/**Mapper.xml
+#logging:
+#  level:
+#    root: INFO
+#    org.springframework.web: INFO
+## path: D://output/Intellij/11-Gaojiaohui/logs
+#  file: logs/test.log
 

@@ -23,7 +23,7 @@ import javax.sql.DataSource;
 /**
  * @Package: com.cetc.cloud.db_operate.provider.config
  * @Project: chart_data
- * @Description:   //TODO
+ * @Description:
  * @Creator: huangzezhou
  * @Create_Date: 2018/7/12 15:35
  * @Updater: huangzezhou

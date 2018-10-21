@@ -34,7 +34,7 @@ public interface ColumnMappingService {
      * @param targetTable
      * @return
      */
-    List<ColumnMappingModel> getListInfoByTargetTable(String targetTable);
+    List<ColumnMappingModel> getListInfoByTargetTableName(String targetTable);
     /**
      * 获取列表查询信息--通过目标字段-用于模糊检索
      * @param targetColumnName
@@ -44,11 +44,9 @@ public interface ColumnMappingService {
 
     /**
      * 通过id更新该条信息
-     * @param id
-     * @param model
      * @return
      */
-    int updateById(int id, ColumnMappingModel model);
+    int updateById(int id, String targetTable,String source,String srcColumnName,String targetColumnName);
 
     /**
      * 删除目标表相关的所有映射规则

@@ -2,6 +2,7 @@ package com.cetc.cloud.datasynch.provider.mapper;
 
 import com.cetc.cloud.datasynch.api.model.ColumnMappingModel;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -12,17 +13,22 @@ import java.util.List;
 @Mapper
 public interface ColumnMappingMapper {
 
-    List<ColumnMappingModel> getMappingByTableName(String targetTable);
+    int add(ColumnMappingModel model);
 
     int addList(List<ColumnMappingModel> modelList);
 
+    List<ColumnMappingModel> getMappingByTargetTableName(String targetTbName);
+
+    List<ColumnMappingModel> getListInfoByTargetTableName(String targetTbName);
+
     List<ColumnMappingModel> getListInfoByTargetColumnName(String targetColumnName);
 
-    int updateById(int id, ColumnMappingModel model);
+    List<ColumnMappingModel> getListInfoBySource(String source);
 
-    int deleteByTargetTbName();
+    int updateById(@Param("id")int id,@Param("targetTable")String targetTable,@Param("source")String source,
+                   @Param("srcColumnName")String srcColumnName,@Param("targetColumnName")String targetColumnName);
 
-    int add(ColumnMappingModel model);
+    int deleteByTargetTbName(String targetTbName);
 
-    int delteById(int id);
+    int deleteById(int id);//删除多少条，返回数字就是多少
 }

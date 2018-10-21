@@ -2,6 +2,7 @@ package com.cetc.cloud.datasynch.provider.service.impl;
 
 import com.cetc.cloud.datasynch.api.model.ColumnMappingModel;
 import com.cetc.cloud.datasynch.provider.mapper.ColumnMappingMapper;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,12 +20,12 @@ public class ColumnMappingService implements com.cetc.cloud.datasynch.provider.s
     ColumnMappingMapper columnMappingMapper;
 
     @Override
-    public HashMap<String,String> getColumnMappingByTargetTableName(String targetTable) {
-        List<ColumnMappingModel> list = columnMappingMapper.getMappingByTableName(targetTable);
+    public HashMap<String, String> getColumnMappingByTargetTableName(String targetTable) {
+        List<ColumnMappingModel> list = columnMappingMapper.getMappingByTargetTableName(targetTable);
         if (list == null)
             return null;
 
-        HashMap<String,String> columnMap = new HashMap<String, String>();
+        HashMap<String, String> columnMap = new HashMap<String, String>();
 
         for (int i = 0; i < list.size(); i++) {
             ColumnMappingModel model = list.get(i);
@@ -35,38 +36,43 @@ public class ColumnMappingService implements com.cetc.cloud.datasynch.provider.s
     }
 
     @Override
-    public int addList(List<ColumnMappingModel> modelList) {
-        return columnMappingMapper.addList(modelList);
-    }
-    //todo:
-    @Override
-    public List<ColumnMappingModel> getListInfoBySource(String source) {
-        return getListInfoBySource(source);
-    }
-    //todo:
-    @Override
-    public List<ColumnMappingModel> getListInfoByTargetTable(String targetTable) {
-        return getListInfoByTargetTable(targetTable);
-    }
-    @Override
-    public List<ColumnMappingModel> getListInfoByTargetColumnName(String targetColumnName) {
-        return columnMappingMapper.getListInfoByTargetColumnName(targetColumnName);
-    }
-    @Override
-    public int updateById(int id, ColumnMappingModel model) {
-        return columnMappingMapper.updateById(id,model);
-    }
-    @Override
-    public int deleteByTargetTbName(String targetTbName) {
-        return columnMappingMapper.deleteByTargetTbName();
-    }
-    @Override
     public int add(ColumnMappingModel model) {
         return columnMappingMapper.add(model);
     }
 
     @Override
-    public int deleteById(int id) {
-        return columnMappingMapper.delteById(id);
+    public int addList(List<ColumnMappingModel> modelList) {
+        return columnMappingMapper.addList(modelList);
     }
+
+    @Override
+    public List<ColumnMappingModel> getListInfoBySource(String source) {
+        return columnMappingMapper.getListInfoBySource(source);
+    }
+
+    @Override
+    public List<ColumnMappingModel> getListInfoByTargetTableName(String targetTbName) {
+        return columnMappingMapper.getListInfoByTargetTableName(targetTbName);
+    }
+
+    @Override
+    public List<ColumnMappingModel> getListInfoByTargetColumnName(String targetColumnName) {
+        return columnMappingMapper.getListInfoByTargetColumnName(targetColumnName);
+    }
+
+    @Override
+    public int updateById(int id, String targetTable, String source, String srcColumnName, String targetColumnName) {
+        return columnMappingMapper.updateById(id, targetTable, source, srcColumnName, targetColumnName);
+    }
+
+    @Override
+    public int deleteById(int id) {
+        return columnMappingMapper.deleteById(id);
+    }
+
+    @Override
+    public int deleteByTargetTbName(String targetTbName) {
+        return columnMappingMapper.deleteByTargetTbName(targetTbName);
+    }
+
 }

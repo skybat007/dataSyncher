@@ -26,23 +26,30 @@ public interface ColumnMappingRemoteService {
      * @param model 包含各种查询条件，在实现中指定query的Key
      * @return 映射关系列表
      */
-    @RequestMapping(value = "/columnmapping/getListInfo", produces = "application/json", method = RequestMethod.POST)
-    List<ColumnMappingModel> getListInfo(ColumnMappingModel model);
+    @RequestMapping(value = "/columnmapping/getListInfo/byTargetTableName", produces = "application/json", method = RequestMethod.POST)
+    List<ColumnMappingModel> getListInfoByTargetTableName(String model);
+
+    @RequestMapping(value = "/columnmapping/getListInfo/bySourceName", produces = "application/json", method = RequestMethod.POST)
+    List<ColumnMappingModel> getListInfoBySourceName(String sourceName);
+
+    @RequestMapping(value = "/columnmapping/getListInfo/byTargetColumnName", produces = "application/json", method = RequestMethod.POST)
+    List<ColumnMappingModel> getListInfoByTargetColumnName(String targetColumnName);
 
     /**
      * 根据源表名称或源URL、目标表查询该表的映射关系Map
-     * @param model 根据单张表
+     * @param targetTableName 单张表Name
      * @return 映射关系Map
      */
-    @RequestMapping(value = "/columnmapping/getMapInfo", produces = "application/json", method = RequestMethod.POST)
-    Map<String,String> getMapInfo(ColumnMappingModel model);
+    @RequestMapping(value = "/columnmapping/getMap/byTargetTableName", produces = "application/json", method = RequestMethod.POST)
+    Map<String,String> getMapInfoByTargetTableName(String targetTableName);
+
 
     /**
      * 删除一条映射关系
      * @param id 该映射关系的唯一标识
      * @return 删除结果：success/fail
      */
-    @RequestMapping(value = "/columnmapping/deleteByid", produces = "application/json", method = RequestMethod.POST)
+    @RequestMapping(value = "/columnmapping/delete/byId", produces = "application/json", method = RequestMethod.POST)
     int deleteById(int id);
 
     /**
@@ -50,7 +57,7 @@ public interface ColumnMappingRemoteService {
      * @param targetTbName 目标表的名称
      * @return 删除结果：success/fail
      */
-    @RequestMapping(value = "/columnmapping/deleteByTargetTbName", produces = "application/json", method = RequestMethod.POST)
+    @RequestMapping(value = "/columnmapping/delete/byTargetTbName", produces = "application/json", method = RequestMethod.POST)
     int deleteByTargetTbName(String targetTbName);
 
     /**
@@ -63,9 +70,7 @@ public interface ColumnMappingRemoteService {
 
     /**
      * 修改一条映射关系
-     * @param model 包含该映射关系的所有重要信息
-     * @return 修改结果：success/fail
-     */
-    @RequestMapping(value = "/columnmapping/updateById", produces = "application/json", method = RequestMethod.POST)
-    int updateById(int id, ColumnMappingModel model);
+     * */
+    @RequestMapping(value = "/columnmapping/update/byId", produces = "application/json", method = RequestMethod.POST)
+    int updateById(int id, String targetTable, String source, String srcColumnName, String targetColumnName);
 }

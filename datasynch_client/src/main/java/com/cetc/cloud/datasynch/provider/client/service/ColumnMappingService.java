@@ -34,12 +34,12 @@ public interface ColumnMappingService extends ColumnMappingRemoteService {
         }
 
         @Override
-        public List<ColumnMappingModel> getListInfo(ColumnMappingModel model) {
+        public List<ColumnMappingModel> getListInfoByTargetTableName(ColumnMappingModel model) {
             return null;
         }
 
         @Override
-        public Map<String, String> getMapInfo(ColumnMappingModel model) {
+        public Map<String, String> getMapInfoByTargetTableName(ColumnMappingModel model) {
             return null;
         }
 

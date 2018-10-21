@@ -3,6 +3,7 @@ package com.cetc.cloud.datasynch.provider.service;
 import com.cetc.cloud.datasynch.api.model.ScheduleModel;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
@@ -41,7 +42,7 @@ public interface DbOperateService {
 
     List<Integer> oracleBatchSql(@RequestParam("sql") List<String> sql) throws SQLException;
 
-    void oracleBatchSqlFile(String filePath) throws SQLException;
+    void oracleBatchSqlFile(String filePath) throws SQLException, IOException;
 
     /**
      * 将请求到的数据放到数据库里

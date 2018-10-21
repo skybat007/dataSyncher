@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="datasynch.mapper.ColumnMappingMapper">
-    <resultMap id="BaseResultMap" type="datasynch.model.ColumnMappingModel">
+<mapper namespace="com.cetc.cloud.datasynch.provider.mapper.ColumnMappingMapper">
+    <resultMap id="BaseResultMap" type="com.cetc.cloud.datasynch.api.model.ColumnMappingModel">
         <id column="ID" jdbcType="INTEGER" property="id"/>
         <result column="TARGET_TABLE" jdbcType="VARCHAR" property="targetTable"/>
         <result column="SOURCE" jdbcType="VARCHAR" property="source"/>
@@ -17,32 +17,103 @@
     <sql id="Base_Table">
     DS_COLUMN_MAPPING_INFO
     </sql>
-    <sql id="Base_Column_List_Insert">
-    ID,TARGET_TABLE,SOURCE,SRC_COLUMN_NAME,TARGET_COLUMN_NAME,CREATE_TIME,UPDATE_TIME
-    </sql>
+
     <sql id="Base_Column_List">
     ID,TARGET_TABLE,SOURCE,SRC_COLUMN_NAME,TARGET_COLUMN_NAME,CREATE_TIME,UPDATE_TIME
     </sql>
 
-    <insert id="add" parameterType="datasynch.model.ColumnMappingModel">
-        -- 获取序列值，并赋值到对象的planid字段
-        <selectKey keyProperty="id" resultType="DECIMAL" order="BEFORE">
-            select <include refid="Base_Sequence"/>.nextval from dual
-        </selectKey>
+    <sql id="Base_Column_List_Insert">
+    TARGET_TABLE,SOURCE,SRC_COLUMN_NAME,TARGET_COLUMN_NAME
+    </sql>
 
+    <insert id="add" parameterType="com.cetc.cloud.datasynch.api.model.ColumnMappingModel">
         INSERT INTO
         <include refid="Base_Table"/>
         (<include refid="Base_Column_List_Insert"/>)
         VALUES
-        (#{id},#{targetTable},#{source},#{srcColumnName},#{targetColumnName})
+        (#{targetTable},#{source},#{sourceColumnName},#{targetColumnName})
+    </insert>
+    <insert id="addList" parameterType="com.cetc.cloud.datasynch.api.model.ColumnMappingModel">
+
+        INSERT INTO
+        <include refid="Base_Table"/>
+        (<include refid="Base_Column_List_Insert"/>)
+        (
+        <foreach collection="list" index="" item="singleMapping" separator="union all">
+            select
+            #{singleMapping.targetTable},
+            #{singleMapping.source},
+            #{singleMapping.sourceColumnName},
+            #{singleMapping.targetColumnName}
+            from dual
+        </foreach>
+        )
     </insert>
 
-    <select id="getMappingByTableName" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    <select id="getMappingByTargetTableName" parameterType="java.lang.String" resultMap="BaseResultMap">
+        SELECT
+        SRC_COLUMN_NAME,TARGET_COLUMN_NAME
+        FROM
+        <include refid="Base_Table"/>
+        WHERE TARGET_TABLE=#{targetTbName}
+    </select>
+
+
+    <select id="getListInfoByTargetTableName" parameterType="java.lang.String" resultMap="BaseResultMap">
         SELECT
         <include refid="Base_Column_List"/>
         FROM
         <include refid="Base_Table"/>
-        WHERE ID=#{id}
+        WHERE TARGET_TABLE=#{targetTbName}
     </select>
+
+    <select id="getListInfoByTargetColumnName" parameterType="java.lang.String" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM
+        <include refid="Base_Table"/>
+        WHERE TARGET_COLUMN_NAME=#{targetColumnName}
+    </select>
+
+    <select id="getListInfoBySource" parameterType="java.lang.String" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM
+        <include refid="Base_Table"/>
+        WHERE SOURCE=#{source}
+    </select>
+
+    <update id="updateById" parameterType="map" >
+        UPDATE
+        <include refid="Base_Table"/>
+        SET
+        <if test="targetTable != null">
+            TARGET_TABLE = #{targetTable},
+        </if>
+        <if test="source != null">
+            SOURCE = #{source},
+        </if>
+        <if test="srcColumnName != null">
+            SRC_COLUMN_NAME = #{srcColumnName},
+        </if>
+        <if test="targetColumnName != null">
+            TARGET_COLUMN_NAME = #{targetColumnName}
+        </if>
+        WHERE ID = #{id}
+    </update>
+
+    <delete id="deleteByTargetTbName" parameterType="java.lang.String">
+        DELETE FROM
+        <include refid="Base_Table"/>
+        WHERE
+        TARGET_TABLE =#{targetTbName}
+    </delete>
+
+    <delete id="deleteById" parameterType="java.lang.Integer">
+        DELETE FROM
+        <include refid="Base_Table"/>
+        WHERE
+        ID =#{id}
+    </delete>
 
 </mapper>
