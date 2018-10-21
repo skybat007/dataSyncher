@@ -24,7 +24,7 @@ public class InitialController implements InitialRemoteService {
     public String initSQL() throws SQLException {
         JSONObject res = new JSONObject();
         try {
-            dbOperateService.oracleBatchSqlFile("/dataSynch.sql");
+            dbOperateService.oracleBatchSqlFile("/initDataSynch.sql");
         }catch (Exception e){
             e.printStackTrace();
             res.put("fail","An error occured when executing batch SQL File:dataSynch.sql");
