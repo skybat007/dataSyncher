@@ -5,6 +5,7 @@ import com.cetc.cloud.datasynch.api.model.SynchJobLogInfoModel;
 import org.apache.ibatis.annotations.Mapper;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -24,8 +25,11 @@ public class SynchJobLogInfoService implements com.cetc.cloud.datasynch.provider
 
     @Override
     public List<Integer> queryLatestPageParamsByJobID(int jobId) {
-
-        return synchJobLogInfoMapper.queryLatestPageParamsByJobID(jobId);
+        SynchJobLogInfoModel synchJobLogInfoModel = synchJobLogInfoMapper.queryLatestPageParamsByJobID(jobId);
+        ArrayList<Integer> list = new ArrayList<Integer>();
+        list.add(synchJobLogInfoModel.getCurrentPageNum());
+        list.add(synchJobLogInfoModel.getCurrentPageSize());
+        return list;
     }
 
     @Override

@@ -1,7 +1,6 @@
 package com.cetc.cloud.datasynch.provider.service.impl;
 
 import com.cetc.cloud.datasynch.api.model.ScheduleModel;
-import com.cetc.cloud.datasynch.api.model.SynchJobLogInfoModel;
 import com.cetc.cloud.datasynch.provider.common.CommonInstance;
 import com.cetc.cloud.datasynch.provider.mapper.ScheduleMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,8 +22,8 @@ public class ScheduleService implements com.cetc.cloud.datasynch.provider.servic
     public int addScheduleInstance(ScheduleModel scheduleModel) {
         String source = scheduleModel.getSource();
         int pageSize = scheduleModel.getPageSize();
-        String tableName = scheduleModel.getTableName();
-        String scheduleExpression = scheduleModel.getScheduleExpression();
+        String tableName = scheduleModel.getTargetTableName();
+        String scheduleExpression = scheduleModel.getCronExpression();
         int connType = scheduleModel.getConnType();
         if (null==source || pageSize<1 || null==tableName ||null==scheduleExpression || connType<0||connType>1){
             return -1;
@@ -33,8 +32,8 @@ public class ScheduleService implements com.cetc.cloud.datasynch.provider.servic
         return jobId;
     }
     @Override
-    public int deleteScheduleByJobId(int jobID) {
-        return scheduleMapper.deleteJobByJobId(jobID);
+    public int deleteScheduleByJobId(int jobId) {
+        return scheduleMapper.deleteJobByJobId(jobId);
     }
 
     @Override
@@ -56,12 +55,7 @@ public class ScheduleService implements com.cetc.cloud.datasynch.provider.servic
     }
 
     @Override
-    public String queryTableNameByJobId(int jobId) {
-        return scheduleMapper.queryTableNameByJobId(jobId);
-    }
-
-    @Override
-    public SynchJobLogInfoModel queryModelByJobId(int jobId) {
+    public ScheduleModel queryModelByJobId(int jobId) {
         return scheduleMapper.queryModelByJobId(jobId);
     }
 

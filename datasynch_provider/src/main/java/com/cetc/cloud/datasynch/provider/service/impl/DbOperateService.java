@@ -18,18 +18,14 @@ import com.cetc.cloud.datasynch.provider.tools.DbTools;
 import com.cetc.cloud.datasynch.provider.core.util.JdbcUtil;
 import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.jdbc.ScriptRunner;
-import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.sql.DataSource;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.charset.Charset;
 import java.sql.*;
@@ -290,7 +286,7 @@ public class DbOperateService implements com.cetc.cloud.datasynch.provider.servi
         //获取字段类型映射map
         HashMap<String, HashMap> tbStructureMap = queryTableStructure();
         //根据targetTable获取对应的字段映射表
-        HashMap mapping = columnMappingService.getColumnMappingByTargetTableName(scheduleModel.getTableName());
+        HashMap mapping = columnMappingService.getColumnMappingByTargetTableName(scheduleModel.getTargetTableName());
         int successCounter = 0;
         int failCounter = 0;
         List keyList_SQL = new ArrayList<String>();
@@ -309,7 +305,7 @@ public class DbOperateService implements com.cetc.cloud.datasynch.provider.servi
 
             conn = JdbcUtil.getConnection(urlOracle, orclUsername, orclPassword);
             statement = conn.createStatement();
-            String tableName = scheduleModel.getTableName();
+            String tableName = scheduleModel.getTargetTableName();
             String tableValues = getTableValues(tableName, keyList_SQL, valueList_SQL, tbStructureMap);
             if (null == tableValues) {
                 continue;

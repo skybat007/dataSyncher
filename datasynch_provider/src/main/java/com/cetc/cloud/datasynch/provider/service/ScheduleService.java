@@ -22,7 +22,6 @@ public interface ScheduleService {
 
     int enableStatusByJobId(int jobId);
 
-    String queryTableNameByJobId(int jobId);
+    ScheduleModel queryModelByJobId(int jobId);
 
-    SynchJobLogInfoModel queryModelByJobId(int jobId);
 }

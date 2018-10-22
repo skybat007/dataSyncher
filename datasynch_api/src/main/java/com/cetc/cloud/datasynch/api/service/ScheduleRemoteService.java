@@ -2,6 +2,10 @@ package com.cetc.cloud.datasynch.api.service;
 
 import com.cetc.cloud.datasynch.api.model.ScheduleModel;
 import com.cetc.cloud.datasynch.api.model.Token;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
@@ -9,36 +13,40 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 
-
+@Api(description = "定时任务管理服务")
 public interface ScheduleRemoteService {
-    /**
-     * 查询表同步任务List
-     */
+
     @RequestMapping(value = "/schedule/job/querylist", produces = "application/json", method = RequestMethod.GET)
+    @ApiOperation(value = "queryScheduleJobList", notes = "查询表同步任务List", produces = "application/json")
     List<ScheduleModel> queryScheduleJobList();
-    /**
-     * 新增一条同步任务
-     */
+
     @RequestMapping(value = "/schedule/job/create", produces = "application/json", method = RequestMethod.POST)
-    HashMap createScheduleJob(int connType, String source, Token token, String jsonExtractRule, int pageSize, String tableName, String scheduleExpression) throws SQLException;
-    /**
-     * 根据jobID启动任务
-     */
+    @ApiOperation(value = "createScheduleJob", notes = "新增一条同步任务", produces = "application/json")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "connType", value = "连接类型(0-数据库;1-接口)", required = true, dataType = "String", paramType = "query"),
+            @ApiImplicitParam(name = "source", value = "源(表名/URL)", required = true, dataType = "String", paramType = "query"),
+            @ApiImplicitParam(name = "token", value = "认证令牌(key:value)", required = false, dataType = "String", paramType = "query"),
+            @ApiImplicitParam(name = "jsonExtractRule", value = "Json解析规则", required = false, dataType = "String", paramType = "query"),
+            @ApiImplicitParam(name = "pageSize", value = "页大小", required = true, dataType = "String", paramType = "query"),
+            @ApiImplicitParam(name = "tableName", value = "目标表名称", required = true, dataType = "String", paramType = "query"),
+            @ApiImplicitParam(name = "cronExpression", value = "cron表达式(程序默认填充)", required = true, dataType = "String", paramType = "query")
+    })
+    HashMap createScheduleJob(int connType, String source, String token, String jsonExtractRule, int pageSize, String tableName, String cronExpression) throws SQLException;
+
     @RequestMapping(value = "/schedule/job/start", produces = "application/json", method = RequestMethod.POST)
-    HashMap<String, String> startScheduleJobByJobId(int jobID, String scheduleExpression, Runnable myScheduleRunnable);
-    /**
-     * 删除一条同步任务
-     */
+    @ApiOperation(value = "startScheduleJobByJobId", notes = "根据jobID启动任务", produces = "application/json")
+    HashMap<String, String> startScheduleJobByJobId(int jobId);
+
+    @RequestMapping(value = "/schedule/job/stop", produces = "application/json", method = RequestMethod.POST)
+    @ApiOperation(value = "stopScheduleJobByJobId", notes = "根据jobID停止任务", produces = "application/json")
+    HashMap<String, String> stopScheduleJobByJobId(int jobId);
+
     @RequestMapping(value = "/schedule/job/delete", produces = "application/json", method = RequestMethod.POST)
-    HashMap<String, String> deleteScheduleJobByJobId(int jobID);
-    /**
-     * 修改一条表同步任务的更新频率--仅修改定时表达式
-     */
+    @ApiOperation(value = "deleteScheduleJobByJobId", notes = "删除一条同步任务", produces = "application/json")
+    HashMap<String, String> deleteScheduleJobByJobId(int jobId);
+
     @RequestMapping(value = "/schedule/job/alter", produces = "application/json", method = RequestMethod.POST)
-    HashMap<String, String> alterScheduleJob(int jobID, String cron);
-    /**
-     * 重新启动任务
-     */
-    @RequestMapping(value = "/schedule/job/restartJobByJobId", produces = "application/json", method = RequestMethod.POST)
-    boolean restartJobByJobId(int jobId);
+    @ApiOperation(value = "alterScheduleJobCron", notes = "修改一条表同步任务的更新频率--仅修改定时表达式", produces = "application/json")
+    HashMap<String, String> alterScheduleJobCron(int jobId, String cron);
+
 }

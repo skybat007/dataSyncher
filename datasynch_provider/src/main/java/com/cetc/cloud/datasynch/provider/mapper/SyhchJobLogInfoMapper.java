@@ -16,5 +16,5 @@ public interface SyhchJobLogInfoMapper {
 
     int add(SynchJobLogInfoModel synchJobLogInfoModel);
 
-    List<Integer> queryLatestPageParamsByJobID(int jobId);
+    SynchJobLogInfoModel queryLatestPageParamsByJobID(int jobId);
 }

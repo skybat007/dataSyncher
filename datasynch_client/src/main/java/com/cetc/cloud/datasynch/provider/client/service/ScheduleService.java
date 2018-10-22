@@ -23,7 +23,7 @@ import java.util.List;
 @FeignClient(value = "data_synch", fallback = ScheduleService.HystrixClientFallback.class)
 public interface ScheduleService extends ScheduleRemoteService {
     @Component
-    class HystrixClientFallback implements ScheduleService{
+    class HystrixClientFallback implements ScheduleService {
 
         @Override
         public List<ScheduleModel> queryScheduleJobList() {
@@ -31,28 +31,30 @@ public interface ScheduleService extends ScheduleRemoteService {
         }
 
         @Override
-        public HashMap createScheduleJob(int connType, String source, Token token, String jsonExtractRule, int pageSize, String tableName, String scheduleExpression) throws SQLException {
+        public HashMap createScheduleJob(int connType, String source, String token, String jsonExtractRule, int pageSize, String tableName, String cronExpression) throws SQLException {
             return null;
         }
 
         @Override
-        public HashMap<String, String> startScheduleJobByJobId(int jobID, String scheduleExpression, Runnable myScheduleRunnable) {
+        public HashMap<String, String> startScheduleJobByJobId(int jobId) {
             return null;
         }
 
         @Override
-        public HashMap<String, String> deleteScheduleJobByJobId(int jobID) {
+        public HashMap<String, String> stopScheduleJobByJobId(int jobId) {
+            return null;
+        }
+
+
+        @Override
+        public HashMap<String, String> deleteScheduleJobByJobId(int jobId) {
             return null;
         }
 
         @Override
-        public HashMap<String, String> alterScheduleJob(int jobID, String cron) {
+        public HashMap<String, String> alterScheduleJobCron(int jobId, String cron) {
             return null;
         }
 
-        @Override
-        public boolean restartJobByJobId(int jobId) {
-            return false;
-        }
     }
 }

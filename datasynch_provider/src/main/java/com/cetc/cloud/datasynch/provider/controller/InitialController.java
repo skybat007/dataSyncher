@@ -21,7 +21,7 @@ public class InitialController implements InitialRemoteService {
      * 初始化建表SQL
      */
     @Override
-    public String initSQL() throws SQLException {
+    public String executeDBInit() throws SQLException {
         JSONObject res = new JSONObject();
         try {
             dbOperateService.oracleBatchSqlFile("/initDataSynch.sql");

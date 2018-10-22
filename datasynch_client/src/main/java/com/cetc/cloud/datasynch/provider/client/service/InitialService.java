@@ -23,7 +23,7 @@ public interface InitialService extends InitialRemoteService {
     class HystrixClientFallback implements InitialService{
 
         @Override
-        public String initSQL() throws SQLException {
+        public String executeDBInit() throws SQLException {
             return null;
         }
     }

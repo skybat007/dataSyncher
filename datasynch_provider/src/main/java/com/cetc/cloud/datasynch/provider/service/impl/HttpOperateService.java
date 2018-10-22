@@ -24,33 +24,48 @@ public class HttpOperateService implements com.cetc.cloud.datasynch.provider.ser
         //获取URL
         String URL = model.getSource();
         List<HashMap> listData = null;
+
         //组装参数 pageNum和pageSize
         JSONObject params = new JSONObject();
         params.put(CommonInstance.PAGE_NUM_NAME, String.valueOf(pageNum));
         int pageSize = model.getPageSize();
         params.put(CommonInstance.PAGE_SIZE_NAME, String.valueOf(pageSize));
 
-        //获取token
-        Token token = model.getToken();
-
         //获取json解析规则
         String jsonExtractRule = model.getJsonExtractRule();
 
-        JSONObject httpResult = HttpUtil.doGetWithAuthoration(URL, params, token);
-        if (200==Integer.parseInt((String)httpResult.get("code"))){
-            String data = (String) httpResult.get("data");
+        //获取token
+        String tokenStr = model.getToken();
 
+        JSONObject httpResult = null;
+        if (null != tokenStr && !"".equals(tokenStr)) {
+            Token token = new Token();
+            if (tokenStr.contains(":")) {
+                String[] split = tokenStr.split(":");
+                if ("".equals(split[0]) && "".equals(split[1])) {
+                    token.setKey(split[0]);
+                    token.setValue(split[1]);
+                }
+            }
+            httpResult = HttpUtil.doGetWithAuthoration(URL, params, token);
+        } else {
+            httpResult = HttpUtil.doGet(URL,params);
+        }
+
+        //解析，并生成结果数据集
+        if (200 == Integer.parseInt((String) httpResult.get("code"))) {
+            String data = (String) httpResult.get("data");
             JSONObject jsonResultData = JSONObject.parseObject(data);
 
-            listData = getListData(jsonResultData,jsonExtractRule);
+            listData = ExtractListData(jsonResultData, jsonExtractRule);
         }
         return listData;
     }
 
     /**
-     * 根据传入json解析规则，获取JsonArray形式的Data主体
+     * 根据传入json解析规则 获取JsonArray形式的Data主体
      */
-    public List<HashMap> getListData(JSONObject jsonResultData, String jsonExtractRule) {
+    public List<HashMap> ExtractListData(JSONObject jsonResultData, String jsonExtractRule) {
         String[] splits = jsonExtractRule.split("\\.");
 
         int size = splits.length;
@@ -58,10 +73,10 @@ public class HttpOperateService implements com.cetc.cloud.datasynch.provider.ser
         JSONObject extractJson = jsonResultData;
         JSONArray arrData = null;
 
-        for (int i=0;i<size;i++){
-            if (i==size-1){
+        for (int i = 0; i < size; i++) {
+            if (i == size - 1) {
                 arrData = extractJson.getJSONArray(splits[i]);
-            }else {
+            } else {
                 extractJson = extractJson.getJSONObject(splits[i]);
             }
         }
