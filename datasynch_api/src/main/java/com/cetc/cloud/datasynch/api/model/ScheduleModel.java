@@ -11,9 +11,14 @@ public class ScheduleModel implements Serializable {
     int id;                         //job唯一主键
     int connType;                   //连接方式（0：前置机方式 1：接口方式）
     String source;                  //源（请求URL路径@token/前置机view视图的名称）
-    String dbSrcConnParam;          //（数据库请求独有参数）数据源连接参数IP;USRNAME;PASSWORD;DBURL
-    String httpParamExpression;     //（HTTP请求独有参数）入参表达式,pageSize、pageNum映射规则
-    String jsonExtractRule;         //（HTTP请求独有参数）json解析规则
+    String dbSrcIP;                 //（数据库请求独有参数）数据源连接参数IP
+    String dbSrcUsername;           //（数据库请求独有参数）数据源连接参数USRNAME
+    String dbSrcPassword;           //（数据库请求独有参数）数据源连接参数PASSWORD
+    String dbSrcConnUrl;              //（数据库请求独有参数）数据源连接参数DBURL
+    String httpParamExpression;     //（HTTP请求独有参数）入参表达式
+    String httpParamPageSize;       //（HTTP请求独有参数）pageSize映射参数名
+    String httpParamPageNum;        //（HTTP请求独有参数）pageNum映射参数名
+    String httpJsonExtractRule;     //（HTTP请求独有参数）json解析规则
     String targetTableName;         //入库表名
     int pageSize;                   //页大小
     String cronExpression;          //定时表达式
@@ -21,80 +26,12 @@ public class ScheduleModel implements Serializable {
     Date createTime;                //创建时间
     Date updateTime;                //更新时间
 
-
-    public String getIp(){
-        return dbSrcConnParam.split(";")[0];
-    }
-    public String getSrcUsername(){
-        return dbSrcConnParam.split(";")[1];
-    }
-    public String getSrcPassword(){
-        return dbSrcConnParam.split(";")[2];
-    }
-    public String getSrcDbUrl(){
-        return dbSrcConnParam.split(";")[3];
-    }
-    public String getHttpParams(){
-        return httpParamExpression.split(";")[0];
-    }
-    public String getHttpPageMappingRule(){
-        return httpParamExpression.split(";")[1];
-    }
-
     public int getId() {
         return id;
     }
 
     public void setId(int id) {
         this.id = id;
-    }
-
-    public String getDbSrcConnParam() {
-        return dbSrcConnParam;
-    }
-
-    public void setDbSrcConnParam(String dbSrcConnParam) {
-        this.dbSrcConnParam = dbSrcConnParam;
-    }
-
-    public String getHttpParamExpression() {
-        return httpParamExpression;
-    }
-
-    public void setHttpParamExpression(String httpParamExpression) {
-        this.httpParamExpression = httpParamExpression;
-    }
-
-    public String getJsonExtractRule() {
-        return jsonExtractRule;
-    }
-
-    public void setJsonExtractRule(String jsonExtractRule) {
-        this.jsonExtractRule = jsonExtractRule;
-    }
-
-    public String getSource() {
-        return source;
-    }
-
-    public void setSource(String source) {
-        this.source = source;
-    }
-
-    public String getTargetTableName() {
-        return targetTableName;
-    }
-
-    public void setTargetTableName(String targetTableName) {
-        this.targetTableName = targetTableName;
-    }
-
-    public String getCronExpression() {
-        return cronExpression;
-    }
-
-    public void setCronExpression(String cronExpression) {
-        this.cronExpression = cronExpression;
     }
 
     public int getConnType() {
@@ -105,12 +42,100 @@ public class ScheduleModel implements Serializable {
         this.connType = connType;
     }
 
+    public String getSource() {
+        return source;
+    }
+
+    public void setSource(String source) {
+        this.source = source;
+    }
+
+    public String getDbSrcIP() {
+        return dbSrcIP;
+    }
+
+    public void setDbSrcIP(String dbSrcIP) {
+        this.dbSrcIP = dbSrcIP;
+    }
+
+    public String getDbSrcUsername() {
+        return dbSrcUsername;
+    }
+
+    public void setDbSrcUsername(String dbSrcUsername) {
+        this.dbSrcUsername = dbSrcUsername;
+    }
+
+    public String getDbSrcPassword() {
+        return dbSrcPassword;
+    }
+
+    public void setDbSrcPassword(String dbSrcPassword) {
+        this.dbSrcPassword = dbSrcPassword;
+    }
+
+    public String getDbSrcConnUrl() {
+        return dbSrcConnUrl;
+    }
+
+    public void setDbSrcConnUrl(String dbSrcConnUrl) {
+        this.dbSrcConnUrl = dbSrcConnUrl;
+    }
+
+    public String getHttpParamExpression() {
+        return httpParamExpression;
+    }
+
+    public void setHttpParamExpression(String httpParamExpression) {
+        this.httpParamExpression = httpParamExpression;
+    }
+
+    public String getHttpParamPageSize() {
+        return httpParamPageSize;
+    }
+
+    public void setHttpParamPageSize(String httpParamPageSize) {
+        this.httpParamPageSize = httpParamPageSize;
+    }
+
+    public String getHttpParamPageNum() {
+        return httpParamPageNum;
+    }
+
+    public void setHttpParamPageNum(String httpParamPageNum) {
+        this.httpParamPageNum = httpParamPageNum;
+    }
+
+    public String getHttpJsonExtractRule() {
+        return httpJsonExtractRule;
+    }
+
+    public void setHttpJsonExtractRule(String httpJsonExtractRule) {
+        this.httpJsonExtractRule = httpJsonExtractRule;
+    }
+
+    public String getTargetTableName() {
+        return targetTableName;
+    }
+
+    public void setTargetTableName(String targetTableName) {
+        this.targetTableName = targetTableName;
+    }
+
     public int getPageSize() {
         return pageSize;
     }
 
     public void setPageSize(int pageSize) {
         this.pageSize = pageSize;
+    }
+
+    public String getCronExpression() {
+        return cronExpression;
+    }
+
+    public void setCronExpression(String cronExpression) {
+        this.cronExpression = cronExpression;
     }
 
     public int getIsEnabled() {
@@ -136,6 +161,4 @@ public class ScheduleModel implements Serializable {
     public void setUpdateTime(Date updateTime) {
         this.updateTime = updateTime;
     }
-
-
 }
