@@ -2,6 +2,8 @@ package com.cetc.cloud.datasynch.api.service;
 
 import com.cetc.cloud.datasynch.api.model.ColumnMappingModel;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -37,7 +39,7 @@ public interface ColumnMappingRemoteService {
     Map<String,String> getMapInfoByTargetTableName(String targetTableName);
 
     @RequestMapping(value = "/columnmapping/delete/byId", produces = "application/json", method = RequestMethod.POST)
-    @ApiOperation(value = "deleteById", notes = "删除一条映射关系-通过id", produces = "application/json")
+    @ApiOperation(value = "deleteById", notes = "删除一条映射关系", produces = "application/json")
     int deleteById(int id);
 
     @RequestMapping(value = "/columnmapping/delete/byTargetTbName", produces = "application/json", method = RequestMethod.POST)
@@ -46,7 +48,13 @@ public interface ColumnMappingRemoteService {
 
     @RequestMapping(value = "/columnmapping/add", produces = "application/json", method = RequestMethod.POST)
     @ApiOperation(value = "deleteByTargetTbName", notes = "增加一条映射关系", produces = "application/json")
-    int add(ColumnMappingModel model);
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "targetTable", value = "连接类型(0-数据库;1-接口)", required = true, dataType = "int", paramType = "query"),
+            @ApiImplicitParam(name = "source", value = "源(表名/URL)", required = true, dataType = "String", paramType = "query"),
+            @ApiImplicitParam(name = "sourceColumnName", value = "源字段名", required = false, dataType = "String", paramType = "query"),
+            @ApiImplicitParam(name = "targetColumnName", value = "目标字段名", required = false, dataType = "String", paramType = "query"),
+    })
+    int add(String targetTable, String source, String sourceColumnName, String targetColumnName);
 
     @RequestMapping(value = "/columnmapping/update/byId", produces = "application/json", method = RequestMethod.POST)
     @ApiOperation(value = "deleteByTargetTbName", notes = "修改一条映射关系-通过id", produces = "application/json")

@@ -8,23 +8,24 @@ import java.util.Date;
  * Created by llj on 2018/10/8.
  */
 public class ScheduleModel implements Serializable {
-    int id;                         //job唯一主键
-    int connType;                   //连接方式（0：前置机方式 1：接口方式）
-    String source;                  //源（请求URL路径@token/前置机view视图的名称）
-    String dbSrcIP;                 //（数据库请求独有参数）数据源连接参数IP
-    String dbSrcUsername;           //（数据库请求独有参数）数据源连接参数USRNAME
-    String dbSrcPassword;           //（数据库请求独有参数）数据源连接参数PASSWORD
-    String dbSrcConnUrl;              //（数据库请求独有参数）数据源连接参数DBURL
-    String httpParamExpression;     //（HTTP请求独有参数）入参表达式
-    String httpParamPageSize;       //（HTTP请求独有参数）pageSize映射参数名
-    String httpParamPageNum;        //（HTTP请求独有参数）pageNum映射参数名
-    String httpJsonExtractRule;     //（HTTP请求独有参数）json解析规则
-    String targetTableName;         //入库表名
-    int pageSize;                   //页大小
-    String cronExpression;          //定时表达式
-    int isEnabled;                  //是否开启（0：关闭 1：开启）
-    Date createTime;                //创建时间
-    Date updateTime;                //更新时间
+    private int id;                         //job唯一主键
+    private int connType;                   //连接方式（0：前置机方式 1：接口方式）
+    private String source;                  //源（请求URL路径@token/前置机view视图的名称）
+    private String dbSrcIP;                 //（数据库请求独有参数）数据源连接参数IP
+    private String dbSrcUsername;           //（数据库请求独有参数）数据源连接参数USRNAME
+    private String dbSrcPassword;           //（数据库请求独有参数）数据源连接参数PASSWORD
+    private String dbSrcConnUrl;            //（数据库请求独有参数）数据源连接参数DBURL
+    private String httpParamExpression;     //（HTTP请求独有参数）入参表达式
+    private String httpToken;               //（HTTP请求独有参数）token表达式
+    private String httpParamPageSize;       //（HTTP请求独有参数）pageSize映射参数名
+    private String httpParamPageNum;        //（HTTP请求独有参数）pageNum映射参数名
+    private String httpJsonExtractRule;     //（HTTP请求独有参数）json解析规则
+    private String targetTableName;         //入库表名
+    private int pageSize;                   //页大小
+    private String cronExpression;          //定时表达式
+    private int isEnabled;                  //是否开启（0：关闭 1：开启）
+    private Date createTime;                //创建时间
+    private Date updateTime;                //更新时间
 
     public int getId() {
         return id;
@@ -88,6 +89,14 @@ public class ScheduleModel implements Serializable {
 
     public void setHttpParamExpression(String httpParamExpression) {
         this.httpParamExpression = httpParamExpression;
+    }
+
+    public String getHttpToken() {
+        return httpToken;
+    }
+
+    public void setHttpToken(String httpToken) {
+        this.httpToken = httpToken;
     }
 
     public String getHttpParamPageSize() {

@@ -8,13 +8,13 @@ import java.sql.Date;
  * Created by llj on 2018/10/14.
  */
 public class ColumnMappingModel implements Serializable {
-    int id;
-    String targetTable;
-    String source;
-    String sourceColumnName;
-    String targetColumnName;
-    Date createTime;
-    Date updateTime;
+    private int id;
+    private String targetTable;
+    private String source;
+    private String sourceColumnName;
+    private String targetColumnName;
+    private Date createTime;
+    private Date updateTime;
 
     public int getId() {
         return id;

@@ -64,7 +64,7 @@ public interface ColumnMappingService extends ColumnMappingRemoteService {
         }
 
         @Override
-        public int add(ColumnMappingModel model) {
+        public int add(String targetTable, String source, String sourceColumnName, String targetColumnName) {
             return -1;
         }
 

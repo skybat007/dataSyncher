@@ -23,16 +23,22 @@
     </sql>
 
     <sql id="Base_Column_List_Insert">
-    TARGET_TABLE,SOURCE,SRC_COLUMN_NAME,TARGET_COLUMN_NAME
+    ID,TARGET_TABLE,SOURCE,SRC_COLUMN_NAME,TARGET_COLUMN_NAME
     </sql>
 
-    <insert id="add" parameterType="com.cetc.cloud.datasynch.api.model.ColumnMappingModel">
+    <insert id="add" keyProperty="id" useGeneratedKeys="true" parameterType="com.cetc.cloud.datasynch.api.model.ColumnMappingModel">
+        <selectKey keyProperty="id" resultType="int" order="BEFORE">
+            select SEQ_DS_COLUMN_MAPPING_INFO.NEXTVAL from dual
+        </selectKey>
+
         INSERT INTO
         <include refid="Base_Table"/>
         (<include refid="Base_Column_List_Insert"/>)
         VALUES
-        (#{targetTable},#{source},#{sourceColumnName},#{targetColumnName})
+        (#{id},#{targetTable},#{source},#{sourceColumnName},#{targetColumnName})
     </insert>
+
+
     <insert id="addList" parameterType="com.cetc.cloud.datasynch.api.model.ColumnMappingModel">
 
         INSERT INTO

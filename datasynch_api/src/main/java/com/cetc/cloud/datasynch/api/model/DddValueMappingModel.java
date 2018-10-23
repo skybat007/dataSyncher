@@ -7,10 +7,10 @@ import java.io.Serializable;
  * Created by llj on 2018/10/8.
  */
 public class DddValueMappingModel implements Serializable {
-    String tableName;
-    String columnname;
-    String columnCodeValue;
-    String codeMeaning;
+    private String tableName;
+    private String columnname;
+    private String columnCodeValue;
+    private String codeMeaning;
 
     public String getTableName() {
         return tableName;

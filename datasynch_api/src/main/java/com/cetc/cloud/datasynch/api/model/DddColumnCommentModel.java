@@ -7,9 +7,9 @@ import java.io.Serializable;
  * Created by llj on 2018/10/8.
  */
 public class DddColumnCommentModel implements Serializable{
-    String tableName;
-    String columnName;
-    String columnComment;
+    private String tableName;
+    private String columnName;
+    private String columnComment;
 
     public String getTableName() {
         return tableName;

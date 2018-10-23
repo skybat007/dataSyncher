@@ -4,6 +4,7 @@ import com.cetc.cloud.datasynch.api.model.ColumnMappingModel;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 /**

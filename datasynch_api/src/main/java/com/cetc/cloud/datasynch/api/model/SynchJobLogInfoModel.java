@@ -8,17 +8,19 @@ import java.util.Date;
  * Created by llj on 2018/10/8.
  */
 public class SynchJobLogInfoModel implements Serializable{
-    int id;
-    int jobId;
-    int currentPageNum;
-    int currentPageSize;
-    int currentRownum;
-    int pageSize;
-    int connType;
-    int successCount;
-    int failCount;
-    Date createTime;
-    Date updateTime;
+
+    private int id;
+    private int jobId;
+    private int currentPageNum;
+    private int currentPageSize;
+    private int currentRownum;
+    private int connType;
+    private int successCount;
+    private int failCount;
+    private int totalSuccessCount;
+    private int totalFailCount;
+    private Date createTime;
+    private Date updateTime;
 
     public int getSuccessCount() {
         return successCount;
@@ -60,14 +62,6 @@ public class SynchJobLogInfoModel implements Serializable{
         this.jobId = jobId;
     }
 
-    public int getPageSize() {
-        return pageSize;
-    }
-
-    public void setPageSize(int pageSize) {
-        this.pageSize = pageSize;
-    }
-
     public int getCurrentPageNum() {
         return currentPageNum;
     }
@@ -90,6 +84,22 @@ public class SynchJobLogInfoModel implements Serializable{
 
     public void setConnType(int connType) {
         this.connType = connType;
+    }
+
+    public int getTotalSuccessCount() {
+        return totalSuccessCount;
+    }
+
+    public void setTotalSuccessCount(int totalSuccessCount) {
+        this.totalSuccessCount = totalSuccessCount;
+    }
+
+    public int getTotalFailCount() {
+        return totalFailCount;
+    }
+
+    public void setTotalFailCount(int totalFailCount) {
+        this.totalFailCount = totalFailCount;
     }
 
     public Date getCreateTime() {

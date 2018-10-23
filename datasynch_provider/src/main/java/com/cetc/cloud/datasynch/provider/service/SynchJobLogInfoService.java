@@ -19,7 +19,7 @@ public interface SynchJobLogInfoService {
      * @param jobId
      * @return
      */
-    List<Integer> queryLatestPageParamsByJobID(int jobId);
+    List<Integer> queryLatestPageParamsByJobId(int jobId);
 
     /**
      * 新增一条同步日志

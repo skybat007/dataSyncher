@@ -3,17 +3,18 @@
 <mapper namespace="com.cetc.cloud.datasynch.provider.mapper.ScheduleMapper">
     <resultMap id="BaseResultMap" type="com.cetc.cloud.datasynch.api.model.ScheduleModel">
         <result column="ID" jdbcType="INTEGER" property="id"/>
-        <result column="CONN_TYPE" jdbcType="VARCHAR" property="connType"/>
+        <result column="CONN_TYPE" jdbcType="INTEGER" property="connType"/>
         <result column="SOURCE" jdbcType="VARCHAR" property="source"/>
         <result column="DB_SRC_IP" jdbcType="VARCHAR" property="dbSrcIP"/>
         <result column="DB_SRC_USERNAME" jdbcType="VARCHAR" property="dbSrcUsername"/>
         <result column="DB_SRC_PASSWORD" jdbcType="VARCHAR" property="dbSrcPassword"/>
         <result column="DB_SRC_CONN_URL" jdbcType="INTEGER" property="dbSrcConnUrl"/>
-        <result column="HTTP_PARAM_EXPRESSION" jdbcType="INTEGER" property="httpParamExpression"/>
-        <result column="HTTP_PARAM_PAGESIZE" jdbcType="INTEGER" property="httpParamPageSize"/>
-        <result column="HTTP_PARAM_PAGENUM" jdbcType="INTEGER" property="httpParamPageNum"/>
-        <result column="HTTP_JSON_EXTRACTRULE" jdbcType="INTEGER" property="httpJsonExtractRule"/>
-        <result column="TARGET_TABLENAME" jdbcType="INTEGER" property="targetTableName"/>
+        <result column="HTTP_PARAM_EXPRESSION" jdbcType="VARCHAR" property="httpParamExpression"/>
+        <result column="HTTP_TOKEN" jdbcType="VARCHAR" property="httpToken"/>
+        <result column="HTTP_PARAM_PAGESIZE" jdbcType="VARCHAR" property="httpParamPageSize"/>
+        <result column="HTTP_PARAM_PAGENUM" jdbcType="VARCHAR" property="httpParamPageNum"/>
+        <result column="HTTP_JSON_EXTRACTRULE" jdbcType="VARCHAR" property="httpJsonExtractRule"/>
+        <result column="TARGET_TABLE_NAME" jdbcType="VARCHAR" property="targetTableName"/>
         <result column="PAGE_SIZE" jdbcType="INTEGER" property="pageSize"/>
         <result column="CRON_EXPRESSION" jdbcType="VARCHAR" property="cronExpression"/>
         <result column="IS_ENABLED" jdbcType="INTEGER" property="isEnabled"/>
@@ -26,12 +27,44 @@
     </sql>
 
     <sql id="BaseColumns">
-        ID,CONN_TYPE,SOURCE,TOKEN,JSON_EXTRACT_RULE,TB_NAME,PAGE_SIZE,CRON_EXPRESSION,IS_ENABLED,CREATE_TIME,UPDATE_TIME
+        ID,CONN_TYPE,SOURCE,DB_SRC_IP,DB_SRC_USERNAME,DB_SRC_PASSWORD,DB_SRC_CONN_URL,HTTP_PARAM_EXPRESSION,HTTP_TOKEN
+        HTTP_PARAM_PAGESIZE,HTTP_PARAM_PAGENUM,HTTP_JSON_EXTRACTRULE,TARGET_TABLE_NAME,PAGE_SIZE,CRON_EXPRESSION,
+        IS_ENABLED,CREATE_TIME,UPDATE_TIME
     </sql>
     <sql id="BaseColumns_Insert">
-        CONN_TYPE,SOURCE,DB_SRC_IP,DB_SRC_USERNAME,DB_SRC_PASSWORD,DB_SRC_CONN_URL,HTTP_PARAM_EXPRESSION,HTTP_PARAM_PAGESIZE,HTTP_PARAM_PAGENUM,HTTP_JSON_EXTRACTRULE,TARGET_TABLENAME,PAGE_SIZE,CRON_EXPRESSION,IS_ENABLED
+        ID,CONN_TYPE,SOURCE,DB_SRC_IP,DB_SRC_USERNAME,DB_SRC_PASSWORD,DB_SRC_CONN_URL,HTTP_PARAM_EXPRESSION,HTTP_TOKEN,
+        HTTP_PARAM_PAGESIZE,HTTP_PARAM_PAGENUM,HTTP_JSON_EXTRACTRULE,TARGET_TABLE_NAME,PAGE_SIZE,CRON_EXPRESSION,
+        IS_ENABLED
     </sql>
 
+    <!--int addScheduleInstance(ScheduleModel scheduleModel);-->
+
+    <insert id="addScheduleInstance"  useGeneratedKeys="true" keyProperty="id" parameterType="com.cetc.cloud.datasynch.api.model.ScheduleModel">
+        <selectKey keyProperty="id" resultType="int" order="BEFORE">
+            select SEQ_DS_SCHEDULE_JOB_INFO.NEXTVAL from dual
+        </selectKey>
+
+        INSERT INTO <include refid="BaseTable"/>
+        (<include refid="BaseColumns_Insert"/> )
+        VALUES (
+          #{id,jdbcType=INTEGER},
+          #{connType,jdbcType=INTEGER},
+          #{source,jdbcType=VARCHAR},
+          #{dbSrcIP,jdbcType=VARCHAR},
+          #{dbSrcUsername,jdbcType=VARCHAR},
+          #{dbSrcPassword,jdbcType=VARCHAR},
+          #{dbSrcConnUrl,jdbcType=VARCHAR},
+          #{httpParamExpression,jdbcType=VARCHAR},
+          #{httpToken,jdbcType=VARCHAR},
+          #{httpParamPageSize,jdbcType=VARCHAR},
+          #{httpParamPageNum,jdbcType=VARCHAR},
+          #{httpJsonExtractRule,jdbcType=VARCHAR},
+          #{targetTableName,jdbcType=VARCHAR},
+          #{pageSize,jdbcType=INTEGER},
+          #{cronExpression,jdbcType=VARCHAR},
+          #{isEnabled,jdbcType=INTEGER}
+        )
+    </insert>
     <select id="queryScheduleJobList" resultMap="BaseResultMap" parameterType="java.lang.Long">
         SELECT
         <include refid="BaseColumns"/>

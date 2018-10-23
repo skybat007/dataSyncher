@@ -24,7 +24,7 @@ public class SynchJobLogInfoService implements com.cetc.cloud.datasynch.provider
     }
 
     @Override
-    public List<Integer> queryLatestPageParamsByJobID(int jobId) {
+    public List<Integer> queryLatestPageParamsByJobId(int jobId) {
         SynchJobLogInfoModel synchJobLogInfoModel = synchJobLogInfoMapper.queryLatestPageParamsByJobID(jobId);
         ArrayList<Integer> list = new ArrayList<Integer>();
         list.add(synchJobLogInfoModel.getCurrentPageNum());

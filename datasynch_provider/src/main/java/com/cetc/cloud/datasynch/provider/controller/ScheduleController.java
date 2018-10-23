@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.RestController;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.Future;
 
 /**
  * Description：数据库（前置机）定时任务管理
@@ -42,28 +44,48 @@ public class ScheduleController implements ScheduleRemoteService {
 
 
     @Override
-    public HashMap createScheduleJob(int connType, String source, String token, String jsonExtractRule, int pageSize, String tableName, String cronExpression) throws SQLException {
-
+    public HashMap createScheduleJob(int connType, String source,
+                                     String dbSrcIP, String dbSrcUsername, String dbSrcPassword, String dbSrcConnUrl,
+                                     String httpParamExpression, String httpToken, String httpParamPageSize,
+                                     String httpParamPageNum, String httpJsonExtractRule,
+                                     String targetTableName, String pageSize, String cronExpression) throws SQLException {
         HashMap res = new HashMap();
+
+        //参数完整性校验
+        if (null == source || null == targetTableName || null == cronExpression || null == pageSize) {
+            res.put("result", "fail");
+            res.put("msg", "param error! source,targetTableName,cronExpression cannot be null!");
+            return res;
+        }
+        if (connType == CommonInstance.TYPE_INTERFACE) {
+            if (null == dbSrcIP || null == dbSrcUsername || null == dbSrcPassword || null == dbSrcConnUrl) {
+                res.put("result", "fail");
+                res.put("msg", "param error! dbSrcIP,dbSrcUsername,dbSrcPassword,dbSrcConnUrl cannot be null!");
+                return res;
+            }
+        } else if (connType == CommonInstance.TYPE_INTERFACE) {
+            if (null == httpParamExpression || null == httpToken || null == httpParamPageSize || null == httpParamPageNum || null == httpJsonExtractRule) {
+                res.put("result", "fail");
+                res.put("msg", "param error! httpParamExpression,httpParamPageSize,httpParamPageNum,httpJsonExtractRule cannot be null!");
+                return res;
+            }
+        }
 
         ScheduleModel scheduleModel = new ScheduleModel();
         scheduleModel.setConnType(connType);
         scheduleModel.setSource(source);
-        scheduleModel.setPageSize(pageSize);
-        scheduleModel.setTargetTableName(tableName);
+        scheduleModel.setDbSrcIP(dbSrcIP);
+        scheduleModel.setDbSrcUsername(dbSrcUsername);
+        scheduleModel.setDbSrcPassword(dbSrcPassword);
+        scheduleModel.setDbSrcConnUrl(dbSrcConnUrl);
+        scheduleModel.setHttpParamExpression(httpParamExpression);
+        scheduleModel.setHttpToken(httpToken);
+        scheduleModel.setHttpParamPageSize(httpParamPageSize);
+        scheduleModel.setHttpParamPageNum(httpParamPageNum);
+        scheduleModel.setHttpJsonExtractRule(httpJsonExtractRule);
+        scheduleModel.setTargetTableName(targetTableName);
+        scheduleModel.setPageSize(Integer.parseInt(pageSize));
         scheduleModel.setCronExpression(cronExpression);
-
-        //参数完整性判断
-        if (null == source || null == tableName || null == cronExpression) {
-            res.put("result", "fail");
-            res.put("msg", "param error! please check your params!");
-            return res;
-        }
-        //接口类型任务，需要额外添加token属性和json解析规则
-        if (connType == CommonInstance.TYPE_INTERFACE && null != token && null != jsonExtractRule) {
-            scheduleModel.setToken(token);
-            scheduleModel.setJsonExtractRule(jsonExtractRule);
-        }
 
         //将创建的任务记录在数据库schedule表中
         int jobId = scheduleService.addScheduleInstance(scheduleModel);
@@ -87,7 +109,10 @@ public class ScheduleController implements ScheduleRemoteService {
         //启动任务
         int jobid = jobManageService.startJob(jobId, scheduleModel);
 
-        if (jobid == jobId) {
+        //修改状态
+        int i = scheduleService.enableStatusByJobId(jobId);
+
+        if (jobid == jobId && i > 0) {
             res.put("result", "success");
             res.put("msg", "create job:" + jobid + " success!");
         }
@@ -103,10 +128,10 @@ public class ScheduleController implements ScheduleRemoteService {
         if (s) {
             //更新当前任务状态
             int updateRes = scheduleService.disableStatusByJobId(jobId);
-            if (updateRes>0) {
+            if (updateRes > 0) {
                 res.put("result", "success");
                 res.put("msg", "stopping job:" + jobId + " success!");
-            }else {
+            } else {
                 res.put("result", "fail");
                 res.put("msg", "disableStatusByJobId job:" + jobId + " failed!");
             }
@@ -169,5 +194,8 @@ public class ScheduleController implements ScheduleRemoteService {
         }
     }
 
-
+    @Override
+    public Map<String, Future> getRunningFutures(){
+        return jobManageService.getRunningFutures();
+    }
 }

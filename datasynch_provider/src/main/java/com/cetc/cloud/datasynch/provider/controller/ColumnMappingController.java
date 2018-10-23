@@ -119,8 +119,13 @@ public class ColumnMappingController implements ColumnMappingRemoteService {
     }
 
     @Override
-    public int add(ColumnMappingModel model) {
-        return columnMappingService.add(model);
+    public int add(String targetTable,String source,String sourceColumnName,String targetColumnName) {
+        ColumnMappingModel columnMappingModel = new ColumnMappingModel();
+        columnMappingModel.setTargetTable(targetTable);
+        columnMappingModel.setSource(source);
+        columnMappingModel.setSourceColumnName(sourceColumnName);
+        columnMappingModel.setTargetColumnName(targetColumnName);
+        return columnMappingService.add(columnMappingModel);
     }
 
     @Override

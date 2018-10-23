@@ -29,7 +29,11 @@ public class ScheduleService implements com.cetc.cloud.datasynch.provider.servic
             return -1;
         }
         int jobId = scheduleMapper.addScheduleInstance(scheduleModel);
-        return jobId;
+        if (jobId>0) {
+            return scheduleModel.getId();
+        }else {
+            return -1;
+        }
     }
     @Override
     public int deleteScheduleByJobId(int jobId) {

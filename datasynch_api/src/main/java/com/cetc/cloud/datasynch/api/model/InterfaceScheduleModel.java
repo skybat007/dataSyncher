@@ -8,13 +8,13 @@ import java.io.Serializable;
  */
 public class InterfaceScheduleModel implements Serializable {
 
-    String jobId;
-    String tableName;
-    String interfaceUrl;
-    String scheduleExpression;
-    String isEnabled;
-    String createTime;
-    String updateTime;
+    private String jobId;
+    private String tableName;
+    private String interfaceUrl;
+    private String scheduleExpression;
+    private String isEnabled;
+    private String createTime;
+    private String updateTime;
 
     public String getJobId() {
         return jobId;

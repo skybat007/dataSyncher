@@ -4,11 +4,17 @@ import com.cetc.cloud.datasynch.api.model.ScheduleModel;
 import org.springframework.context.annotation.Bean;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 
+import java.util.Map;
+import java.util.concurrent.Future;
+
 /**
  * Description：
  * Created by luolinjie on 2018/10/19.
  */
 public interface JobManageService {
+
+    Map<String, Future> getRunningFutures();
+
     @Bean
     ThreadPoolTaskScheduler threadPoolTaskScheduler();
 

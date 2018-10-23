@@ -285,6 +285,7 @@ public class DbOperateService implements com.cetc.cloud.datasynch.provider.servi
 
         //获取字段类型映射map
         HashMap<String, HashMap> tbStructureMap = queryTableStructure();
+
         //根据targetTable获取对应的字段映射表
         HashMap mapping = columnMappingService.getColumnMappingByTargetTableName(scheduleModel.getTargetTableName());
         int successCounter = 0;

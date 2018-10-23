@@ -24,32 +24,43 @@ public class HttpOperateService implements com.cetc.cloud.datasynch.provider.ser
         //获取URL
         String URL = model.getSource();
         List<HashMap> listData = null;
-
-        //组装参数 pageNum和pageSize
-        JSONObject params = new JSONObject();
-        params.put(CommonInstance.PAGE_NUM_NAME, String.valueOf(pageNum));
-        int pageSize = model.getPageSize();
-        params.put(CommonInstance.PAGE_SIZE_NAME, String.valueOf(pageSize));
-
+        JSONObject httpParams = null;
+        //如果该接口需要使用分页来查询的话，就需要添加这个动态主键
+        if (null!=model.getHttpParamPageNum() && null!=model.getHttpParamPageSize()) {
+            //组装参数 pageNum和pageSize
+            httpParams = new JSONObject();
+            httpParams.put(CommonInstance.PAGE_NUM_NAME, String.valueOf(pageNum));
+            int pageSize = model.getPageSize();
+            httpParams.put(CommonInstance.PAGE_SIZE_NAME, String.valueOf(pageSize));
+        }
         //获取json解析规则
-        String jsonExtractRule = model.getJsonExtractRule();
+        String jsonExtractRule = model.getHttpJsonExtractRule();
+
+        String httpParamExpression = model.getHttpParamExpression();
+        if(null!=httpParamExpression){
+            String[] split = httpParamExpression.split("&");
+            for (int i = 0; i < split.length; i++) {
+                String param = split[i];
+                String[] k_v = param.split("=");
+                httpParams.put(k_v[0], k_v[1]);
+            }
+        }
 
         //获取token
-        String tokenStr = model.getToken();
-
+        String tokenStr = model.getHttpToken();
         JSONObject httpResult = null;
         if (null != tokenStr && !"".equals(tokenStr)) {
             Token token = new Token();
-            if (tokenStr.contains(":")) {
-                String[] split = tokenStr.split(":");
+            if (tokenStr.contains("=")) {
+                String[] split = tokenStr.split("=");
                 if ("".equals(split[0]) && "".equals(split[1])) {
                     token.setKey(split[0]);
                     token.setValue(split[1]);
                 }
             }
-            httpResult = HttpUtil.doGetWithAuthoration(URL, params, token);
+            httpResult = HttpUtil.doGetWithAuthoration(URL, httpParams, token);
         } else {
-            httpResult = HttpUtil.doGet(URL,params);
+            httpResult = HttpUtil.doGet(URL, httpParams);
         }
 
         //解析，并生成结果数据集

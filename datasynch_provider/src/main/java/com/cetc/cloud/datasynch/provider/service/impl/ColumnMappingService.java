@@ -6,6 +6,7 @@ import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 
@@ -37,7 +38,12 @@ public class ColumnMappingService implements com.cetc.cloud.datasynch.provider.s
 
     @Override
     public int add(ColumnMappingModel model) {
-        return columnMappingMapper.add(model);
+        int count = columnMappingMapper.add(model);
+        if (count>0) {
+            return model.getId();
+        }else {
+            return -1;
+        }
     }
 
     @Override

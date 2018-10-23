@@ -7,8 +7,8 @@ import java.io.Serializable;
  * Created by llj on 2018/10/8.
  */
 public class DddTableCommentModel implements Serializable {
-    String tableName;
-    String tableComment;
+    private String tableName;
+    private String tableComment;
 
     public String getTableName() {
         return tableName;

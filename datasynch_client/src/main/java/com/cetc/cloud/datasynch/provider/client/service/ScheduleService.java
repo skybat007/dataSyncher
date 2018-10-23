@@ -9,6 +9,8 @@ import org.springframework.stereotype.Component;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.Future;
 
 /**
  * 工程包名:   com.cetc.datasynch.client.service
@@ -26,12 +28,12 @@ public interface ScheduleService extends ScheduleRemoteService {
     class HystrixClientFallback implements ScheduleService {
 
         @Override
-        public List<ScheduleModel> queryScheduleJobList() {
+        public HashMap createScheduleJob(int connType, String source, String dbSrcIP, String dbSrcUsername, String dbSrcPassword, String dbSrcConnUrl, String httpParamExpression, String httpToken, String httpParamPageSize, String httpParamPageNum, String httpJsonExtractRule, String targetTableName, String pageSize, String cronExpression) throws SQLException {
             return null;
         }
 
         @Override
-        public HashMap createScheduleJob(int connType, String source, String token, String jsonExtractRule, int pageSize, String tableName, String cronExpression) throws SQLException {
+        public List<ScheduleModel> queryScheduleJobList() {
             return null;
         }
 
@@ -53,6 +55,11 @@ public interface ScheduleService extends ScheduleRemoteService {
 
         @Override
         public HashMap<String, String> alterScheduleJobCron(int jobId, String cron) {
+            return null;
+        }
+
+        @Override
+        public Map<String, Future> getRunningFutures() {
             return null;
         }
 

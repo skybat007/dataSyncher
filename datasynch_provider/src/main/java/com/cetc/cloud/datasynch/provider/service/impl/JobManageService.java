@@ -10,6 +10,7 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.scheduling.support.CronTrigger;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Future;
@@ -31,6 +32,11 @@ public class JobManageService implements com.cetc.cloud.datasynch.provider.servi
     private Map<String, Future> futures = new HashMap<String, Future>();
 
     @Override
+    public Map<String, Future> getRunningFutures(){
+        return futures;
+    }
+
+    @Override
     @Bean
     public ThreadPoolTaskScheduler threadPoolTaskScheduler() {
         return new ThreadPoolTaskScheduler();
@@ -45,8 +51,9 @@ public class JobManageService implements com.cetc.cloud.datasynch.provider.servi
             cron= "0 0 0 * * ?";//默认是每天凌晨0点更新
         }
         //创建定时任务并启动
-        future = threadPoolTaskScheduler.schedule(runnableInstance, new CronTrigger(cron));
-
+//        future = threadPoolTaskScheduler.schedule(runnableInstance, new CronTrigger(cron));
+        future = threadPoolTaskScheduler.schedule(runnableInstance, new Date());
+//        future = threadPoolTaskScheduler.scheduleWithFixedDelay(runnableInstance, (long) 10000);
         /**将定时任务记录在内存中，供其他功能查询*/
         futures.put(String.valueOf(jobID), future);
         logger.info("job:"+jobID+"--started!");
