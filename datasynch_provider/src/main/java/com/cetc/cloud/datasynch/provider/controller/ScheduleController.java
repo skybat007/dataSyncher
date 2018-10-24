@@ -2,10 +2,10 @@ package com.cetc.cloud.datasynch.provider.controller;
 
 import com.cetc.cloud.datasynch.api.model.ScheduleModel;
 import com.cetc.cloud.datasynch.api.service.ScheduleRemoteService;
-import com.cetc.cloud.datasynch.provider.service.DbOperateService;
-import com.cetc.cloud.datasynch.provider.service.JobManageService;
-import com.cetc.cloud.datasynch.provider.service.ScheduleService;
-import com.cetc.cloud.datasynch.provider.service.SynchJobLogInfoService;
+import com.cetc.cloud.datasynch.provider.service.impl.DbOperateService;
+import com.cetc.cloud.datasynch.provider.service.impl.JobManageService;
+import com.cetc.cloud.datasynch.provider.service.impl.ScheduleService;
+import com.cetc.cloud.datasynch.provider.service.impl.SynchJobLogInfoService;
 import com.cetc.cloud.datasynch.provider.common.CommonInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RestController;
@@ -102,15 +102,15 @@ public class ScheduleController implements ScheduleRemoteService {
     }
 
 
-    @Override
-    public HashMap<String, String> startScheduleJobByJobId(int jobId) {
-        HashMap res = new HashMap();
-        ScheduleModel scheduleModel = scheduleService.queryModelByJobId(jobId);
-        //启动任务
-        int jobid = jobManageService.startJob(jobId, scheduleModel);
+        @Override
+        public HashMap<String, String> startScheduleJobByJobId(int jobId) {
+            HashMap res = new HashMap();
+            ScheduleModel scheduleModel = scheduleService.queryModelByJobId(jobId);
+            //启动任务
+            int jobid = jobManageService.startJob(jobId, scheduleModel);
 
-        //修改状态
-        int i = scheduleService.enableStatusByJobId(jobId);
+            //修改状态
+            int i = scheduleService.enableStatusByJobId(jobId);
 
         if (jobid == jobId && i > 0) {
             res.put("result", "success");

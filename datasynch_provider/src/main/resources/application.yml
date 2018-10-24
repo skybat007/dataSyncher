@@ -53,23 +53,8 @@ spring:
     basename: i18n/messages
     cache-seconds: -1
     encoding: utf-8
-#  sleuth:
-#    feign:
-#      enabled: true
-#    hystrix:
-#      strategy:
-#          enabled: true
-#    zuul:
-#      enabled: true
-#  zipkin:
-#      base-url: http://cetc.zipkin:18100/
-#  sleuth:
-#       sampler:
-#         percentage: 1.0
-
   primary-datasource:
     type: com.zaxxer.hikari.HikariDataSource
-#    driverClassName: com.mysql.jdbc.Driver
     driverClassName: oracle.jdbc.driver.OracleDriver
     url: jdbc:oracle:thin:@10.192.19.108:1521/ORCL
     username: ZHFT123
@@ -79,6 +64,26 @@ spring:
       minimum-idle: 3
       maximum-pool-size: 24
       pool-name: ${spring.application.name}-Input-CP
+      idle-timeout: 10000
+      cachePrepStmts: true
+      prepStmtCacheSize: 250
+      prepStmtCacheSqlLimit: 2048
+      leakDetectionThreshold: 2000
+      validation-interval: 5000
+      validation-query-timeout: 5000
+      max-lifetime: 5
+      test-while-idle: true
+  read-only-datasource:
+    type: com.zaxxer.hikari.HikariDataSource
+    driverClassName: oracle.jdbc.driver.OracleDriver
+    url: jdbc:oracle:thin:@10.192.19.104:1521/ORCLCETC
+    username: ZHFTYJJCPT
+    password: ToKreDi*nJ
+    hikari:
+      connection-test-query: SELECT 1 FROM DUAL
+      minimum-idle: 3
+      maximum-pool-size: 24
+      pool-name: ${spring.application.name}-CP
       idle-timeout: 10000
       cachePrepStmts: true
       prepStmtCacheSize: 250

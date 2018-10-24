@@ -2,7 +2,7 @@ package com.cetc.cloud.datasynch.provider.controller;
 
 import com.alibaba.fastjson.JSONObject;
 import com.cetc.cloud.datasynch.api.service.InitialRemoteService;
-import com.cetc.cloud.datasynch.provider.service.DbOperateService;
+import com.cetc.cloud.datasynch.provider.service.impl.DbOperateService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RestController;
 

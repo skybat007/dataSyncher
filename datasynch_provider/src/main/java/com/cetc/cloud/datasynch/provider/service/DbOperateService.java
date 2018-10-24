@@ -32,6 +32,17 @@ public interface DbOperateService {
     List<HashMap> oracleQuerySql(String sql) throws SQLException;
 
     /**
+     * 传入指定连接参数，执行SQL
+     * @param sql
+     * @param urlOracle
+     * @param orclUsername
+     * @param orclPassword
+     * @return
+     * @throws SQLException
+     */
+    List<HashMap> oracleQuerySql(String sql, String urlOracle, String orclUsername, String orclPassword) throws SQLException;
+
+    /**
      * @Author huangzezhou
      * @Description //执行sql
      * @Param [sql]

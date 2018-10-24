@@ -1,12 +1,12 @@
 package com.cetc.cloud.datasynch.provider.template;
 
 import com.cetc.cloud.datasynch.api.model.ScheduleModel;
-import com.cetc.cloud.datasynch.provider.middleware.SQLCreator;
-import com.cetc.cloud.datasynch.provider.service.DbOperateService;
-import com.cetc.cloud.datasynch.provider.service.HttpOperateService;
-import com.cetc.cloud.datasynch.provider.service.ScheduleService;
-import com.cetc.cloud.datasynch.provider.service.SynchJobLogInfoService;
 import com.cetc.cloud.datasynch.api.model.SynchJobLogInfoModel;
+import com.cetc.cloud.datasynch.provider.middleware.SQLCreator;
+import com.cetc.cloud.datasynch.provider.service.impl.HttpOperateService;
+import com.cetc.cloud.datasynch.provider.service.impl.ScheduleService;
+import com.cetc.cloud.datasynch.provider.service.impl.SynchJobLogInfoService;
+import com.cetc.cloud.datasynch.provider.service.impl.DbOperateService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,9 +38,11 @@ public class MyScheduleRunnable implements Runnable {
 
     @Override
     public void run() {
+        logger.info("executing run() method");
         try {
             //根据接入方式决定生成SQL query还是Http请求
             if (scheduleModel.getConnType() == 0) {
+                logger.info("scheduleModel.connType：DataBase");
                 //数据库接入方式
                 doSQLPulling();
             } else if (scheduleModel.getConnType() == 1) {
@@ -64,7 +66,7 @@ public class MyScheduleRunnable implements Runnable {
         try {
             model = synchJobLogInfoService.queryLatestInfoByJobId(scheduleModel.getId());
         }catch (Exception e){
-            logger.error("获取最近一次日志的分页参数为NULL！");
+            logger.info("获取最近一次日志的分页参数为NULL！");
 //            e.printStackTrace();
         }
 
@@ -74,6 +76,7 @@ public class MyScheduleRunnable implements Runnable {
         //判断是否到达最后一页(未到达最后一页的标志：rowNum==pageSize;若达到最后一页: rowNum==0||rownum<pageSize
         // null==model表示还未发起过请求)
         while (null == model || model.getCurrentRownum() == scheduleModel.getPageSize()) {
+            logger.info("executing while block");
             /**未到达最后一页，继续请求**/
             //计算最新的分页参数
             int toDoPage = -1;
@@ -86,7 +89,8 @@ public class MyScheduleRunnable implements Runnable {
             String SQL = SQLCreator.createSQLByTbNameAndRowParam(scheduleModel.getTargetTableName(), toDoPage, scheduleModel.getPageSize());
             //todo: 初始化Oracle连接
             //获取数据
-            List<HashMap> queryResult = dbOperateService.oracleQuerySql(SQL);
+            List<HashMap> queryResult = dbOperateService.oracleQuerySql(SQL,scheduleModel.getDbSrcConnUrl()
+                    ,scheduleModel.getDbSrcUsername(),scheduleModel.getDbSrcPassword());
             logger.info("Received queryResult:Size:--" + queryResult.size());
             /**数据入库**/
             List<Integer> insertResList = dbOperateService.insertIntoTargetTable(queryResult, scheduleModel);

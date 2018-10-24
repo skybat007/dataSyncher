@@ -21,6 +21,7 @@ import org.apache.ibatis.jdbc.ScriptRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -46,9 +47,9 @@ public class DbOperateService implements com.cetc.cloud.datasynch.provider.servi
 
 
     @Autowired
-    DataSource dataSource;
+    private JdbcTemplate jdbcTemplate;
     @Autowired
-    com.cetc.cloud.datasynch.provider.service.ColumnMappingService columnMappingService;
+    com.cetc.cloud.datasynch.provider.service.impl.ColumnMappingService columnMappingService;
 
 //    @Value("${NAMESPACE}")
 //    private String NameSpace;
@@ -57,14 +58,14 @@ public class DbOperateService implements com.cetc.cloud.datasynch.provider.servi
     private static Connection conn = null;
     private static Statement statement = null;
 
-    private static String orclUsername = "ZHFT123";
+    private static final String orclUsername = "ZHFT123";
 //    private static String orclUsername = "ZHFTYJJCPT";
 
-    private static String IP = "10.192.19.108";
+    private static final String IP = "10.192.19.108";
     //    private static String orclPassword = "ToKreDi*nJ";
-    private static String orclPassword = "123456";
-    private static String orclServicename = "orcl";
-    private static String urlOracle = "jdbc:oracle:thin:@" + IP + ":1521/" + orclServicename;
+    private static final String orclPassword = "123456";
+    private static final String orclServicename = "orcl";
+    private static final String urlOracle = "jdbc:oracle:thin:@" + IP + ":1521/" + orclServicename;
 
     /**
      * 获取 <表名,<字段名,数据类型 > >组成的Map
@@ -126,6 +127,37 @@ public class DbOperateService implements com.cetc.cloud.datasynch.provider.servi
 
     @Override
     public List<HashMap> oracleQuerySql(String sql) throws SQLException {
+        List<HashMap> data = new ArrayList<HashMap>();
+        Connection connection = null;
+        Statement statement = null;
+        ResultSet rs = null;
+        try {
+            connection = JdbcUtil.getConnection(urlOracle, orclUsername, orclPassword);
+            statement = connection.createStatement();
+            rs = statement.executeQuery(sql);
+            while (rs.next()) {
+                int len = rs.getMetaData().getColumnCount();
+                LinkedHashMap row = new LinkedHashMap();
+                for (int i = 1; i <= len; ++i) {
+                    String colName = rs.getMetaData().getColumnName(i);
+                    String value = rs.getString(colName);
+                    row.put(colName, value);
+                }
+                data.add(row);
+            }
+            logger.debug("sql: " + sql);
+
+        } catch (SQLException e) {
+            logger.error("query oracle error!\nsql=" + sql, e);
+            throw e;
+        } finally {
+            close(connection, statement, rs);
+        }
+        return data;
+    }
+
+    @Override
+    public List<HashMap> oracleQuerySql(String sql, String urlOracle, String orclUsername, String orclPassword) throws SQLException {
         List<HashMap> data = new ArrayList<HashMap>();
         Connection connection = null;
         Statement statement = null;
