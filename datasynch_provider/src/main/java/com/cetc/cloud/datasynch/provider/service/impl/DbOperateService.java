@@ -46,26 +46,26 @@ import java.util.*;
 public class DbOperateService implements com.cetc.cloud.datasynch.provider.service.DbOperateService {
 
 
-    @Autowired
-    private JdbcTemplate jdbcTemplate;
+//    @Autowired
+//    private JdbcTemplate jdbcTemplate;
     @Autowired
     com.cetc.cloud.datasynch.provider.service.impl.ColumnMappingService columnMappingService;
 
 //    @Value("${NAMESPACE}")
 //    private String NameSpace;
 
-    private static final Logger logger = LoggerFactory.getLogger(DbOperateService.class);
-    private static Connection conn = null;
-    private static Statement statement = null;
+    private final Logger logger = LoggerFactory.getLogger(DbOperateService.class);
+    private Connection conn = null;
+    private Statement statement = null;
 
-    private static final String orclUsername = "ZHFT123";
+    private final String orclUsername = "ZHFT123";
 //    private static String orclUsername = "ZHFTYJJCPT";
 
-    private static final String IP = "10.192.19.108";
+    private final String IP = "10.192.19.108";
     //    private static String orclPassword = "ToKreDi*nJ";
-    private static final String orclPassword = "123456";
-    private static final String orclServicename = "orcl";
-    private static final String urlOracle = "jdbc:oracle:thin:@" + IP + ":1521/" + orclServicename;
+    private final String orclPassword = "123456";
+    private final String orclServicename = "orcl";
+    private final String urlOracle = "jdbc:oracle:thin:@" + IP + ":1521/" + orclServicename;
 
     /**
      * 获取 <表名,<字段名,数据类型 > >组成的Map

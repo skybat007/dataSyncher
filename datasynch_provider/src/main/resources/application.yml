@@ -6,13 +6,13 @@ server:
   session:
     timeout: 60000
 
-eureka:
-  client:
-    serviceUrl:
-      defaultZone: http://10.0.11.226:8000/eureka,http://10.0.11.226:8001/eureka,http://10.0.11.226:8002/eureka
-  instance:
-    instance-id: ${spring.cloud.client.ipAddress}:${server.port}
-    prefer-ip-address: true
+#eureka:
+#  client:
+#    serviceUrl:
+#      defaultZone: http://10.0.11.226:8000/eureka,http://10.0.11.226:8001/eureka,http://10.0.11.226:8002/eureka
+#  instance:
+#    instance-id: ${spring.cloud.client.ipAddress}:${server.port}
+#    prefer-ip-address: true
 
 ## 自定义Redis集群及负载实例配置
 #memcatch:
@@ -26,21 +26,21 @@ eureka:
 #   testOnReturn: fasle
 #   testWhileIdle: false
 
-hystrix:
-  command:
-    default:
-      circuitBreaker:
-        sleepWindowInMilliseconds: 30000
-        requestVolumeThreshold: 10
-      execution:
-        isolation:
-          strategy: SEMAPHORE
-          thread:
-            timeoutInMilliseconds: 100000
+#hystrix:
+#  command:
+#    default:
+#      circuitBreaker:
+#        sleepWindowInMilliseconds: 30000
+#        requestVolumeThreshold: 10
+#      execution:
+#        isolation:
+#          strategy: SEMAPHORE
+#          thread:
+#            timeoutInMilliseconds: 100000
 
 spring:
   profiles:
-    active: dev
+    active: test
   output:
     ansi:
       enabled: detect
@@ -63,7 +63,7 @@ spring:
       connection-test-query: SELECT 1 FROM DUAL
       minimum-idle: 3
       maximum-pool-size: 24
-      pool-name: ${spring.application.name}-Input-CP
+      pool-name: ${spring.application.name}-Primary-CP
       idle-timeout: 10000
       cachePrepStmts: true
       prepStmtCacheSize: 250
@@ -73,26 +73,26 @@ spring:
       validation-query-timeout: 5000
       max-lifetime: 5
       test-while-idle: true
-  read-only-datasource:
-    type: com.zaxxer.hikari.HikariDataSource
-    driverClassName: oracle.jdbc.driver.OracleDriver
-    url: jdbc:oracle:thin:@10.192.19.104:1521/ORCLCETC
-    username: ZHFTYJJCPT
-    password: ToKreDi*nJ
-    hikari:
-      connection-test-query: SELECT 1 FROM DUAL
-      minimum-idle: 3
-      maximum-pool-size: 24
-      pool-name: ${spring.application.name}-CP
-      idle-timeout: 10000
-      cachePrepStmts: true
-      prepStmtCacheSize: 250
-      prepStmtCacheSqlLimit: 2048
-      leakDetectionThreshold: 2000
-      validation-interval: 5000
-      validation-query-timeout: 5000
-      max-lifetime: 5
-      test-while-idle: true
+#  read-only-datasource:
+#    type: com.zaxxer.hikari.HikariDataSource
+#    driverClassName: oracle.jdbc.driver.OracleDriver
+#    url: jdbc:oracle:thin:@10.192.19.104:1521/ORCLCETC
+#    username: ZHFTYJJCPT
+#    password: ToKreDi*nJ
+#    hikari:
+#      connection-test-query: SELECT 1 FROM DUAL
+#      minimum-idle: 3
+#      maximum-pool-size: 24
+#      pool-name: ${spring.application.name}-CP
+#      idle-timeout: 10000
+#      cachePrepStmts: true
+#      prepStmtCacheSize: 250
+#      prepStmtCacheSqlLimit: 2048
+#      leakDetectionThreshold: 2000
+#      validation-interval: 5000
+#      validation-query-timeout: 5000
+#      max-lifetime: 5
+#      test-while-idle: true
   freemarker:
     allow-request-override: false
     allow-session-override: false
@@ -114,29 +114,52 @@ spring:
      url_escaping_charset: UTF-8
      classic_compatible: true
      number_format: ###
-
   resources:
     chain:
       strategy:
         content:
           enabled: true
           paths: /**
-
+#初始化连接
+spring.primary-datasource.initial-size: 10
+#最大空闲连接
+spring.primary-datasource.max-idle: 20
+#最小空闲连接
+spring.primary-datasource.min-idle: 5
+#最大连接数量
+spring.primary-datasource.max-active: 50
+#是否在自动回收超时连接的时候打印连接的超时错误
+spring.primary-datasource.log-abandoned: true
+#是否自动回收超时连接
+spring.primary-datasource.remove-abandoned: true
+#超时时间(以秒数为单位)
+spring.primary-datasource.remove-abandoned-timeout: 180
+##<!-- 超时等待时间以毫秒为单位 6000毫秒/1000等于60秒 -->
+spring.primary-datasource.max-wait: 1000
+spring.primary-datasource.test-while-idle: true
+#检测数据库的查询语句
+spring.primary-datasource.validation-query: select 1 from dual
+spring.primary-datasource.test-on-borrow: true
+#每隔五分钟检测空闲超过10分钟的连接
+#spring.datasource.min-evictable-idle-time-millis: 600000
+#spring.datasource.time-between-eviction-runs-millis: 300000
+spring.primary-datasource.min-evictable-idle-time-millis: 6000
+spring.primary-datasource.time-between-eviction-runs-millis: 3000
 
 # 服务启动时提前加载，饥饿加载模式启用
-ribbon:
-  eager-load:
-    enabled: true
-    clients: id-generator
-zuul:
-  ribbon-isolation-strategy: semaphore
+#ribbon:
+#  eager-load:
+#    enabled: true
+#    clients: id-generator
+#zuul:
+#  ribbon-isolation-strategy: semaphore
 
-mybatis:
-    configuration:
-        map-underscore-to-camel-case: true
-        default-fetch-size: 100
-        default-statement-timeout: 30
-    mapperLocations: classpath*:com.cetc.cloud.datasynch.provider.mapper/**Mapper.xml
+#mybatis:
+#    configuration:
+#        map-underscore-to-camel-case: true
+#        default-fetch-size: 100
+#        default-statement-timeout: 30
+#    mapperLocations: classpath*:com.cetc.cloud.datasynch.provider.mapper/**Mapper.xml
 #logging:
 #  level:
 #    root: INFO

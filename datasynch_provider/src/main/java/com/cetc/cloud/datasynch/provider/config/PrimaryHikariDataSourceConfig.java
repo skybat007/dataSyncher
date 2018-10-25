@@ -22,6 +22,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 
 import javax.sql.DataSource;
@@ -41,28 +42,38 @@ import javax.sql.DataSource;
 @MapperScan(basePackages = "com.cetc.cloud.datasynch.provider.mapper", sqlSessionTemplateRef  = "sqlSessionTemplatePrimary")
 public class PrimaryHikariDataSourceConfig {
 
-    @Bean(name = "PrimaryDataSource")
-    @Primary
+
+
+    @Bean(name = "primaryDataSource")
     @ConfigurationProperties(prefix = "spring.primary-datasource")
+    @Primary
     public DataSource primaryDataSource() {
         DataSource dataSource = DataSourceBuilder.create().build();
+        System.out.println(dataSource);
         return dataSource;
     }
+
     @Bean(name="sqlSessionFactoryPrimary")
-    public SqlSessionFactory sqlSessionFactoryCommand() throws Exception {
+    public SqlSessionFactory sqlSessionFactoryPrimary() throws Exception {
         SqlSessionFactoryBean factoryBean = new SqlSessionFactoryBean();
         factoryBean.setDataSource(primaryDataSource());
+        PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
+        factoryBean.setMapperLocations(resolver.getResources("classpath:com/cetc/cloud/datasynch/provider/mapper/*Mapper.xml"));
         return factoryBean.getObject();
     }
 
+
     @Bean(name="sqlSessionTemplatePrimary")
-    public SqlSessionTemplate sqlSessionTemplateCommand() throws Exception {
-        SqlSessionTemplate template = new SqlSessionTemplate(sqlSessionFactoryCommand());
+    @Primary
+    public SqlSessionTemplate sqlSessionTemplatePrimary() throws Exception {
+        SqlSessionTemplate template = new SqlSessionTemplate(sqlSessionFactoryPrimary());
         return template;
     }
 
+
     @Bean(name = "primaryTransactionManager")
-    public DataSourceTransactionManager commandTransactionManager(@Qualifier("PrimaryDataSource") DataSource dataSource) {
+    @Primary
+    public DataSourceTransactionManager primaryTransactionManager(@Qualifier("primaryDataSource") DataSource dataSource) {
         return new DataSourceTransactionManager(dataSource);
     }
 }
