@@ -1,8 +1,9 @@
 package com.cetc.cloud.datasynch.provider.service.impl;
 
-import com.cetc.cloud.datasynch.provider.mapper.SyhchJobLogInfoMapper;
+import com.cetc.cloud.datasynch.provider.mapper.input.SyhchJobLogInfoMapper;
 import com.cetc.cloud.datasynch.api.model.SynchJobLogInfoModel;
 import org.apache.ibatis.annotations.Mapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -15,7 +16,7 @@ import java.util.List;
 @Service("synchJobLogInfoService")
 public class SynchJobLogInfoService implements com.cetc.cloud.datasynch.provider.service.SynchJobLogInfoService {
 
-    @Mapper
+    @Autowired
     SyhchJobLogInfoMapper synchJobLogInfoMapper;
 
     @Override

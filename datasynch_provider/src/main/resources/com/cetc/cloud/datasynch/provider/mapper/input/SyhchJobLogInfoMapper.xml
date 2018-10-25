@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.cetc.cloud.datasynch.provider.mapper.SyhchJobLogInfoMapper">
+<mapper namespace="com.cetc.cloud.datasynch.provider.mapper.input.SyhchJobLogInfoMapper">
     <resultMap id="BaseResultMap" type="com.cetc.cloud.datasynch.api.model.SynchJobLogInfoModel">
         <result column="ID" jdbcType="INTEGER" property="id"/>
         <result column="JOBID" jdbcType="INTEGER" property="jobId"/>
@@ -57,14 +57,14 @@
     </insert>
 
 
-    <select id="queryLatestInfoByJobId" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    <select id="queryLatestLogInfoByJobId" parameterType="java.lang.Integer" resultMap="BaseResultMap">
         SELECT <include refid="BaseColumns"/>
         FROM <include refid="BaseTable"/>
-        WHERE JOB_ID = #{jobId}
+        WHERE JOBID = #{jobId}
     </select>
     <select id="queryLatestPageParamsByJobId" parameterType="java.lang.Integer" resultMap="BaseResultMap">
         SELECT <include refid="BaseColumns"/>
         FROM <include refid="BaseTable"/>
-        WHERE JOB_ID = #{jobId}
+        WHERE JOBID = #{jobId}
     </select>
 </mapper>

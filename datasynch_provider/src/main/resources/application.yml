@@ -73,26 +73,26 @@ spring:
       validation-query-timeout: 5000
       max-lifetime: 5
       test-while-idle: true
-#  read-only-datasource:
-#    type: com.zaxxer.hikari.HikariDataSource
-#    driverClassName: oracle.jdbc.driver.OracleDriver
-#    url: jdbc:oracle:thin:@10.192.19.104:1521/ORCLCETC
-#    username: ZHFTYJJCPT
-#    password: ToKreDi*nJ
-#    hikari:
-#      connection-test-query: SELECT 1 FROM DUAL
-#      minimum-idle: 3
-#      maximum-pool-size: 24
-#      pool-name: ${spring.application.name}-CP
-#      idle-timeout: 10000
-#      cachePrepStmts: true
-#      prepStmtCacheSize: 250
-#      prepStmtCacheSqlLimit: 2048
-#      leakDetectionThreshold: 2000
-#      validation-interval: 5000
-#      validation-query-timeout: 5000
-#      max-lifetime: 5
-#      test-while-idle: true
+  read-only-datasource:
+    type: com.zaxxer.hikari.HikariDataSource
+    driverClassName: oracle.jdbc.driver.OracleDriver
+    url: jdbc:oracle:thin:@10.192.19.163:1521/ORCL
+    username: ZHFTYJJCPT
+    password: ToKreDi*nJ
+    hikari:
+      connection-test-query: SELECT 1 FROM DUAL
+      minimum-idle: 3
+      maximum-pool-size: 24
+      pool-name: ${spring.application.name}-CP
+      idle-timeout: 10000
+      cachePrepStmts: true
+      prepStmtCacheSize: 250
+      prepStmtCacheSqlLimit: 2048
+      leakDetectionThreshold: 2000
+      validation-interval: 5000
+      validation-query-timeout: 5000
+      max-lifetime: 5
+      test-while-idle: true
   freemarker:
     allow-request-override: false
     allow-session-override: false
@@ -141,8 +141,6 @@ spring.primary-datasource.test-while-idle: true
 spring.primary-datasource.validation-query: select 1 from dual
 spring.primary-datasource.test-on-borrow: true
 #每隔五分钟检测空闲超过10分钟的连接
-#spring.datasource.min-evictable-idle-time-millis: 600000
-#spring.datasource.time-between-eviction-runs-millis: 300000
 spring.primary-datasource.min-evictable-idle-time-millis: 6000
 spring.primary-datasource.time-between-eviction-runs-millis: 3000
 
@@ -160,10 +158,10 @@ spring.primary-datasource.time-between-eviction-runs-millis: 3000
 #        default-fetch-size: 100
 #        default-statement-timeout: 30
 #    mapperLocations: classpath*:com.cetc.cloud.datasynch.provider.mapper/**Mapper.xml
-#logging:
-#  level:
-#    root: INFO
-#    org.springframework.web: INFO
-## path: D://output/Intellij/11-Gaojiaohui/logs
-#  file: logs/test.log
+logging:
+  level:
+    root: DEBUG
+    org.springframework.web: INFO
+# path: D://output/Intellij/11-Gaojiaohui/logs
+  file: logs/test.log
 

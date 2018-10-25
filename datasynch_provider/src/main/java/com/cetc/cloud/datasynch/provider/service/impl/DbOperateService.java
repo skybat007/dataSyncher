@@ -15,13 +15,13 @@ package com.cetc.cloud.datasynch.provider.service.impl;
 import com.cetc.cloud.datasynch.api.model.ScheduleModel;
 import com.cetc.cloud.datasynch.provider.core.util.ListUtil;
 import com.cetc.cloud.datasynch.provider.tools.DbTools;
-import com.cetc.cloud.datasynch.provider.core.util.JdbcUtil;
+import jdk.nashorn.internal.runtime.ECMAException;
 import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.jdbc.ScriptRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -45,30 +45,26 @@ import java.util.*;
 @Service("dbOperateService")
 public class DbOperateService implements com.cetc.cloud.datasynch.provider.service.DbOperateService {
 
+    @Autowired
+    @Qualifier("primaryDataSource")
+    DataSource dataSource;
 
-//    @Autowired
-//    private JdbcTemplate jdbcTemplate;
     @Autowired
     com.cetc.cloud.datasynch.provider.service.impl.ColumnMappingService columnMappingService;
-
-//    @Value("${NAMESPACE}")
-//    private String NameSpace;
 
     private final Logger logger = LoggerFactory.getLogger(DbOperateService.class);
     private Connection conn = null;
     private Statement statement = null;
 
     private final String orclUsername = "ZHFT123";
-//    private static String orclUsername = "ZHFTYJJCPT";
 
     private final String IP = "10.192.19.108";
-    //    private static String orclPassword = "ToKreDi*nJ";
     private final String orclPassword = "123456";
     private final String orclServicename = "orcl";
     private final String urlOracle = "jdbc:oracle:thin:@" + IP + ":1521/" + orclServicename;
 
     /**
-     * 获取 <表名,<字段名,数据类型 > >组成的Map
+     * 获取 <表名,List<HashMap></><字段名,数据类型 > >组成的Map
      * 输出keyList：table_name,column_name,data_type
      *
      * @return
@@ -82,12 +78,26 @@ public class DbOperateService implements com.cetc.cloud.datasynch.provider.servi
                 "SELECT table_name from user_all_tables \n" +
                 ")";
         List<HashMap> list = oracleQuerySql(SQL);
+        // 结果集 HashMap的Key是不能重复的，因此，每次put相同的key，都会将其value覆盖
         HashMap<String, HashMap> resMap = new HashMap<String, HashMap>();
+        // 筛选存储当前业务库表的集合
+        HashSet<String> tableNameSet = new HashSet<String>();
+
         for (HashMap<String, String> map : list) {
-            HashMap<String, String> colName_type = new HashMap<String, String>();
-            colName_type.put(map.get("COLUMN_NAME"), map.get("DATA_TYPE"));
-            resMap.put(map.get("TABLE_NAME"), colName_type);
+            String tableName = map.get("TABLE_NAME");
+            String column_name = map.get("COLUMN_NAME");
+            String data_type = map.get("DATA_TYPE");
+            if (tableNameSet.contains(tableName)){
+                HashMap hashMap = resMap.get(tableName);
+                hashMap.put(column_name,data_type);
+            }else {
+                tableNameSet.add(tableName);//添加到表名集合中，供下次检索
+                HashMap<String,String> newMap = new HashMap();
+                newMap.put(column_name, data_type);
+                resMap.put(tableName,newMap);//第一次添加一条映射关系
+            }
         }
+
         return resMap;
     }
 
@@ -99,7 +109,7 @@ public class DbOperateService implements com.cetc.cloud.datasynch.provider.servi
         ResultSet resultSet = null;
 
         try {
-            connection = JdbcUtil.getConnection(urlOracle, orclUsername, orclPassword);
+            connection = dataSource.getConnection();
             statement = connection.createStatement();
             String sql = "select * from \"" + tbName + "\"";
             logger.debug("sql: " + sql);
@@ -132,7 +142,7 @@ public class DbOperateService implements com.cetc.cloud.datasynch.provider.servi
         Statement statement = null;
         ResultSet rs = null;
         try {
-            connection = JdbcUtil.getConnection(urlOracle, orclUsername, orclPassword);
+            connection = dataSource.getConnection();
             statement = connection.createStatement();
             rs = statement.executeQuery(sql);
             while (rs.next()) {
@@ -163,7 +173,7 @@ public class DbOperateService implements com.cetc.cloud.datasynch.provider.servi
         Statement statement = null;
         ResultSet rs = null;
         try {
-            connection = JdbcUtil.getConnection(urlOracle, orclUsername, orclPassword);
+            connection = dataSource.getConnection();
             statement = connection.createStatement();
             rs = statement.executeQuery(sql);
             while (rs.next()) {
@@ -192,7 +202,7 @@ public class DbOperateService implements com.cetc.cloud.datasynch.provider.servi
         Connection connection = null;
         Statement statement = null;
         try {
-            connection = JdbcUtil.getConnection(urlOracle, orclUsername, orclPassword);
+            connection = dataSource.getConnection();
             statement = connection.createStatement();
 //            execute 方法返回一个 boolean 值，以指示第一个结果的形式。必须调用 getResultSet 或 getUpdateCount 方法来检索结果，并且必须调用 getMoreResults 移动到任何后面的结果。
             statement.execute(sql);
@@ -212,7 +222,7 @@ public class DbOperateService implements com.cetc.cloud.datasynch.provider.servi
         Connection connection = null;
         Statement statement = null;
         try {
-            connection = JdbcUtil.getConnection(urlOracle, orclUsername, orclPassword);
+            connection = dataSource.getConnection();
             statement = connection.createStatement();
             for (int i = 0; i < sql.size(); ++i) {
                 statement.addBatch(sql.get(i));
@@ -235,7 +245,7 @@ public class DbOperateService implements com.cetc.cloud.datasynch.provider.servi
     public void oracleBatchSqlFile(String filePath) throws SQLException, IOException {
         Connection connection = null;
         Statement statement = null;
-        conn = JdbcUtil.getConnection(urlOracle, orclUsername, orclPassword);
+        conn = dataSource.getConnection();
         ScriptRunner runner = new ScriptRunner(conn);
 
         runner.setDelimiter(";");//每条命令间的分隔符
@@ -336,7 +346,7 @@ public class DbOperateService implements com.cetc.cloud.datasynch.provider.servi
                 valueList_SQL.add(valueObj.get(k));
             }
 
-            conn = JdbcUtil.getConnection(urlOracle, orclUsername, orclPassword);
+            conn = dataSource.getConnection();
             statement = conn.createStatement();
             String tableName = scheduleModel.getTargetTableName();
             String tableValues = getTableValues(tableName, keyList_SQL, valueList_SQL, tbStructureMap);
@@ -379,15 +389,21 @@ public class DbOperateService implements com.cetc.cloud.datasynch.provider.servi
 
         List<String> valueList = new ArrayList<String>();
         for (int i = 0; i < keyList_SQL.size(); i++) {
-            //通过当前key获取对应的字段类型
-            String column_type = (String) tbStructureMap.get(tableName).get(keyList_SQL.get(i));
-            //根据字段类型判断输出值的形式（加""或者to_date()）, 拼接至值列表中
-            String decoratedColumn = DbTools.getDecoratedColumn(column_type, valueList.get(i));
-            if (null == decoratedColumn) {
-                return null;
-            } else {
-                valueList.add(decoratedColumn);
+            try {
+                //通过当前key获取对应的字段类型
+                String column_type = (String) tbStructureMap.get(tableName).get(keyList_SQL.get(i));
+                //根据字段类型判断输出值的形式（加""或者to_date()）, 拼接至值列表中
+                String decoratedColumn = DbTools.getDecoratedColumn(column_type, valueList.get(i));
+                if (null == decoratedColumn) {
+                    return null;
+                } else {
+                    valueList.add(decoratedColumn);
+                }
+            } catch (Exception e) {
+                logger.error("DbOperateService.getTableValues()方法中的\"tbStructureMap\"没有找到表\"" + tableName + "\"对应字段\"" + keyList_SQL.get(i) + "\"对应的字段类型，\r\n请在对应的表中补全后重试！！！");
             }
+
+
         }
         return ListUtil.toStringWithoutBracket(valueList);
     }

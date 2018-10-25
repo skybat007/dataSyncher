@@ -1,13 +1,10 @@
 package com.cetc.cloud.datasynch.provider.service.impl;
 
 import com.cetc.cloud.datasynch.api.model.ColumnMappingModel;
-import com.cetc.cloud.datasynch.provider.mapper.ColumnMappingMapper;
-import org.apache.ibatis.annotations.Param;
+import com.cetc.cloud.datasynch.provider.mapper.input.ColumnMappingMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.sql.DataSource;
-import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 
@@ -18,8 +15,6 @@ import java.util.List;
 @Service("columnMappingService")
 public class ColumnMappingService implements com.cetc.cloud.datasynch.provider.service.ColumnMappingService {
 
-//    @Autowired
-//    DataSource dataSource;
     @Autowired
     ColumnMappingMapper columnMappingMapper;
 

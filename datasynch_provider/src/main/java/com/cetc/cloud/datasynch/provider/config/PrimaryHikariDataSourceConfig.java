@@ -23,6 +23,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 
 import javax.sql.DataSource;
@@ -39,7 +40,7 @@ import javax.sql.DataSource;
  **/
 
 @Configuration
-@MapperScan(basePackages = "com.cetc.cloud.datasynch.provider.mapper", sqlSessionTemplateRef  = "sqlSessionTemplatePrimary")
+@MapperScan(basePackages = "com.cetc.cloud.datasynch.provider.mapper.input", sqlSessionTemplateRef  = "sqlSessionTemplatePrimary")
 public class PrimaryHikariDataSourceConfig {
 
 
@@ -49,16 +50,21 @@ public class PrimaryHikariDataSourceConfig {
     @Primary
     public DataSource primaryDataSource() {
         DataSource dataSource = DataSourceBuilder.create().build();
-        System.out.println(dataSource);
         return dataSource;
     }
+
+
+    @Bean
+    @Primary
+    public JdbcTemplate primaryJdbcTemplate(DataSource dataSource) {
+        return new JdbcTemplate(dataSource);
+    }
+
 
     @Bean(name="sqlSessionFactoryPrimary")
     public SqlSessionFactory sqlSessionFactoryPrimary() throws Exception {
         SqlSessionFactoryBean factoryBean = new SqlSessionFactoryBean();
         factoryBean.setDataSource(primaryDataSource());
-        PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
-        factoryBean.setMapperLocations(resolver.getResources("classpath:com/cetc/cloud/datasynch/provider/mapper/*Mapper.xml"));
         return factoryBean.getObject();
     }
 

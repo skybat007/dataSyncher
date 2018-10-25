@@ -34,7 +34,7 @@ public interface ColumnMappingService extends ColumnMappingRemoteService {
         }
 
         @Override
-        public List<ColumnMappingModel> getListInfoByTargetTableName(String model) {
+        public List<ColumnMappingModel> getListInfoByTargetTableName(String targetTbName) {
             return null;
         }
 

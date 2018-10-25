@@ -1,6 +1,7 @@
 package com.cetc.cloud.datasynch.provider.controller;
 
 import com.cetc.cloud.datasynch.api.model.ScheduleModel;
+import com.cetc.cloud.datasynch.api.model.SynchJobLogInfoModel;
 import com.cetc.cloud.datasynch.api.service.ScheduleRemoteService;
 import com.cetc.cloud.datasynch.provider.service.impl.DbOperateService;
 import com.cetc.cloud.datasynch.provider.service.impl.JobManageService;
@@ -114,7 +115,7 @@ public class ScheduleController implements ScheduleRemoteService {
 
         if (jobid == jobId && i > 0) {
             res.put("result", "success");
-            res.put("msg", "create job:" + jobid + " success!");
+            res.put("msg", "start job:" + jobid + " success!");
         }
         return res;
     }
@@ -198,4 +199,5 @@ public class ScheduleController implements ScheduleRemoteService {
     public Map<String, Future> getRunningFutures(){
         return jobManageService.getRunningFutures();
     }
+
 }

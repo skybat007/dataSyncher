@@ -1,6 +1,7 @@
 package com.cetc.cloud.datasynch.api.service;
 
 import com.cetc.cloud.datasynch.api.model.ScheduleModel;
+import com.cetc.cloud.datasynch.api.model.SynchJobLogInfoModel;
 import com.cetc.cloud.datasynch.api.model.Token;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -66,4 +67,5 @@ public interface ScheduleRemoteService {
     @RequestMapping(value = "/futures/get", produces = "application/json", method = RequestMethod.GET)
     @ApiOperation(value = "getRunningFutures", notes = "获取正在运行的任务列表", produces = "application/json")
     Map<String, Future> getRunningFutures();
+
 }

@@ -24,6 +24,16 @@ import java.util.concurrent.ScheduledFuture;
 public class JobManageService implements com.cetc.cloud.datasynch.provider.service.JobManageService {
 
     Logger logger = LoggerFactory.getLogger(JobManageService.class);
+    @Autowired
+    DbOperateService dbOperateService;
+    @Autowired
+    SynchJobLogInfoService synchJobLogInfoService;
+    @Autowired
+    ScheduleService scheduleService;
+    @Autowired
+    DbQueryService dbQueryService;
+    @Autowired
+    HttpOperateService httpOperateService;
 
     @Autowired
     private ThreadPoolTaskScheduler threadPoolTaskScheduler;
@@ -32,7 +42,7 @@ public class JobManageService implements com.cetc.cloud.datasynch.provider.servi
     private Map<String, Future> futures = new HashMap<String, Future>();
 
     @Override
-    public Map<String, Future> getRunningFutures(){
+    public Map<String, Future> getRunningFutures() {
         return futures;
     }
 
@@ -45,10 +55,10 @@ public class JobManageService implements com.cetc.cloud.datasynch.provider.servi
     @Override
     public int startJob(int jobID, ScheduleModel scheduleModel) {
         //创建定时任务
-        MyScheduleRunnable runnableInstance = new MyScheduleRunnable(scheduleModel);
+        MyScheduleRunnable runnableInstance = new MyScheduleRunnable(scheduleModel, synchJobLogInfoService, dbQueryService, dbOperateService);
         String cron = scheduleModel.getCronExpression();
-        if (null==cron){
-            cron= "0 0 0 * * ?";//默认是每天凌晨0点更新
+        if (null == cron) {
+            cron = "0 0 0 * * ?";//默认是每天凌晨0点更新
         }
         //创建定时任务并启动
 //        future = threadPoolTaskScheduler.schedule(runnableInstance, new CronTrigger(cron));
@@ -56,7 +66,7 @@ public class JobManageService implements com.cetc.cloud.datasynch.provider.servi
 //        future = threadPoolTaskScheduler.scheduleWithFixedDelay(runnableInstance, (long) 10000);
         /**将定时任务记录在内存中，供其他功能查询*/
         futures.put(String.valueOf(jobID), future);
-        logger.info("job:"+jobID+"--started!");
+        logger.info("job:" + jobID + "--started!");
         return jobID;
     }
 

@@ -3,13 +3,12 @@ package com.cetc.cloud.datasynch.provider.template;
 import com.cetc.cloud.datasynch.api.model.ScheduleModel;
 import com.cetc.cloud.datasynch.api.model.SynchJobLogInfoModel;
 import com.cetc.cloud.datasynch.provider.middleware.SQLCreator;
-import com.cetc.cloud.datasynch.provider.service.impl.HttpOperateService;
-import com.cetc.cloud.datasynch.provider.service.impl.ScheduleService;
-import com.cetc.cloud.datasynch.provider.service.impl.SynchJobLogInfoService;
-import com.cetc.cloud.datasynch.provider.service.impl.DbOperateService;
+import com.cetc.cloud.datasynch.provider.service.impl.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.stereotype.Component;
 
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -23,17 +22,17 @@ public class MyScheduleRunnable implements Runnable {
     private ScheduleModel scheduleModel;
 
     private Logger logger = LoggerFactory.getLogger(MyScheduleRunnable.class);
-    @Autowired
-    DbOperateService dbOperateService;
-    @Autowired
-    ScheduleService scheduleService;
-    @Autowired
-    SynchJobLogInfoService synchJobLogInfoService;
-    @Autowired
-    HttpOperateService httpOperateService;
+    private SynchJobLogInfoService synchJobLogInfoService;
+    private DbQueryService dbQueryService;
+    private DbOperateService dbOperateService;
+    private HttpOperateService httpOperateService;
 
-    public MyScheduleRunnable(ScheduleModel scheduleModel) {
+    public MyScheduleRunnable(ScheduleModel scheduleModel,SynchJobLogInfoService synchJobLogInfoService,DbQueryService dbQueryService,DbOperateService dbOperateService) {
         this.scheduleModel = scheduleModel;
+        this.synchJobLogInfoService = synchJobLogInfoService;
+        this.dbQueryService = dbQueryService;
+        this.dbOperateService = dbOperateService;
+        this.httpOperateService = httpOperateService;
     }
 
     @Override
@@ -44,10 +43,10 @@ public class MyScheduleRunnable implements Runnable {
             if (scheduleModel.getConnType() == 0) {
                 logger.info("scheduleModel.connType：DataBase");
                 //数据库接入方式
-                doSQLPulling();
+                doSQLPulling(synchJobLogInfoService,dbQueryService,dbOperateService);
             } else if (scheduleModel.getConnType() == 1) {
                 //接口接入方式
-                doHttpPulling();
+                doHttpPulling(synchJobLogInfoService,httpOperateService,dbOperateService);
             } else return;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -60,7 +59,7 @@ public class MyScheduleRunnable implements Runnable {
      *
      * @return
      */
-    private boolean doSQLPulling() throws SQLException {
+    private boolean doSQLPulling(SynchJobLogInfoService synchJobLogInfoService,DbQueryService dbQueryService,DbOperateService dbOperateService) throws SQLException {
         //1.根据tableName查询最近一条执行成功的数据同步日志对应的分页参数
         SynchJobLogInfoModel model =null;
         try {
@@ -89,8 +88,7 @@ public class MyScheduleRunnable implements Runnable {
             String SQL = SQLCreator.createSQLByTbNameAndRowParam(scheduleModel.getTargetTableName(), toDoPage, scheduleModel.getPageSize());
             //todo: 初始化Oracle连接
             //获取数据
-            List<HashMap> queryResult = dbOperateService.oracleQuerySql(SQL,scheduleModel.getDbSrcConnUrl()
-                    ,scheduleModel.getDbSrcUsername(),scheduleModel.getDbSrcPassword());
+            List<HashMap> queryResult = dbQueryService.oracleQuerySql(SQL);
             logger.info("Received queryResult:Size:--" + queryResult.size());
             /**数据入库**/
             List<Integer> insertResList = dbOperateService.insertIntoTargetTable(queryResult, scheduleModel);
@@ -135,7 +133,7 @@ public class MyScheduleRunnable implements Runnable {
      *
      * @return
      */
-    private boolean doHttpPulling() throws SQLException {
+    private boolean doHttpPulling(SynchJobLogInfoService synchJobLogInfoService,HttpOperateService httpOperateService,DbOperateService dbOperateService) throws SQLException {
         //1.根据tableName查询最近一条执行成功的数据同步日志对应的分页参数
         SynchJobLogInfoModel model = synchJobLogInfoService.queryLatestInfoByJobId(scheduleModel.getId());
 

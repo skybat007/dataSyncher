@@ -2,7 +2,7 @@ package com.cetc.cloud.datasynch.provider.service.impl;
 
 import com.cetc.cloud.datasynch.api.model.ScheduleModel;
 import com.cetc.cloud.datasynch.provider.common.CommonInstance;
-import com.cetc.cloud.datasynch.provider.mapper.ScheduleMapper;
+import com.cetc.cloud.datasynch.provider.mapper.input.ScheduleMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

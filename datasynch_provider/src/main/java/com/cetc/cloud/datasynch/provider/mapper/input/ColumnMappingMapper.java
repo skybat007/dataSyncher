@@ -1,4 +1,4 @@
-package com.cetc.cloud.datasynch.provider.mapper;
+package com.cetc.cloud.datasynch.provider.mapper.input;
 
 import com.cetc.cloud.datasynch.api.model.ColumnMappingModel;
 import org.apache.ibatis.annotations.Mapper;

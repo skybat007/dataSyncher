@@ -1,7 +1,7 @@
 package com.cetc.cloud.datasynch.api.model;
 
 import java.io.Serializable;
-import java.util.Date;
+import java.sql.Date;
 
 /**
  * 更新状态日志表: DS_SYNCH_JOB_LOG_INFO
