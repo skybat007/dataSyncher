@@ -23,11 +23,11 @@ public interface ScheduleRemoteService {
     @ApiOperation(value = "createScheduleJob", notes = "新增一条同步任务", produces = "application/json")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "connType", value = "连接类型(0-数据库;1-接口)", required = true, dataType = "int", paramType = "query"),
-            @ApiImplicitParam(name = "source", value = "源-表名(例：IOT_EVENT)/源-URL(例：http://10.190.55.62:8080/GetLeadRota/v1/getLeadRotaByDate.action)", required = true, dataType = "String", paramType = "query"),
-            @ApiImplicitParam(name = "dbSrcIP", value = "源数据库IP(例:10.192.19.104)", required = false, dataType = "String", paramType = "query"),
+            @ApiImplicitParam(name = "source", value = "源-表名(例：QAJJ_PUCENTP_V)/源-URL(例：http://10.190.55.62:8080/GetLeadRota/v1/getLeadRotaByDate.action)", required = true, dataType = "String", paramType = "query"),
+            @ApiImplicitParam(name = "dbSrcIP", value = "源数据库IP(例:10.192.19.163)", required = false, dataType = "String", paramType = "query"),
             @ApiImplicitParam(name = "dbSrcUsername", value = "源数据库登录用户名(例:ZHFTYJJCPT)", required = false, dataType = "String", paramType = "query"),
             @ApiImplicitParam(name = "dbSrcPassword", value = "源数据库登录密码(例:ToKreDi*nJ)", required = false, dataType = "String", paramType = "query"),
-            @ApiImplicitParam(name = "dbSrcConnUrl", value = "源数据库连接URL(例: jdbc:oracle:thin:@10.192.19.104:1521/orclcetc)", required = false, dataType = "String", paramType = "query"),
+            @ApiImplicitParam(name = "dbSrcConnUrl", value = "源数据库连接URL(例:jdbc:oracle:thin:@10.192.19.163:1521/orcl)", required = false, dataType = "String", paramType = "query"),
             @ApiImplicitParam(name = "httpParamExpression", value = "http入参表达式(例:StartDate=2018/9/24&EndDate=2018/9/30)", required = false, dataType = "String", paramType = "query"),
             @ApiImplicitParam(name = "httpToken", value = "http Token表达式(例:Authorization=Bearer e2d40b3d-54a7-3d57-8288-ce6e9bf95cb6)", required = false, dataType = "String", paramType = "query"),
             @ApiImplicitParam(name = "httpParamPageSize", value = "pageSize对应参数名", required = false, dataType = "String", paramType = "query"),
@@ -35,7 +35,7 @@ public interface ScheduleRemoteService {
             @ApiImplicitParam(name = "httpJsonExtractRule", value = "httpJson解析规则(例:data.resultSet)", required = false, dataType = "String", paramType = "query"),
             @ApiImplicitParam(name = "targetTableName", value = "目标表名称", required = true, dataType = "String", paramType = "query"),
             @ApiImplicitParam(name = "pageSize", value = "页大小", required = true, dataType = "String", paramType = "query"),
-            @ApiImplicitParam(name = "cronExpression", value = "cron表达式(例：0 0 0 \\* \\* ?)", required = false, dataType = "String", paramType = "query")
+            @ApiImplicitParam(name = "cronExpression", value = "cron表达式(例：0 0/1 * \\* \\* ?)", required = false, dataType = "String", paramType = "query")
     })
     HashMap createScheduleJob(int connType, String source,
                               String dbSrcIP, String dbSrcUsername, String dbSrcPassword, String dbSrcConnUrl,
@@ -55,7 +55,7 @@ public interface ScheduleRemoteService {
     @ApiOperation(value = "stopScheduleJobByJobId", notes = "根据jobID停止任务", produces = "application/json")
     HashMap<String, String> stopScheduleJobByJobId(int jobId);
 
-    @RequestMapping(value = "/schedule/job/delete", produces = "application/json", method = RequestMethod.POST)
+    @RequestMapping(value = "/schedule/job/delete", produces = "application/json", method = RequestMethod.DELETE)
     @ApiOperation(value = "deleteScheduleJobByJobId", notes = "删除一条同步任务", produces = "application/json")
     HashMap<String, String> deleteScheduleJobByJobId(int jobId);
 

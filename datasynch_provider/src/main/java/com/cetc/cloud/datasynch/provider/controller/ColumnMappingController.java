@@ -64,16 +64,29 @@ public class ColumnMappingController implements ColumnMappingRemoteService {
         logger.debug(String.valueOf(sheet.getLastRowNum()));
         for (int j = startRow; j < sheet.getLastRowNum(); j++) {
             Row row = sheet.getRow(j);
-            if (null == row.getCell(0).getStringCellValue() || "".equals(row.getCell(0).getStringCellValue())) {
-                break;
+            String col1 = "";
+            String col2 = "";
+            String col3 = "";
+            String col4 = "";
+            if (null != row.getCell(0) || "".equals(row.getCell(0))) {
+                col1 = row.getCell(0).getStringCellValue();
+            }
+            if (null != row.getCell(1) || "".equals(row.getCell(1))) {
+                col2 = row.getCell(1).getStringCellValue();
+            }
+            if (null != row.getCell(2) || "".equals(row.getCell(2))) {
+                col3 = row.getCell(2).getStringCellValue();
+            }
+            if (null != row.getCell(3) || "".equals(row.getCell(3))) {
+                col4 = row.getCell(3).getStringCellValue();
             }
 
             ColumnMappingModel model = new ColumnMappingModel();
             /**源，源字段名，目标字段名，目标表*/
-            model.setSource(row.getCell(0).getStringCellValue());
-            model.setSourceColumnName(row.getCell(1).getStringCellValue());
-            model.setTargetColumnName(row.getCell(2).getStringCellValue());
-            model.setTargetTable(row.getCell(3).getStringCellValue());
+            model.setSource(col1);
+            model.setSourceColumnName(col2);
+            model.setTargetColumnName(col3);
+            model.setTargetTable(col4);
 
             modelList.add(model);
         }
@@ -119,7 +132,7 @@ public class ColumnMappingController implements ColumnMappingRemoteService {
     }
 
     @Override
-    public int add(String targetTable,String source,String sourceColumnName,String targetColumnName) {
+    public int add(String targetTable, String source, String sourceColumnName, String targetColumnName) {
         ColumnMappingModel columnMappingModel = new ColumnMappingModel();
         columnMappingModel.setTargetTable(targetTable);
         columnMappingModel.setSource(source);

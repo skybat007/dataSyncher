@@ -55,7 +55,13 @@ public class ScheduleService implements com.cetc.cloud.datasynch.provider.servic
     }
     @Override
     public int enableStatusByJobId(int jobId) {
-        return scheduleMapper.updateEnableStatusByJobId(jobId, CommonInstance.ENABLED);
+        //获取运行状态
+        int status = scheduleMapper.getStatusByJobId(jobId);
+        if (CommonInstance.ENABLED == status) {
+            return 1;
+        }else{
+            return scheduleMapper.updateEnableStatusByJobId(jobId, CommonInstance.ENABLED);
+        }
     }
 
     @Override

@@ -17,13 +17,21 @@ public class SQLCreator {
         pageNum=3 pageSize=100 时
         StartRow = 101  = 1+pagesize*(pageNum-1)
         EndRow = 200   = StartRow+PageSize-1 = pagesize*pageNum
+
+        pageNum=2 pageSize =100 currentRowNum =35
+        StartRow = 136  = 1+100*(2-1)+35 = 1+pagesize*(pageNum-1)+currentRowNum
+        EndRow = 235 =1+ pagesize*(pageNum-1)+currentRowNum+pageSize-1 = pagesize*pageNum+currentRowNum
+
+        pageNum=3 pageSize =100 currentRowNum =35
+        StartRow = 236 = 1+100*2+35 = 236
+        EndRow = 335 =
      */
-    public static String createSQLByTbNameAndRowParam(String tableName, int pageNum, int pageSize) {
+    public static String createSQLByTbNameAndRowParam(String tableName, int pageNum, int pageSize, int currentRowNum) {
 
         String originSQL = "SELECT *\n" +
                 "FROM (\n" +
-                " SELECT @TABLE_NAME.*, rownum rownum_\n" +
-                " FROM @TABLE_NAME\n" +
+                " SELECT \"@TABLE_NAME\".*, rownum rownum_\n" +
+                " FROM \"@TABLE_NAME\"\n" +
                 " WHERE rownum <= @ENDROW)\n" +
                 "WHERE rownum_ >= @STARTROW";
 
@@ -32,8 +40,8 @@ public class SQLCreator {
         }
 
         //通过pagenum和pagesize计算StartRow和EndRow
-        int startRow = 1 + pageSize * (pageNum - 1);
-        int endRow = pageSize * pageNum;
+        int startRow = 1 + pageSize * pageNum + currentRowNum;
+        int endRow = pageSize * pageNum+ currentRowNum;
 
         String SQL = originSQL.replaceAll("@TABLE_NAME", tableName);
         String SQL1 = SQL.replaceAll("@STARTROW", String.valueOf(startRow));

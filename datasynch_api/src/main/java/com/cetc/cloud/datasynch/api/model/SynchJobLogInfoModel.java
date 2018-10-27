@@ -11,6 +11,7 @@ public class SynchJobLogInfoModel implements Serializable{
 
     private int id;
     private int jobId;
+    private int isSuccess;
     private int currentPageNum;
     private int currentPageSize;
     private int currentRownum;
@@ -21,6 +22,14 @@ public class SynchJobLogInfoModel implements Serializable{
     private int totalFailCount;
     private Date createTime;
     private Date updateTime;
+
+    public int getIsSuccess() {
+        return isSuccess;
+    }
+
+    public void setIsSuccess(int isSuccess) {
+        this.isSuccess = isSuccess;
+    }
 
     public int getSuccessCount() {
         return successCount;

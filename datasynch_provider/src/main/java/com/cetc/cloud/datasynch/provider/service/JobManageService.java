@@ -27,7 +27,7 @@ public interface JobManageService {
      * 通过jobID取消定时任务
      * @param jobID
      */
-    boolean stopJob(int jobID);
+    int removeJob(int jobID);
 
     /**
      * 通过jobID修改定时规则并重新启动（需要重新传入运行实体）

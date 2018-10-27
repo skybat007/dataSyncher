@@ -11,8 +11,8 @@ import org.springframework.scheduling.support.CronTrigger;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledFuture;
 
@@ -38,55 +38,81 @@ public class JobManageService implements com.cetc.cloud.datasynch.provider.servi
     @Autowired
     private ThreadPoolTaskScheduler threadPoolTaskScheduler;
 
-    private ScheduledFuture<?> future;
-    private Map<String, Future> futures = new HashMap<String, Future>();
+    private Map<String, Future> futures = new ConcurrentHashMap<String, Future>();
 
     @Override
     public Map<String, Future> getRunningFutures() {
         return futures;
     }
 
+    static boolean isinitialized = false;
+
     @Override
     @Bean
     public ThreadPoolTaskScheduler threadPoolTaskScheduler() {
-        return new ThreadPoolTaskScheduler();
+        threadPoolTaskScheduler = new ThreadPoolTaskScheduler();
+        threadPoolTaskScheduler.setPoolSize(200);
+        threadPoolTaskScheduler.setThreadNamePrefix("DataSyncher--");
+        threadPoolTaskScheduler.setWaitForTasksToCompleteOnShutdown(true);
+        /**需要实例化线程*/
+        threadPoolTaskScheduler.initialize();
+        isinitialized = true;
+        return threadPoolTaskScheduler;
     }
 
     @Override
     public int startJob(int jobID, ScheduleModel scheduleModel) {
         //创建定时任务
-        MyScheduleRunnable runnableInstance = new MyScheduleRunnable(scheduleModel, synchJobLogInfoService, dbQueryService, dbOperateService);
+        MyScheduleRunnable runnableInstance = new MyScheduleRunnable(scheduleModel, synchJobLogInfoService, dbQueryService, dbOperateService, httpOperateService);
         String cron = scheduleModel.getCronExpression();
         if (null == cron) {
-            cron = "0 0 0 * * ?";//默认是每天凌晨0点更新
+            cron = "0 0/1 * * * ?";//默认是每天凌晨0点更新
         }
-        //创建定时任务并启动
-//        future = threadPoolTaskScheduler.schedule(runnableInstance, new CronTrigger(cron));
-        future = threadPoolTaskScheduler.schedule(runnableInstance, new Date());
-//        future = threadPoolTaskScheduler.scheduleWithFixedDelay(runnableInstance, (long) 10000);
-        /**将定时任务记录在内存中，供其他功能查询*/
-        futures.put(String.valueOf(jobID), future);
-        logger.info("job:" + jobID + "--started!");
-        return jobID;
+        try {
+            //创建定时任务并启动
+            ScheduledFuture<?> future = threadPoolTaskScheduler.schedule(runnableInstance, new CronTrigger(cron));
+//            ScheduledFuture<?> future = threadPoolTaskScheduler.schedule(runnableInstance, new Date());
+            /**将定时任务记录在内存中，供其他功能查询*/
+            futures.put(String.valueOf(jobID), future);
+            logger.info("job:" + jobID + "--started!");
+            return jobID;
+        } catch (Exception e) {
+            logger.info("job:" + jobID + "--started error!");
+            return -1;
+        }
     }
 
     @Override
-    public boolean stopJob(int jobID) {
-
-        if (future != null) {
-            Future future = futures.get(jobID);
-            boolean cancel = future.cancel(true);
-            logger.info("job:" + jobID + "--stopped!");
-            return cancel;
+    /**
+     * stop:1:正常停止
+     *      0：还在运行
+     *      -1：异常
+     */
+    public int removeJob(int jobID) {
+        if (threadPoolTaskScheduler != null) {
+            ScheduledFuture<?> future = (ScheduledFuture<?>) futures.get(jobID);
+            if (!future.isDone()) {
+                return 0;
+            } else {
+                boolean cancel = future.cancel(true);
+                if (cancel) {
+                    logger.info("job:" + jobID + "--stopped!");
+                    futures.remove(jobID);
+                    return 1;
+                } else {
+                    logger.info("job:" + jobID + "--stopping job occurs error!");
+                    return -1;
+                }
+            }
         }
-        return false;
+        return -1;
     }
 
     //   cron表达式： "\*"/"10 * * * * *
     @Override
     public String changeJob(int jobID, String cron, Runnable runnableInstance) {
-        stopJob(jobID);// 先停止，再开启
-        future = threadPoolTaskScheduler.schedule(runnableInstance, new CronTrigger(cron));
+        removeJob(jobID);// 先停止，再开启
+        ScheduledFuture<?> future = threadPoolTaskScheduler.schedule(runnableInstance, new CronTrigger(cron));
         System.out.println("DynamicTask.startCron10()");
         return "changeCron10";
     }

@@ -14,7 +14,7 @@ import java.sql.SQLException;
  * Description：初始化，用于初次启动前的准备工作
  * Created by luolinjie on 2018/10/20.
  */
-@Api(description = "定时任务管理服务")
+@Api(description = "系统初始化")
 public interface InitialRemoteService {
 
     /**

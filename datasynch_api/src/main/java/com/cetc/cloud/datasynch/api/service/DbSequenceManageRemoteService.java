@@ -16,7 +16,7 @@ import java.util.List;
  * Update_Description: luolinjie 补充
  **/
 @Api(value = "自增序列管理")
-public interface SequenceManageRemoteService {
+public interface DbSequenceManageRemoteService {
 
     @ApiOperation(value = "querySequenceList", notes = "查询当前业务库所有序列名称", produces = "application/json")
     List<String> querySequenceList();

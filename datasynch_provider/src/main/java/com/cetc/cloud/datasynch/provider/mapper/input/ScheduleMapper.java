@@ -25,4 +25,6 @@ public interface ScheduleMapper {
     ScheduleModel queryModelByJobId(int jobId);
 
     int addScheduleInstance(ScheduleModel scheduleModel);
+
+    int getStatusByJobId(int jobId);
 }

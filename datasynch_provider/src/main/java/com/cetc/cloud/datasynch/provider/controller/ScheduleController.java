@@ -1,12 +1,9 @@
 package com.cetc.cloud.datasynch.provider.controller;
 
 import com.cetc.cloud.datasynch.api.model.ScheduleModel;
-import com.cetc.cloud.datasynch.api.model.SynchJobLogInfoModel;
 import com.cetc.cloud.datasynch.api.service.ScheduleRemoteService;
-import com.cetc.cloud.datasynch.provider.service.impl.DbOperateService;
-import com.cetc.cloud.datasynch.provider.service.impl.JobManageService;
-import com.cetc.cloud.datasynch.provider.service.impl.ScheduleService;
-import com.cetc.cloud.datasynch.provider.service.impl.SynchJobLogInfoService;
+import com.cetc.cloud.datasynch.provider.core.util.Ping;
+import com.cetc.cloud.datasynch.provider.service.impl.*;
 import com.cetc.cloud.datasynch.provider.common.CommonInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RestController;
@@ -36,6 +33,8 @@ public class ScheduleController implements ScheduleRemoteService {
     @Autowired
     SynchJobLogInfoService synchJobLogInfoService;
 
+    @Autowired
+    DbQueryService dbQueryService;
 
     @Override
     public List<ScheduleModel> queryScheduleJobList() {
@@ -88,6 +87,30 @@ public class ScheduleController implements ScheduleRemoteService {
         scheduleModel.setPageSize(Integer.parseInt(pageSize));
         scheduleModel.setCronExpression(cronExpression);
 
+        // 验证参数合法性
+        if (CommonInstance.TYPE_DB == scheduleModel.getConnType()) {
+            if (false == dbQueryService.checkIfTableExists(scheduleModel.getSource())) {
+                res.put("result", "fail");
+                res.put("msg", "failed,source Table:" + scheduleModel.getSource() + " doesn't exists!");
+                return res;
+            } else if (false == dbOperateService.checkIfTableExists(scheduleModel.getTargetTableName())) {
+                res.put("result", "fail");
+                res.put("msg", "failed,Target table:" + scheduleModel.getTargetTableName() + " doesn't reachable!");
+                return res;
+            }
+        } else if (CommonInstance.TYPE_INTERFACE == scheduleModel.getConnType()) {
+            boolean ping = Ping.ping(Ping.getIpAddressFromURL(scheduleModel.getSource()));
+            if (ping == false) {
+                res.put("result", "fail");
+                res.put("msg", "failed,source URL:" + scheduleModel.getSource() + " doesn't reachable!");
+                return res;
+            } else if (false == dbOperateService.checkIfTableExists(scheduleModel.getTargetTableName())) {
+                res.put("result", "fail");
+                res.put("msg", "failed,Target table:" + scheduleModel.getTargetTableName() + " doesn't reachable!");
+                return res;
+            }
+        }
+
         //将创建的任务记录在数据库schedule表中
         int jobId = scheduleService.addScheduleInstance(scheduleModel);
 
@@ -103,19 +126,23 @@ public class ScheduleController implements ScheduleRemoteService {
     }
 
 
-        @Override
-        public HashMap<String, String> startScheduleJobByJobId(int jobId) {
-            HashMap res = new HashMap();
-            ScheduleModel scheduleModel = scheduleService.queryModelByJobId(jobId);
-            //启动任务
-            int jobid = jobManageService.startJob(jobId, scheduleModel);
+    @Override
+    public HashMap<String, String> startScheduleJobByJobId(int jobId) {
+        HashMap res = new HashMap();
+        ScheduleModel scheduleModel = scheduleService.queryModelByJobId(jobId);
 
+        //启动任务
+        int jobid = jobManageService.startJob(jobId, scheduleModel);
+        if (-1 != jobid) {
             //修改状态
             int i = scheduleService.enableStatusByJobId(jobId);
-
-        if (jobid == jobId && i > 0) {
-            res.put("result", "success");
-            res.put("msg", "start job:" + jobid + " success!");
+            if (jobid == jobId && i > 0) {
+                res.put("result", "success");
+                res.put("msg", "start job:" + jobid + " success!");
+            }
+        } else {
+            res.put("result", "fail");
+            res.put("msg", "start job:" + jobid + " failed!");
         }
         return res;
     }
@@ -124,9 +151,9 @@ public class ScheduleController implements ScheduleRemoteService {
     public HashMap<String, String> stopScheduleJobByJobId(int jobId) {
         HashMap res = new HashMap();
         //停止当前任务
-        boolean s = jobManageService.stopJob(jobId);
+        int status = jobManageService.removeJob(jobId);
 
-        if (s) {
+        if (status == 1) {
             //更新当前任务状态
             int updateRes = scheduleService.disableStatusByJobId(jobId);
             if (updateRes > 0) {
@@ -149,8 +176,8 @@ public class ScheduleController implements ScheduleRemoteService {
 
         HashMap result = new HashMap<String, String>();
         //停止当前任务
-        boolean s = jobManageService.stopJob(jobId);
-        if (s) {
+        int s = jobManageService.removeJob(jobId);
+        if (s == 1) {
             //从列表中删除当前定时任务
             int res = scheduleService.deleteScheduleByJobId(jobId);
             if (res == 1) {
@@ -175,11 +202,11 @@ public class ScheduleController implements ScheduleRemoteService {
 
         HashMap result = new HashMap<String, String>();
         //停止当前任务
-        boolean s = jobManageService.stopJob(jobId);
-
-        //更新cron表达式至数据库
-        int res = scheduleService.updateCronByJobId(jobId, cron);
-
+        int s = jobManageService.removeJob(jobId);
+        if (s == 1) {
+            //更新cron表达式至数据库
+            int res = scheduleService.updateCronByJobId(jobId, cron);
+        }
         //重新启动当前任务--通过JobID（前提是必须之前有这个Job）
         HashMap<String, String> restartRes = startScheduleJobByJobId(jobId);
         if ("success".equals(restartRes.get("result"))) {
@@ -196,7 +223,7 @@ public class ScheduleController implements ScheduleRemoteService {
     }
 
     @Override
-    public Map<String, Future> getRunningFutures(){
+    public Map<String, Future> getRunningFutures() {
         return jobManageService.getRunningFutures();
     }
 

@@ -20,31 +20,32 @@ import java.util.Map;
 public interface ColumnMappingRemoteService {
 
     @RequestMapping(value = "/columnmapping/importExcel", produces = "application/json", method = RequestMethod.POST)
-    @ApiOperation(value = "importExcelIntoDB", notes = "将Excel人工维护的字段映射表，srcTable-targetTable映射表导入数据库进行维护", produces = "application/json")
+    @ApiOperation(value = "importExcelIntoDB", notes = "将Excel人工维护的 srcTable-targetTable 字段映射表导入数据库进行维护," +
+            "\r\n字段排序：\t源,源字段名,目标字段名,目标表\n", produces = "application/json")
     String importExcelIntoDB(MultipartFile file, String Data_StartRow_Num);
 
-    @RequestMapping(value = "/columnmapping/getListInfo/byTargetTableName", produces = "application/json", method = RequestMethod.POST)
+    @RequestMapping(value = "/columnmapping/getListInfo/byTargetTableName", produces = "application/json", method = RequestMethod.GET)
     @ApiOperation(value = "getListInfoByTargetTableName", notes = "根据源表名称或源URL、目标表查询该表的映射关系列表", produces = "application/json")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "targetTbName", value = "目标表名", required = true, dataType = "String", paramType = "query"),
     })
     List<ColumnMappingModel> getListInfoByTargetTableName(String targetTbName);
 
-    @RequestMapping(value = "/columnmapping/getListInfo/bySourceName", produces = "application/json", method = RequestMethod.POST)
+    @RequestMapping(value = "/columnmapping/getListInfo/bySourceName", produces = "application/json", method = RequestMethod.GET)
     @ApiOperation(value = "getListInfoBySourceName", notes = "根据源表名称或源URL、目标表查询该表的映射关系列表", produces = "application/json")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "sourceName", value = "源（URL/表名）", required = true, dataType = "String", paramType = "query"),
     })
     List<ColumnMappingModel> getListInfoBySourceName(String sourceName);
 
-    @RequestMapping(value = "/columnmapping/getListInfo/byTargetColumnName", produces = "application/json", method = RequestMethod.POST)
+    @RequestMapping(value = "/columnmapping/getListInfo/byTargetColumnName", produces = "application/json", method = RequestMethod.GET)
     @ApiOperation(value = "getListInfoByTargetColumnName", notes = "根据源表名称或源URL、目标表查询该表的映射关系列表", produces = "application/json")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "sourceName", value = "源（URL/表名）", required = true, dataType = "String", paramType = "query"),
     })
     List<ColumnMappingModel> getListInfoByTargetColumnName(String targetColumnName);
 
-    @RequestMapping(value = "/columnmapping/getMap/byTargetTableName", produces = "application/json", method = RequestMethod.POST)
+    @RequestMapping(value = "/columnmapping/getMap/byTargetTableName", produces = "application/json", method = RequestMethod.GET)
     @ApiOperation(value = "getMapInfoByTargetTableName", notes = "根据源表名称或源URL、目标表查询该表的映射关系Map", produces = "application/json")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "targetTableName", value = "目标表名", required = true, dataType = "String", paramType = "query"),
@@ -58,7 +59,7 @@ public interface ColumnMappingRemoteService {
     })
     int deleteById(int id);
 
-    @RequestMapping(value = "/columnmapping/delete/byTargetTbName", produces = "application/json", method = RequestMethod.POST)
+    @RequestMapping(value = "/columnmapping/delete/byTargetTbName", produces = "application/json", method = RequestMethod.DELETE)
     @ApiOperation(value = "deleteByTargetTbName", notes = "删除单张表的所有映射关系-通过目标表名", produces = "application/json")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "targetTbName", value = "目标表名", required = true, dataType = "String", paramType = "query"),

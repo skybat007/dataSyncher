@@ -15,7 +15,6 @@ package com.cetc.cloud.datasynch.provider.service.impl;
 import com.cetc.cloud.datasynch.api.model.ScheduleModel;
 import com.cetc.cloud.datasynch.provider.core.util.ListUtil;
 import com.cetc.cloud.datasynch.provider.tools.DbTools;
-import jdk.nashorn.internal.runtime.ECMAException;
 import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.jdbc.ScriptRunner;
 import org.slf4j.Logger;
@@ -70,8 +69,8 @@ public class DbOperateService implements com.cetc.cloud.datasynch.provider.servi
      * @return
      * @throws SQLException
      */
-    @Override
     public HashMap<String, HashMap> queryTableStructure() throws SQLException {
+
         String SQL = "SELECT table_name,column_name,data_type \n" +
                 "FROM user_tab_columns \n" +
                 "WHERE table_name in(\n" +
@@ -87,21 +86,56 @@ public class DbOperateService implements com.cetc.cloud.datasynch.provider.servi
             String tableName = map.get("TABLE_NAME");
             String column_name = map.get("COLUMN_NAME");
             String data_type = map.get("DATA_TYPE");
-            if (tableNameSet.contains(tableName)){
+            if (tableNameSet.contains(tableName)) {
                 HashMap hashMap = resMap.get(tableName);
-                hashMap.put(column_name,data_type);
-            }else {
+                hashMap.put(column_name, data_type);
+            } else {
                 tableNameSet.add(tableName);//添加到表名集合中，供下次检索
-                HashMap<String,String> newMap = new HashMap();
+                HashMap<String, String> newMap = new HashMap();
                 newMap.put(column_name, data_type);
-                resMap.put(tableName,newMap);//第一次添加一条映射关系
+                resMap.put(tableName, newMap);//第一次添加一条映射关系
             }
         }
 
         return resMap;
     }
 
-    @Override
+    /**
+     * 获取 <表名,List<HashMap></><字段名,数据类型 > >组成的Map
+     * 输出keyList：table_name,column_name,data_type
+     *
+     * @return
+     * @throws SQLException
+     */
+    public HashMap<String, HashMap> queryTableStructureByTableName(String tableName) throws SQLException {
+
+        String SQL = "SELECT table_name,column_name,data_type \n" +
+                "FROM user_tab_columns \n" +
+                "WHERE table_name ='" + tableName + "'";
+        List<HashMap> list = oracleQuerySql(SQL);
+        // 结果集 HashMap的Key是不能重复的，因此，每次put相同的key，都会将其value覆盖
+        HashMap<String, HashMap> resMap = new HashMap<String, HashMap>();
+        // 筛选存储当前业务库表的集合
+        HashSet<String> tableNameSet = new HashSet<String>();
+
+        for (HashMap<String, String> map : list) {
+            String tableName1 = map.get("TABLE_NAME");
+            String column_name = map.get("COLUMN_NAME");
+            String data_type = map.get("DATA_TYPE");
+            if (tableNameSet.contains(tableName1)) {
+                HashMap hashMap = resMap.get(tableName1);
+                hashMap.put(column_name, data_type);
+            } else {
+                tableNameSet.add(tableName1);//添加到表名集合中，供下次检索
+                HashMap<String, String> newMap = new HashMap();
+                newMap.put(column_name, data_type);
+                resMap.put(tableName1, newMap);//第一次添加一条映射关系
+            }
+        }
+
+        return resMap;
+    }
+
     public List<HashMap> oracleQueryTable(String tbName) throws SQLException {
         List<HashMap> list = new ArrayList<HashMap>();
         Connection connection = null;
@@ -135,7 +169,6 @@ public class DbOperateService implements com.cetc.cloud.datasynch.provider.servi
         return list;
     }
 
-    @Override
     public List<HashMap> oracleQuerySql(String sql) throws SQLException {
         List<HashMap> data = new ArrayList<HashMap>();
         Connection connection = null;
@@ -166,7 +199,6 @@ public class DbOperateService implements com.cetc.cloud.datasynch.provider.servi
         return data;
     }
 
-    @Override
     public List<HashMap> oracleQuerySql(String sql, String urlOracle, String orclUsername, String orclPassword) throws SQLException {
         List<HashMap> data = new ArrayList<HashMap>();
         Connection connection = null;
@@ -197,7 +229,6 @@ public class DbOperateService implements com.cetc.cloud.datasynch.provider.servi
         return data;
     }
 
-    @Override
     public Boolean oracleSql(@RequestParam("sql") String sql) throws SQLException {
         Connection connection = null;
         Statement statement = null;
@@ -217,7 +248,6 @@ public class DbOperateService implements com.cetc.cloud.datasynch.provider.servi
         }
     }
 
-    @Override
     public List<Integer> oracleBatchSql(@RequestParam("sql") List<String> sql) throws SQLException {
         Connection connection = null;
         Statement statement = null;
@@ -241,7 +271,6 @@ public class DbOperateService implements com.cetc.cloud.datasynch.provider.servi
         }
     }
 
-    @Override
     public void oracleBatchSqlFile(String filePath) throws SQLException, IOException {
         Connection connection = null;
         Statement statement = null;
@@ -322,55 +351,75 @@ public class DbOperateService implements com.cetc.cloud.datasynch.provider.servi
         return result;
     }
 
-    @Override
     public List<Integer> insertIntoTargetTable(List<HashMap> queryResult, ScheduleModel scheduleModel) throws SQLException {
 
-        //获取字段类型映射map
-        HashMap<String, HashMap> tbStructureMap = queryTableStructure();
+        //获取 "字段-字段类型" 映射map
+        HashMap<String, HashMap> tbStructureMap = queryTableStructureByTableName(scheduleModel.getTargetTableName());
 
-        //根据targetTable获取对应的字段映射表
+        //根据targetTable获取对应的字段映射表(需要过滤掉为null的字段)
         HashMap mapping = columnMappingService.getColumnMappingByTargetTableName(scheduleModel.getTargetTableName());
         int successCounter = 0;
         int failCounter = 0;
         List keyList_SQL = new ArrayList<String>();
-        List valueList_SQL = new ArrayList<String>();
-        //遍历结果集，并根据结果集中的key，将值通过映射表映射到数据库中
-        for (int i = 0; i < queryResult.size(); i++) {
-            HashMap valueObj = queryResult.get(i);
-            Set set = valueObj.keySet();
-            Iterator iterator = set.iterator();
 
-            while (iterator.hasNext()) {
-                String k = (String) iterator.next();//value的keyName
-                keyList_SQL.add(mapping.get(k));
-                valueList_SQL.add(valueObj.get(k));
-            }
+        //todo: 要让映射过程可控，就需要以定义的mapping表为参考拼接SQL
+        //遍历mapping，并根据mapping结果集中的key，将值通过映射表映射到数据库中
+        Set set = mapping.keySet();//这里以mapping的keyset作为参考表，即使源表中多余的字段，也不会因mapping中没有对应的字段映射而报错
+        Iterator iterator = set.iterator();
+        while (iterator.hasNext()) {
+            String k = (String) iterator.next();//mapping的keyName
+            keyList_SQL.add(mapping.get(k));
+        }
 
+        try {
             conn = dataSource.getConnection();
             statement = conn.createStatement();
-            String tableName = scheduleModel.getTargetTableName();
-            String tableValues = getTableValues(tableName, keyList_SQL, valueList_SQL, tbStructureMap);
-            if (null == tableValues) {
-                continue;
-            }
-            String sql = "INSERT INTO \"" + tableName + "\"(" +
-                    //组装key列表
-                    ListUtil.getSQLColumnsListWithQuotes(keyList_SQL) + ")" +
-                    //组装value列表
-                    " VALUES (" + tableValues + ")";
+            for (int i = 0; i < queryResult.size(); i++) {
+                List valueList_SQL = new ArrayList<String>();
+                HashMap valueObj = queryResult.get(i);
+                Set set1 = mapping.keySet();//这里以mapping的keyset作为参考表，即使源表中多余的字段，也不会因mapping中没有对应的字段映射而报错
+                Iterator iterator1 = set1.iterator();
+                while (iterator1.hasNext()) {
+                    String k = (String) iterator1.next();//mapping的keyName
+                    valueList_SQL.add(valueObj.get(k));
+                }
 
-            logger.debug("sql: " + sql);
-            int count = statement.executeUpdate(sql);
-            if (count > 0) {
-                logger.info("insert successful！");
-                successCounter++;
-            } else {
-                logger.info("insert failed！");
-                failCounter++;
+
+                String targetTableName = scheduleModel.getTargetTableName();
+                //根据表名、字段名称集合,与表结构 获取 组装后的SQL值String
+                String tableValues = getTableValuesSQLString(targetTableName, keyList_SQL, valueList_SQL, tbStructureMap);
+                //异常情况处理：如果不能在业务库中找到这张目标表对应的表结构,则放弃执行该任务
+                if (null == tableValues || "".equals(tableValues)) {
+                    logger.error("cannot find target table:\"" + targetTableName + "\" in targetDB");
+                    List<Integer> resList = new ArrayList<Integer>();
+                    resList.add(-1);
+                    resList.add(0);
+                    resList.add(0);
+                    return resList;
+                }
+                String sql = "INSERT INTO \"" + targetTableName + "\"(" +
+                        //组装key列表
+                        ListUtil.getSQLColumnsListWithQuotes(keyList_SQL) + ")" +
+                        //组装value列表
+                        " VALUES (" + tableValues + ")";
+
+                logger.debug("sql: " + sql);
+                int count = statement.executeUpdate(sql);
+                if (count > 0) {
+                    logger.info("insert successful！");
+                    successCounter++;
+                } else {
+                    logger.info("insert failed！");
+                    failCounter++;
+                }
             }
+        } finally {
+            statement.close();
+            conn.close();
         }
 
         List<Integer> resList = new ArrayList<Integer>();
+        resList.add(0);
         resList.add(successCounter);
         resList.add(failCounter);
         return resList;
@@ -385,7 +434,7 @@ public class DbOperateService implements com.cetc.cloud.datasynch.provider.servi
      * @param tbStructureMap 字段名称-字段类型 映射表
      * @return 组装后的SQL值部分
      */
-    private String getTableValues(String tableName, List keyList_SQL, List<String> valueList_sql, HashMap<String, HashMap> tbStructureMap) {
+    private String getTableValuesSQLString(String tableName, List keyList_SQL, List<String> valueList_sql, HashMap<String, HashMap> tbStructureMap) {
 
         List<String> valueList = new ArrayList<String>();
         for (int i = 0; i < keyList_SQL.size(); i++) {
@@ -393,18 +442,33 @@ public class DbOperateService implements com.cetc.cloud.datasynch.provider.servi
                 //通过当前key获取对应的字段类型
                 String column_type = (String) tbStructureMap.get(tableName).get(keyList_SQL.get(i));
                 //根据字段类型判断输出值的形式（加""或者to_date()）, 拼接至值列表中
-                String decoratedColumn = DbTools.getDecoratedColumn(column_type, valueList.get(i));
+                String decoratedColumn = DbTools.getDecoratedColumn(column_type, valueList_sql.get(i));
                 if (null == decoratedColumn) {
                     return null;
                 } else {
                     valueList.add(decoratedColumn);
                 }
             } catch (Exception e) {
-                logger.error("DbOperateService.getTableValues()方法中的\"tbStructureMap\"没有找到表\"" + tableName + "\"对应字段\"" + keyList_SQL.get(i) + "\"对应的字段类型，\r\n请在对应的表中补全后重试！！！");
+                logger.error("DbOperateService.getTableValuesSQLString()方法中的\"tbStructureMap\"没有找到表\"" + tableName + "\"对应字段\"" + keyList_SQL.get(i) + "\"对应的字段类型，\r\n请在对应的表中补全后重试！！！");
+                return null;
             }
-
-
         }
         return ListUtil.toStringWithoutBracket(valueList);
+    }
+
+    @Override
+    public boolean checkIfTableExists(String tbName) {
+        String sql = "SELECT COUNT(*) COUNT FROM " + tbName;
+        try {
+            List<HashMap> hashMaps = oracleQuerySql(sql);
+            if (hashMaps.size() > 0) {
+                return true;
+            }
+        } catch (SQLException e) {
+            logger.error("DbOperateService.checkIfTableExists(),SQL:" + sql);
+            e.printStackTrace();
+            return false;
+        }
+        return false;
     }
 }

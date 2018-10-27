@@ -38,7 +38,7 @@ import java.util.List;
  * Update_Description: huangzezhou 补充
  **/
 @Service("dbQueryService")
-public class DbQueryService {
+public class DbQueryService implements com.cetc.cloud.datasynch.provider.service.DbOperateService {
 
     @Autowired
     @Qualifier("readOnlyJdbcTemplate")
@@ -113,4 +113,19 @@ public class DbQueryService {
         return data;
     }
 
+    @Override
+    public boolean checkIfTableExists(String tbName) {
+        String sql = "SELECT COUNT(*) FROM \"" + tbName + "\"";
+        logger.debug("sql: " + sql);
+
+        SqlRowSet resultSet = readOnlyJdbcTemplate.queryForRowSet(sql);
+        String count = null;
+        while (resultSet.next()) {
+             count = resultSet.getString(1);
+        }
+        if (Integer.parseInt(count)>0){
+            return true;
+        }
+        return false;
+    }
 }

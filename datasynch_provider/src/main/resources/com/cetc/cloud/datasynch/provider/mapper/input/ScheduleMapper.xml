@@ -99,4 +99,10 @@
         WHERE ID = #{jobId}
     </select>
 
+    <select id="getStatusByJobId" parameterType="java.lang.Integer" resultType="java.lang.Integer">
+        SELECT IS_ENABLED
+        FROM <include refid="BaseTable"/>
+        WHERE ID = #{jobId}
+    </select>
+
 </mapper>

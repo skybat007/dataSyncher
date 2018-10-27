@@ -27,7 +27,7 @@ public class MyScheduleRunnable implements Runnable {
     private DbOperateService dbOperateService;
     private HttpOperateService httpOperateService;
 
-    public MyScheduleRunnable(ScheduleModel scheduleModel,SynchJobLogInfoService synchJobLogInfoService,DbQueryService dbQueryService,DbOperateService dbOperateService) {
+    public MyScheduleRunnable(ScheduleModel scheduleModel, SynchJobLogInfoService synchJobLogInfoService, DbQueryService dbQueryService, DbOperateService dbOperateService, HttpOperateService httpOperateService) {
         this.scheduleModel = scheduleModel;
         this.synchJobLogInfoService = synchJobLogInfoService;
         this.dbQueryService = dbQueryService;
@@ -43,10 +43,10 @@ public class MyScheduleRunnable implements Runnable {
             if (scheduleModel.getConnType() == 0) {
                 logger.info("scheduleModel.connType：DataBase");
                 //数据库接入方式
-                doSQLPulling(synchJobLogInfoService,dbQueryService,dbOperateService);
+                doSQLPulling(synchJobLogInfoService, dbQueryService, dbOperateService);
             } else if (scheduleModel.getConnType() == 1) {
                 //接口接入方式
-                doHttpPulling(synchJobLogInfoService,httpOperateService,dbOperateService);
+                doHttpPulling(synchJobLogInfoService, httpOperateService, dbOperateService);
             } else return;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -59,34 +59,39 @@ public class MyScheduleRunnable implements Runnable {
      *
      * @return
      */
-    private boolean doSQLPulling(SynchJobLogInfoService synchJobLogInfoService,DbQueryService dbQueryService,DbOperateService dbOperateService) throws SQLException {
+    private boolean doSQLPulling(SynchJobLogInfoService synchJobLogInfoService, DbQueryService dbQueryService, DbOperateService dbOperateService) throws SQLException {
         //1.根据tableName查询最近一条执行成功的数据同步日志对应的分页参数
-        SynchJobLogInfoModel model =null;
+        SynchJobLogInfoModel model = null;
         try {
             model = synchJobLogInfoService.queryLatestInfoByJobId(scheduleModel.getId());
-        }catch (Exception e){
+        } catch (Exception e) {
             logger.info("获取最近一次日志的分页参数为NULL！");
 //            e.printStackTrace();
         }
 
         int singleJobTotalSuccessCount = 0;
         int singleJobTotalFailCount = 0;
-
+        //计算最新的分页参数
+        int toDoPage = -1;
+        int currentRownum = 0;
+        if (model!=null){
+            currentRownum = model.getCurrentRownum();
+        }
         //判断是否到达最后一页(未到达最后一页的标志：rowNum==pageSize;若达到最后一页: rowNum==0||rownum<pageSize
         // null==model表示还未发起过请求)
+        /**未到达最后一页，继续请求**/
         while (null == model || model.getCurrentRownum() == scheduleModel.getPageSize()) {
-            logger.info("executing while block");
-            /**未到达最后一页，继续请求**/
-            //计算最新的分页参数
-            int toDoPage = -1;
+            logger.info("current job is running! query doesn't reach the end ");
+
             if (null == model) {
                 toDoPage = 1;
             } else {
                 toDoPage = model.getCurrentPageNum() + 1;
             }
+
             //创建新的SQL请求语句
-            String SQL = SQLCreator.createSQLByTbNameAndRowParam(scheduleModel.getTargetTableName(), toDoPage, scheduleModel.getPageSize());
-            //todo: 初始化Oracle连接
+            String SQL = SQLCreator.createSQLByTbNameAndRowParam(scheduleModel.getTargetTableName(), toDoPage, scheduleModel.getPageSize(), currentRownum);
+
             //获取数据
             List<HashMap> queryResult = dbQueryService.oracleQuerySql(SQL);
             logger.info("Received queryResult:Size:--" + queryResult.size());
@@ -96,32 +101,37 @@ public class MyScheduleRunnable implements Runnable {
             //记录在请求日志表中
             SynchJobLogInfoModel synchJobLogInfoModel = new SynchJobLogInfoModel();
             synchJobLogInfoModel.setJobId(scheduleModel.getId());
+            synchJobLogInfoModel.setIsSuccess(insertResList.get(0));
             synchJobLogInfoModel.setCurrentPageSize(scheduleModel.getPageSize());
             synchJobLogInfoModel.setCurrentPageNum(toDoPage);
             synchJobLogInfoModel.setCurrentRownum(queryResult.size());
             synchJobLogInfoModel.setConnType(scheduleModel.getConnType());
-            synchJobLogInfoModel.setSuccessCount(insertResList.get(0));
-            synchJobLogInfoModel.setFailCount(insertResList.get(1));
-            singleJobTotalSuccessCount += insertResList.get(0);
-            singleJobTotalFailCount += insertResList.get(1);
+            synchJobLogInfoModel.setSuccessCount(insertResList.get(1));
+            synchJobLogInfoModel.setFailCount(insertResList.get(2));
+            singleJobTotalSuccessCount += insertResList.get(1);
+            singleJobTotalFailCount += insertResList.get(2);
             synchJobLogInfoModel.setTotalSuccessCount(singleJobTotalSuccessCount);
             synchJobLogInfoModel.setTotalFailCount(singleJobTotalFailCount);
 
             int count = synchJobLogInfoService.add(synchJobLogInfoModel);
 
             if (count >= 1) {
-                logger.info("successfuly done a SQL query: " + SQL + "," +
+                logger.info("\nsuccessfuly done a SQL query: " + SQL + "," +
                                 "\ncurrent tableName: " + scheduleModel.getTargetTableName() +
                                 "\ncurrent page: " + toDoPage +
-                                "\ncurrent page success:"+synchJobLogInfoModel.getSuccessCount()+
-                                "\ncurrent page fail:"+synchJobLogInfoModel.getFailCount()+
-                                "\ntotal success:"+synchJobLogInfoModel.getTotalSuccessCount()+
-                                "\ntotal fail:"+synchJobLogInfoModel.getTotalFailCount()
+                                "\ncurrent page success:" + synchJobLogInfoModel.getSuccessCount() +
+                                "\ncurrent page fail:" + synchJobLogInfoModel.getFailCount() +
+                                "\ntotal success:" + synchJobLogInfoModel.getTotalSuccessCount() +
+                                "\ntotal fail:" + synchJobLogInfoModel.getTotalFailCount()
                 );
-                return true;
+
             } else {
                 logger.error("failed done a SQL query: " + SQL + ",\ncurrent tableName: " + scheduleModel.getTargetTableName() + ",current page: " + toDoPage);
-                return false;
+            }
+            try {
+                model = synchJobLogInfoService.queryLatestInfoByJobId(scheduleModel.getId());
+            } catch (Exception e) {
+                logger.info("获取最近一次日志的分页参数为NULL！");
             }
         }
         return false;
@@ -133,7 +143,7 @@ public class MyScheduleRunnable implements Runnable {
      *
      * @return
      */
-    private boolean doHttpPulling(SynchJobLogInfoService synchJobLogInfoService,HttpOperateService httpOperateService,DbOperateService dbOperateService) throws SQLException {
+    private boolean doHttpPulling(SynchJobLogInfoService synchJobLogInfoService, HttpOperateService httpOperateService, DbOperateService dbOperateService) throws SQLException {
         //1.根据tableName查询最近一条执行成功的数据同步日志对应的分页参数
         SynchJobLogInfoModel model = synchJobLogInfoService.queryLatestInfoByJobId(scheduleModel.getId());
 

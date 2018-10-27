@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 /**
@@ -24,7 +25,7 @@ public class ColumnMappingService implements com.cetc.cloud.datasynch.provider.s
         List<ColumnMappingModel> list = columnMappingMapper.getMappingByTargetTableName(targetTable);
         if (list == null)
             return null;
-        HashMap<String, String> columnMap = new HashMap<String, String>();
+        HashMap<String, String> columnMap = new LinkedHashMap<String, String>();
 
         for (int i = 0; i < list.size(); i++) {
             ColumnMappingModel model = list.get(i);
