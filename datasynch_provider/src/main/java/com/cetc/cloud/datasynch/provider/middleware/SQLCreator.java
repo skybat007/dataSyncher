@@ -14,23 +14,16 @@ public class SQLCreator {
         STARTROW 从1开始
         ENDROW 包含在内
      */
-    public static String createSQLByTbNameAndRowParam(String tableName,int startRow, int endRow, String OrderByColumn) {
+    public static String createSQLByTbNameAndRowParam(String tableName, int startRow, int endRow, String orderByColumn) {
 
+        String sql = "select *\n" +
+                " from (select row_.*, rownum rownum_\n" +
+                "       from (select *\n" +
+                "             from \""+tableName+"\"\n" +
+                "             order by " + orderByColumn + " asc) row_\n" +
+                "       where rownum <= " + endRow + ")\n" +
+                "where rownum_ >= " + startRow;
 
-        String originSQL = "SELECT *\n" +
-                "FROM (\n" +
-                " SELECT \"@TABLE_NAME\".*, rownum rownum_\n" +
-                " FROM \"@TABLE_NAME\"\n" +
-                " WHERE rownum <= @ENDROW\n" +
-                " ORDER BY \"" + OrderByColumn + "\" ASC\n" +
-                " )WHERE rownum_ >= @STARTROW";
-
-
-
-        String SQL = originSQL.replaceAll("@TABLE_NAME", tableName);
-        String SQL1 = SQL.replaceAll("@STARTROW", String.valueOf(startRow));
-        String SQL2 = SQL1.replaceAll("@ENDROW", String.valueOf(endRow));
-
-        return SQL2;
+        return sql;
     }
 }
