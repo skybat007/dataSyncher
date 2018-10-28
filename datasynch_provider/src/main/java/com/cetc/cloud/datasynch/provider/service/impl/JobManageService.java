@@ -47,7 +47,6 @@ public class JobManageService implements com.cetc.cloud.datasynch.provider.servi
 
     static boolean isinitialized = false;
 
-    @Override
     @Bean
     public ThreadPoolTaskScheduler threadPoolTaskScheduler() {
         threadPoolTaskScheduler = new ThreadPoolTaskScheduler();

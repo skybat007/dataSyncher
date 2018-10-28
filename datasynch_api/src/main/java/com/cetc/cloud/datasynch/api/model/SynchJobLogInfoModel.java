@@ -12,9 +12,11 @@ public class SynchJobLogInfoModel implements Serializable{
     private int id;
     private int jobId;
     private int isSuccess;
+    private int queryResultSize;
     private int currentPageNum;
     private int currentPageSize;
-    private int currentRownum;
+    private int startRow;
+    private int endRow;
     private int connType;
     private int successCount;
     private int failCount;
@@ -22,6 +24,22 @@ public class SynchJobLogInfoModel implements Serializable{
     private int totalFailCount;
     private Date createTime;
     private Date updateTime;
+
+    public int getEndRow() {
+        return endRow;
+    }
+
+    public void setEndRow(int endRow) {
+        this.endRow = endRow;
+    }
+
+    public int getQueryResultSize() {
+        return queryResultSize;
+    }
+
+    public void setQueryResultSize(int queryResultSize) {
+        this.queryResultSize = queryResultSize;
+    }
 
     public int getIsSuccess() {
         return isSuccess;
@@ -79,12 +97,12 @@ public class SynchJobLogInfoModel implements Serializable{
         this.currentPageNum = currentPageNum;
     }
 
-    public int getCurrentRownum() {
-        return currentRownum;
+    public int getStartRow() {
+        return startRow;
     }
 
-    public void setCurrentRownum(int currentRownum) {
-        this.currentRownum = currentRownum;
+    public void setStartRow(int startRow) {
+        this.startRow = startRow;
     }
 
     public int getConnType() {

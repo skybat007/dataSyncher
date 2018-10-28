@@ -11,10 +11,7 @@ public class ScheduleModel implements Serializable {
     private int id;                         //job唯一主键
     private int connType;                   //连接方式（0：前置机方式 1：接口方式）
     private String source;                  //源（请求URL路径@token/前置机view视图的名称）
-    private String dbSrcIP;                 //（数据库请求独有参数）数据源连接参数IP
-    private String dbSrcUsername;           //（数据库请求独有参数）数据源连接参数USRNAME
-    private String dbSrcPassword;           //（数据库请求独有参数）数据源连接参数PASSWORD
-    private String dbSrcConnUrl;            //（数据库请求独有参数）数据源连接参数DBURL
+    private String orderByColumnName;       //（数据库请求独有参数）源-排序字段名称
     private String httpParamExpression;     //（HTTP请求独有参数）入参表达式
     private String httpToken;               //（HTTP请求独有参数）token表达式
     private String httpParamPageSize;       //（HTTP请求独有参数）pageSize映射参数名
@@ -51,36 +48,12 @@ public class ScheduleModel implements Serializable {
         this.source = source;
     }
 
-    public String getDbSrcIP() {
-        return dbSrcIP;
+    public String getOrderByColumnName() {
+        return orderByColumnName;
     }
 
-    public void setDbSrcIP(String dbSrcIP) {
-        this.dbSrcIP = dbSrcIP;
-    }
-
-    public String getDbSrcUsername() {
-        return dbSrcUsername;
-    }
-
-    public void setDbSrcUsername(String dbSrcUsername) {
-        this.dbSrcUsername = dbSrcUsername;
-    }
-
-    public String getDbSrcPassword() {
-        return dbSrcPassword;
-    }
-
-    public void setDbSrcPassword(String dbSrcPassword) {
-        this.dbSrcPassword = dbSrcPassword;
-    }
-
-    public String getDbSrcConnUrl() {
-        return dbSrcConnUrl;
-    }
-
-    public void setDbSrcConnUrl(String dbSrcConnUrl) {
-        this.dbSrcConnUrl = dbSrcConnUrl;
+    public void setOrderByColumnName(String orderByColumnName) {
+        this.orderByColumnName = orderByColumnName;
     }
 
     public String getHttpParamExpression() {

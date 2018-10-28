@@ -5,9 +5,11 @@
         <result column="ID" jdbcType="INTEGER" property="id"/>
         <result column="JOBID" jdbcType="INTEGER" property="jobId"/>
         <result column="IS_SUCCESS" jdbcType="INTEGER" property="isSuccess"/>
+        <result column="QUERY_RESULT_SIZE" jdbcType="INTEGER" property="queryResultSize"/>
         <result column="CURRENT_PAGE_NUM" jdbcType="INTEGER" property="currentPageNum"/>
         <result column="CURRENT_PAGE_SIZE" jdbcType="INTEGER" property="currentPageSize"/>
-        <result column="CURRENT_ROW_NUM" jdbcType="INTEGER" property="currentRownum"/>
+        <result column="START_ROW" jdbcType="INTEGER" property="startRow"/>
+        <result column="END_ROW" jdbcType="INTEGER" property="endRow"/>
         <result column="CONN_TYPE" jdbcType="INTEGER" property="connType"/>
         <result column="SUCCESS_COUNT" jdbcType="INTEGER" property="successCount"/>
         <result column="FAIL_COUNT" jdbcType="INTEGER" property="failCount"/>
@@ -22,11 +24,11 @@
     </sql>
 
     <sql id="BaseColumns">
-        ID,JOBID,IS_SUCCESS,CURRENT_PAGE_NUM,CURRENT_PAGE_SIZE,CURRENT_ROW_NUM,CONN_TYPE,SUCCESS_COUNT,
+        ID,JOBID,IS_SUCCESS,QUERY_RESULT_SIZE,CURRENT_PAGE_NUM,CURRENT_PAGE_SIZE,START_ROW,END_ROW,CONN_TYPE,SUCCESS_COUNT,
         FAIL_COUNT,TOTAL_SUCCESS_COUNT,TOTAL_FAIL_COUNT,CREATE_TIME,UPDATE_TIME
     </sql>
     <sql id="BaseColumns_Insert">
-       ID,JOBID,IS_SUCCESS,CURRENT_PAGE_NUM,CURRENT_PAGE_SIZE,CURRENT_ROW_NUM,CONN_TYPE,SUCCESS_COUNT,
+       ID,JOBID,IS_SUCCESS,QUERY_RESULT_SIZE,CURRENT_PAGE_NUM,CURRENT_PAGE_SIZE,START_ROW,END_ROW,CONN_TYPE,SUCCESS_COUNT,
        FAIL_COUNT,TOTAL_SUCCESS_COUNT,TOTAL_FAIL_COUNT
     </sql>
 
@@ -47,9 +49,11 @@
         #{id,jdbcType=INTEGER},
         #{jobId,jdbcType=INTEGER},
         #{isSuccess,jdbcType=INTEGER},
+        #{queryResultSize,jdbcType=INTEGER},
         #{currentPageNum,jdbcType=VARCHAR},
         #{currentPageSize,jdbcType=VARCHAR},
-        #{currentRownum,jdbcType=VARCHAR},
+        #{startRow,jdbcType=VARCHAR},
+        #{endRow,jdbcType=VARCHAR},
         #{connType,jdbcType=VARCHAR},
         #{successCount,jdbcType=VARCHAR},
         #{failCount,jdbcType=VARCHAR},

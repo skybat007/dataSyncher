@@ -45,7 +45,7 @@ public class ScheduleController implements ScheduleRemoteService {
 
     @Override
     public HashMap createScheduleJob(int connType, String source,
-                                     String dbSrcIP, String dbSrcUsername, String dbSrcPassword, String dbSrcConnUrl,
+                                     String orderByColumnName,
                                      String httpParamExpression, String httpToken, String httpParamPageSize,
                                      String httpParamPageNum, String httpJsonExtractRule,
                                      String targetTableName, String pageSize, String cronExpression) throws SQLException {
@@ -54,13 +54,13 @@ public class ScheduleController implements ScheduleRemoteService {
         //参数完整性校验
         if (null == source || null == targetTableName || null == cronExpression || null == pageSize) {
             res.put("result", "fail");
-            res.put("msg", "param error! source,targetTableName,cronExpression cannot be null!");
+            res.put("msg", "param error! source,targetTableName,cronExpression,pageSize cannot be null!");
             return res;
         }
         if (connType == CommonInstance.TYPE_INTERFACE) {
-            if (null == dbSrcIP || null == dbSrcUsername || null == dbSrcPassword || null == dbSrcConnUrl) {
+            if (null == orderByColumnName) {
                 res.put("result", "fail");
-                res.put("msg", "param error! dbSrcIP,dbSrcUsername,dbSrcPassword,dbSrcConnUrl cannot be null!");
+                res.put("msg", "param error! orderByColumnName cannot be null!");
                 return res;
             }
         } else if (connType == CommonInstance.TYPE_INTERFACE) {
@@ -74,10 +74,7 @@ public class ScheduleController implements ScheduleRemoteService {
         ScheduleModel scheduleModel = new ScheduleModel();
         scheduleModel.setConnType(connType);
         scheduleModel.setSource(source);
-        scheduleModel.setDbSrcIP(dbSrcIP);
-        scheduleModel.setDbSrcUsername(dbSrcUsername);
-        scheduleModel.setDbSrcPassword(dbSrcPassword);
-        scheduleModel.setDbSrcConnUrl(dbSrcConnUrl);
+        scheduleModel.setOrderByColumnName(orderByColumnName);
         scheduleModel.setHttpParamExpression(httpParamExpression);
         scheduleModel.setHttpToken(httpToken);
         scheduleModel.setHttpParamPageSize(httpParamPageSize);

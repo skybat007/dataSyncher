@@ -14,6 +14,7 @@ package com.cetc.cloud.datasynch.provider.service.impl;
 
 import com.cetc.cloud.datasynch.api.model.ScheduleModel;
 import com.cetc.cloud.datasynch.provider.core.util.ListUtil;
+import com.cetc.cloud.datasynch.provider.service.DbBaseService;
 import com.cetc.cloud.datasynch.provider.tools.DbTools;
 import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.jdbc.ScriptRunner;
@@ -21,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -42,7 +44,7 @@ import java.util.*;
  * Update_Description: huangzezhou 补充
  **/
 @Service("dbOperateService")
-public class DbOperateService implements com.cetc.cloud.datasynch.provider.service.DbOperateService {
+public class DbOperateService implements DbBaseService {
 
     @Autowired
     @Qualifier("primaryDataSource")
@@ -406,10 +408,10 @@ public class DbOperateService implements com.cetc.cloud.datasynch.provider.servi
                 logger.debug("sql: " + sql);
                 int count = statement.executeUpdate(sql);
                 if (count > 0) {
-                    logger.info("insert successful！");
+                    logger.debug("insert successful！");
                     successCounter++;
                 } else {
-                    logger.info("insert failed！");
+                    logger.debug("insert failed！");
                     failCounter++;
                 }
             }
@@ -470,5 +472,24 @@ public class DbOperateService implements com.cetc.cloud.datasynch.provider.servi
             return false;
         }
         return false;
+    }
+
+    @Override
+    public int getTableRowCounts(String tbName) throws SQLException {
+        String sql = "SELECT COUNT(*) FROM \"" + tbName + "\"";
+        logger.debug("sql: " + sql);
+
+        try {
+            conn = dataSource.getConnection();
+            statement = conn.createStatement();
+            ResultSet resultSet = statement.executeQuery(sql);
+            String count = null;
+            while (resultSet.next()) {
+                count = resultSet.getString(1);
+            }
+            return Integer.parseInt(count);
+        }finally {
+            close(conn,statement);
+        }
     }
 }

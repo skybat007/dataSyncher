@@ -158,10 +158,10 @@ spring.primary-datasource.time-between-eviction-runs-millis: 3000
 #        default-fetch-size: 100
 #        default-statement-timeout: 30
 #    mapperLocations: classpath*:com.cetc.cloud.datasynch.provider.mapper/**Mapper.xml
-logging:
-  level:
-    root: DEBUG
-    org.springframework.web: INFO
-# path: D://output/Intellij/11-Gaojiaohui/logs
-  file: logs/test.log
+#logging:
+#  level:
+#    root: DEBUG
+#    org.springframework.web: INFO
+## path: D://output/Intellij/11-Gaojiaohui/logs
+#  file: logs/test.log
 

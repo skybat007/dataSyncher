@@ -37,13 +37,17 @@ public class MyScheduleRunnable implements Runnable {
 
     @Override
     public void run() {
-        logger.info("executing run() method");
+        logger.info("\n\n----->>>> executing run() method");
         try {
             //根据接入方式决定生成SQL query还是Http请求
             if (scheduleModel.getConnType() == 0) {
-                logger.info("scheduleModel.connType：DataBase");
                 //数据库接入方式
-                doSQLPulling(synchJobLogInfoService, dbQueryService, dbOperateService);
+                boolean b = doSQLPulling(synchJobLogInfoService, dbQueryService, dbOperateService);
+                if (b) {
+                    logger.info("\n\n----->>>>MyScheduleRunnable.doSQLPulling：finished!!!");
+                } else {
+                    logger.info("\n\n----->>>>MyScheduleRunnable.doSQLPulling：finished with error!!!");
+                }
             } else if (scheduleModel.getConnType() == 1) {
                 //接口接入方式
                 doHttpPulling(synchJobLogInfoService, httpOperateService, dbOperateService);
@@ -60,81 +64,122 @@ public class MyScheduleRunnable implements Runnable {
      * @return
      */
     private boolean doSQLPulling(SynchJobLogInfoService synchJobLogInfoService, DbQueryService dbQueryService, DbOperateService dbOperateService) throws SQLException {
-        //1.根据tableName查询最近一条执行成功的数据同步日志对应的分页参数
-        SynchJobLogInfoModel model = null;
-        try {
-            model = synchJobLogInfoService.queryLatestInfoByJobId(scheduleModel.getId());
-        } catch (Exception e) {
-            logger.info("获取最近一次日志的分页参数为NULL！");
-//            e.printStackTrace();
-        }
 
+        /**变量创建*/
         int singleJobTotalSuccessCount = 0;
         int singleJobTotalFailCount = 0;
-        //计算最新的分页参数
-        int toDoPage = -1;
-        int currentRownum = 0;
-        if (model!=null){
-            currentRownum = model.getCurrentRownum();
-        }
+        //用来计算最新的分页参数
+        int toDoPageNum;
+        int startRow;
+        int endRow;
+        SynchJobLogInfoModel logModel = null;
+
+        //获取源表中的数据总数，当总数大于目标表时，则需要启动任务执行该任务
+        int tableRowCounts_src = dbQueryService.getTableRowCounts(scheduleModel.getSource());
+        int tableRowCounts_trgt = dbOperateService.getTableRowCounts(scheduleModel.getTargetTableName());
+        boolean compareRes = tableRowCounts_src > tableRowCounts_trgt ? true : false;
+        logger.info("\n\n----->>>> SourceTable.total > TargetTable.total? "+compareRes);
+        boolean reachedLastRow = false;
         //判断是否到达最后一页(未到达最后一页的标志：rowNum==pageSize;若达到最后一页: rowNum==0||rownum<pageSize
         // null==model表示还未发起过请求)
-        /**未到达最后一页，继续请求**/
-        while (null == model || model.getCurrentRownum() == scheduleModel.getPageSize()) {
-            logger.info("current job is running! query doesn't reach the end ");
+        //增加第二次启动任务的逻辑：
+        if (compareRes == true) {
+            /**初次执行；未到达最后一页；两表大小不一致 --- 继续请求**/
+            while (null == logModel || !reachedLastRow) {
+                //1.根据tableName查询最近一条执行成功的数据同步日志对应的分页参数
+                try {
+                    logModel = synchJobLogInfoService.queryLatestInfoByJobId(scheduleModel.getId());
+                } catch (Exception e) {
+                    logger.info("获取最近一次日志的分页参数为NULL！");
+                }
+                logger.info("\n\n----->>>> current job is running! query doesn't reach the end ");
 
-            if (null == model) {
-                toDoPage = 1;
-            } else {
-                toDoPage = model.getCurrentPageNum() + 1;
-            }
+                //重新计算分页参数
+                if (null == logModel) {
+                    toDoPageNum = 1;
+                    startRow = 1;
+                    endRow = startRow + scheduleModel.getPageSize() - 1;
+                } else if (compareRes == true) { //初次执行while循环
+                    toDoPageNum = 1;
+                    startRow = logModel.getEndRow() + 1;
+                    //通过pagenum和pagesize计算StartRow和EndRow
+                    endRow = startRow + scheduleModel.getPageSize() - 1;
+                } else {
+                    if (compareRes == true) {
+                        toDoPageNum = 1;
+                    } else {
+                        toDoPageNum = logModel.getCurrentPageNum() + 1;
+                    }
 
-            //创建新的SQL请求语句
-            String SQL = SQLCreator.createSQLByTbNameAndRowParam(scheduleModel.getTargetTableName(), toDoPage, scheduleModel.getPageSize(), currentRownum);
+                    startRow = logModel.getEndRow() + 1;
+                    endRow = startRow + scheduleModel.getPageSize() - 1;
+                }
 
-            //获取数据
-            List<HashMap> queryResult = dbQueryService.oracleQuerySql(SQL);
-            logger.info("Received queryResult:Size:--" + queryResult.size());
-            /**数据入库**/
-            List<Integer> insertResList = dbOperateService.insertIntoTargetTable(queryResult, scheduleModel);
+                //创建新的SQL请求语句
+                String SQL = SQLCreator.createSQLByTbNameAndRowParam(scheduleModel.getSource(), startRow, endRow, scheduleModel.getOrderByColumnName());
+                            //获取数据
+                List<HashMap> queryResult = dbQueryService.oracleQuerySql(SQL);
+                //通过pagenum和pagesize计算StartRow和EndRow
+                if (queryResult.size()!=scheduleModel.getPageSize()) {
+                    endRow = startRow+queryResult.size()-1;
+                }
+                logger.info("\n" +
+                        "\n" +
+                        "----->>>>Received queryResult:Size:--" + queryResult.size());
+                /**数据入库**/
+                List<Integer> insertResList = dbOperateService.insertIntoTargetTable(queryResult, scheduleModel);
 
-            //记录在请求日志表中
-            SynchJobLogInfoModel synchJobLogInfoModel = new SynchJobLogInfoModel();
-            synchJobLogInfoModel.setJobId(scheduleModel.getId());
-            synchJobLogInfoModel.setIsSuccess(insertResList.get(0));
-            synchJobLogInfoModel.setCurrentPageSize(scheduleModel.getPageSize());
-            synchJobLogInfoModel.setCurrentPageNum(toDoPage);
-            synchJobLogInfoModel.setCurrentRownum(queryResult.size());
-            synchJobLogInfoModel.setConnType(scheduleModel.getConnType());
-            synchJobLogInfoModel.setSuccessCount(insertResList.get(1));
-            synchJobLogInfoModel.setFailCount(insertResList.get(2));
-            singleJobTotalSuccessCount += insertResList.get(1);
-            singleJobTotalFailCount += insertResList.get(2);
-            synchJobLogInfoModel.setTotalSuccessCount(singleJobTotalSuccessCount);
-            synchJobLogInfoModel.setTotalFailCount(singleJobTotalFailCount);
+                //记录在请求日志表中
+                SynchJobLogInfoModel synchJobLogInfoModel = new SynchJobLogInfoModel();
+                synchJobLogInfoModel.setJobId(scheduleModel.getId());
+                synchJobLogInfoModel.setIsSuccess(insertResList.get(0));
+                synchJobLogInfoModel.setQueryResultSize(queryResult.size());
+                synchJobLogInfoModel.setCurrentPageSize(scheduleModel.getPageSize());
+                synchJobLogInfoModel.setCurrentPageNum(toDoPageNum);
+                synchJobLogInfoModel.setStartRow(startRow);
+                synchJobLogInfoModel.setEndRow(endRow);
+                synchJobLogInfoModel.setQueryResultSize(queryResult.size());
+                synchJobLogInfoModel.setConnType(scheduleModel.getConnType());
+                synchJobLogInfoModel.setSuccessCount(insertResList.get(1));
+                synchJobLogInfoModel.setFailCount(insertResList.get(2));
+                singleJobTotalSuccessCount += insertResList.get(1);
+                singleJobTotalFailCount += insertResList.get(2);
+                synchJobLogInfoModel.setTotalSuccessCount(singleJobTotalSuccessCount);
+                synchJobLogInfoModel.setTotalFailCount(singleJobTotalFailCount);
 
-            int count = synchJobLogInfoService.add(synchJobLogInfoModel);
+                int count = synchJobLogInfoService.add(synchJobLogInfoModel);
 
-            if (count >= 1) {
-                logger.info("\nsuccessfuly done a SQL query: " + SQL + "," +
-                                "\ncurrent tableName: " + scheduleModel.getTargetTableName() +
-                                "\ncurrent page: " + toDoPage +
-                                "\ncurrent page success:" + synchJobLogInfoModel.getSuccessCount() +
-                                "\ncurrent page fail:" + synchJobLogInfoModel.getFailCount() +
-                                "\ntotal success:" + synchJobLogInfoModel.getTotalSuccessCount() +
-                                "\ntotal fail:" + synchJobLogInfoModel.getTotalFailCount()
-                );
+                if (count >= 1) {
+                    logger.info("\n\n----->>>>successfuly done a SQL query: " +
+                                    "\n" + SQL + "," +
+                                    "\ncurrent tableName: " + scheduleModel.getTargetTableName() +
+                                    "\ncurrent page: " + synchJobLogInfoModel.getCurrentPageNum() +
+                                    "\nqueryResult.size(): " + queryResult.size() +
+                                    "\ncurrent page success:" + synchJobLogInfoModel.getSuccessCount() +
+                                    "\ncurrent page fail:" + synchJobLogInfoModel.getFailCount() +
+                                    "\ntotal success:" + synchJobLogInfoModel.getTotalSuccessCount() +
+                                    "\ntotal fail:" + synchJobLogInfoModel.getTotalFailCount()
+                    );
 
-            } else {
-                logger.error("failed done a SQL query: " + SQL + ",\ncurrent tableName: " + scheduleModel.getTargetTableName() + ",current page: " + toDoPage);
-            }
-            try {
-                model = synchJobLogInfoService.queryLatestInfoByJobId(scheduleModel.getId());
-            } catch (Exception e) {
-                logger.info("获取最近一次日志的分页参数为NULL！");
+                } else {
+                    logger.error("failed done a SQL query: " + SQL + ",\ncurrent tableName: " + scheduleModel.getTargetTableName() + ",current page: " + toDoPageNum);
+                    return false;
+                }
+
+                if (compareRes == true) {
+                    compareRes = false;//该标志位只在启动时有效，之后不能以该标志位作为参考,故设为false
+                }
+                if (logModel != null) {
+                    if (logModel.getQueryResultSize() == scheduleModel.getPageSize()) {
+                        reachedLastRow = false;
+                    } else {
+                        return true;
+                    }
+                }
             }
         }
-        return false;
+
+        return true;
     }
 
 
@@ -166,7 +211,7 @@ public class MyScheduleRunnable implements Runnable {
         } else {
             //判断是否到达最后一页(未到达最后一页的标志：rowNum==pageSize;
             // null == model 表示还未通过job发起过请求)
-            while (null == model || model.getCurrentRownum() == scheduleModel.getPageSize()) {
+            while (null == model || model.getQueryResultSize() == scheduleModel.getPageSize()) {
                 /**未到达最后一页，继续请求**/
 
                 if (null == model) {
@@ -187,7 +232,7 @@ public class MyScheduleRunnable implements Runnable {
         synchJobLogInfoModel.setJobId(scheduleModel.getId());
         synchJobLogInfoModel.setCurrentPageSize(scheduleModel.getPageSize());
         synchJobLogInfoModel.setCurrentPageNum(toDoPage);
-        synchJobLogInfoModel.setCurrentRownum(queryResult.size());
+        synchJobLogInfoModel.setQueryResultSize(queryResult.size());
         synchJobLogInfoModel.setConnType(scheduleModel.getConnType());
         synchJobLogInfoModel.setSuccessCount(insertResList.get(0));
         synchJobLogInfoModel.setFailCount(insertResList.get(1));
