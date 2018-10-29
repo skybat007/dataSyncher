@@ -11,6 +11,7 @@
         <result column="HTTP_PARAM_PAGESIZE" jdbcType="VARCHAR" property="httpParamPageSize"/>
         <result column="HTTP_PARAM_PAGENUM" jdbcType="VARCHAR" property="httpParamPageNum"/>
         <result column="HTTP_JSON_EXTRACTRULE" jdbcType="VARCHAR" property="httpJsonExtractRule"/>
+        <result column="HTTP_TOTAL_EXTRACTRULE" jdbcType="VARCHAR" property="httpTotalExtractRule"/>
         <result column="TARGET_TABLE_NAME" jdbcType="VARCHAR" property="targetTableName"/>
         <result column="PAGE_SIZE" jdbcType="INTEGER" property="pageSize"/>
         <result column="CRON_EXPRESSION" jdbcType="VARCHAR" property="cronExpression"/>
@@ -20,17 +21,17 @@
     </resultMap>
 
     <sql id="BaseTable">
-      DS_SCHEDULE_JOB_INFO
+        DS_SCHEDULE_JOB_INFO
     </sql>
 
     <sql id="BaseColumns">
-        ID,CONN_TYPE,SOURCE,ORDER_BY_COL_NAME,HTTP_PARAM_EXPRESSION,HTTP_TOKEN
-        HTTP_PARAM_PAGESIZE,HTTP_PARAM_PAGENUM,HTTP_JSON_EXTRACTRULE,TARGET_TABLE_NAME,PAGE_SIZE,CRON_EXPRESSION,
+        ID,CONN_TYPE,SOURCE,ORDER_BY_COL_NAME,HTTP_PARAM_EXPRESSION,HTTP_TOKEN,
+        HTTP_PARAM_PAGESIZE,HTTP_PARAM_PAGENUM,HTTP_JSON_EXTRACTRULE,HTTP_TOTAL_EXTRACTRULE,TARGET_TABLE_NAME,PAGE_SIZE,CRON_EXPRESSION,
         IS_ENABLED,CREATE_TIME,UPDATE_TIME
     </sql>
     <sql id="BaseColumns_Insert">
         ID,CONN_TYPE,SOURCE,ORDER_BY_COL_NAME,HTTP_PARAM_EXPRESSION,HTTP_TOKEN,
-        HTTP_PARAM_PAGESIZE,HTTP_PARAM_PAGENUM,HTTP_JSON_EXTRACTRULE,TARGET_TABLE_NAME,PAGE_SIZE,CRON_EXPRESSION,
+        HTTP_PARAM_PAGESIZE,HTTP_PARAM_PAGENUM,HTTP_JSON_EXTRACTRULE,HTTP_TOTAL_EXTRACTRULE,TARGET_TABLE_NAME,PAGE_SIZE,CRON_EXPRESSION,
         IS_ENABLED
     </sql>
 
@@ -44,19 +45,20 @@
         INSERT INTO <include refid="BaseTable"/>
         (<include refid="BaseColumns_Insert"/> )
         VALUES (
-          #{id,jdbcType=INTEGER},
-          #{connType,jdbcType=INTEGER},
-          #{source,jdbcType=VARCHAR},
-          #{orderByColumnName,jdbcType=VARCHAR},
-          #{httpParamExpression,jdbcType=VARCHAR},
-          #{httpToken,jdbcType=VARCHAR},
-          #{httpParamPageSize,jdbcType=VARCHAR},
-          #{httpParamPageNum,jdbcType=VARCHAR},
-          #{httpJsonExtractRule,jdbcType=VARCHAR},
-          #{targetTableName,jdbcType=VARCHAR},
-          #{pageSize,jdbcType=INTEGER},
-          #{cronExpression,jdbcType=VARCHAR},
-          #{isEnabled,jdbcType=INTEGER}
+        #{id,jdbcType=INTEGER},
+        #{connType,jdbcType=INTEGER},
+        #{source,jdbcType=VARCHAR},
+        #{orderByColumnName,jdbcType=VARCHAR},
+        #{httpParamExpression,jdbcType=VARCHAR},
+        #{httpToken,jdbcType=VARCHAR},
+        #{httpParamPageSize,jdbcType=VARCHAR},
+        #{httpParamPageNum,jdbcType=VARCHAR},
+        #{httpJsonExtractRule,jdbcType=VARCHAR},
+        #{httpTotalExtractRule,jdbcType=VARCHAR},
+        #{targetTableName,jdbcType=VARCHAR},
+        #{pageSize,jdbcType=INTEGER},
+        #{cronExpression,jdbcType=VARCHAR},
+        #{isEnabled,jdbcType=INTEGER}
         )
     </insert>
     <select id="queryScheduleJobList" resultMap="BaseResultMap" parameterType="java.lang.Long">

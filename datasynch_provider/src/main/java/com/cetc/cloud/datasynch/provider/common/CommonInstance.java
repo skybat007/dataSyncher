@@ -35,11 +35,14 @@ public interface CommonInstance {
     /**
      * 接口方式分页参数名称
      */
-    String PAGE_NUM_NAME = "pageSize";
-    String PAGE_SIZE_NAME = "pageNum";
+    String PAGE_NUM_NAME = "PAR_pageSize";
+    String PAGE_SIZE_NAME = "PAR_pageNum";
 
     /**
      * Excel默认数据起始行
      */
     int DEFAULT_EXCEL_STARTWROW = 1;
+
+    String HTTP_RES_CODE = "code";
+    String HTTP_RES_DATA = "data";
 }

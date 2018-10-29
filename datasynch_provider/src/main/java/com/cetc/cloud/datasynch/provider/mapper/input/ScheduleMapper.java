@@ -16,15 +16,15 @@ public interface ScheduleMapper {
 
     List<ScheduleModel> queryScheduleJobList();
 
-    int deleteJobByJobId(int jobId);
+    int deleteJobByJobId(@Param("jobId")int jobId);
 
     int updateCronByJobId(@Param("jobId")int jobId,@Param("cron")String cron);
 
     int updateEnableStatusByJobId(@Param("jobId")int jobId, @Param("isEnabled")int isEnabled);
 
-    ScheduleModel queryModelByJobId(int jobId);
+    ScheduleModel queryModelByJobId(@Param("jobId")int jobId);
 
-    int addScheduleInstance(ScheduleModel scheduleModel);
+    int addScheduleInstance(@Param("scheduleModel") ScheduleModel scheduleModel);
 
-    int getStatusByJobId(int jobId);
+    int getStatusByJobId(@Param("jobId")int jobId);
 }

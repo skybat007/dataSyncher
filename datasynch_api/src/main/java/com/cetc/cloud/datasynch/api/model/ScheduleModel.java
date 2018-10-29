@@ -17,6 +17,7 @@ public class ScheduleModel implements Serializable {
     private String httpParamPageSize;       //（HTTP请求独有参数）pageSize映射参数名
     private String httpParamPageNum;        //（HTTP请求独有参数）pageNum映射参数名
     private String httpJsonExtractRule;     //（HTTP请求独有参数）json解析规则
+    private String httpTotalExtractRule;    //（HTTP请求独有参数）total参数解析规则
     private String targetTableName;         //入库表名
     private int pageSize;                   //页大小
     private String cronExpression;          //定时表达式
@@ -94,6 +95,14 @@ public class ScheduleModel implements Serializable {
 
     public void setHttpJsonExtractRule(String httpJsonExtractRule) {
         this.httpJsonExtractRule = httpJsonExtractRule;
+    }
+
+    public String getHttpTotalExtractRule() {
+        return httpTotalExtractRule;
+    }
+
+    public void setHttpTotalExtractRule(String httpTotalExtractRule) {
+        this.httpTotalExtractRule = httpTotalExtractRule;
     }
 
     public String getTargetTableName() {

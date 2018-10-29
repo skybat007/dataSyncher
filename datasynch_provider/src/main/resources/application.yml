@@ -157,7 +157,7 @@ spring.primary-datasource.time-between-eviction-runs-millis: 3000
 #        map-underscore-to-camel-case: true
 #        default-fetch-size: 100
 #        default-statement-timeout: 30
-#    mapperLocations: classpath*:com.cetc.cloud.datasynch.provider.mapper/**Mapper.xml
+#    mapperLocations: classpath*:com.cetc.cloud.datasynch.provider.mapper/**/**Mapper.xml
 #logging:
 #  level:
 #    root: DEBUG

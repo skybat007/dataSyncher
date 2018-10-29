@@ -47,7 +47,7 @@ public class ScheduleController implements ScheduleRemoteService {
     public HashMap createScheduleJob(int connType, String source,
                                      String orderByColumnName,
                                      String httpParamExpression, String httpToken, String httpParamPageSize,
-                                     String httpParamPageNum, String httpJsonExtractRule,
+                                     String httpParamPageNum, String httpJsonExtractRule,String httpTotalExtractRule,
                                      String targetTableName, String pageSize, String cronExpression) throws SQLException {
         HashMap res = new HashMap();
 
@@ -64,7 +64,7 @@ public class ScheduleController implements ScheduleRemoteService {
                 return res;
             }
         } else if (connType == CommonInstance.TYPE_INTERFACE) {
-            if (null == httpParamExpression || null == httpToken || null == httpParamPageSize || null == httpParamPageNum || null == httpJsonExtractRule) {
+            if (null == httpParamExpression || null == httpParamPageSize || null == httpParamPageNum || null == httpJsonExtractRule) {
                 res.put("result", "fail");
                 res.put("msg", "param error! httpParamExpression,httpParamPageSize,httpParamPageNum,httpJsonExtractRule cannot be null!");
                 return res;
@@ -80,6 +80,7 @@ public class ScheduleController implements ScheduleRemoteService {
         scheduleModel.setHttpParamPageSize(httpParamPageSize);
         scheduleModel.setHttpParamPageNum(httpParamPageNum);
         scheduleModel.setHttpJsonExtractRule(httpJsonExtractRule);
+        scheduleModel.setHttpTotalExtractRule(httpTotalExtractRule);
         scheduleModel.setTargetTableName(targetTableName);
         scheduleModel.setPageSize(Integer.parseInt(pageSize));
         scheduleModel.setCronExpression(cronExpression);
@@ -92,7 +93,7 @@ public class ScheduleController implements ScheduleRemoteService {
                 return res;
             } else if (false == dbOperateService.checkIfTableExists(scheduleModel.getTargetTableName())) {
                 res.put("result", "fail");
-                res.put("msg", "failed,Target table:" + scheduleModel.getTargetTableName() + " doesn't reachable!");
+                res.put("msg", "failed,Target table:" + scheduleModel.getTargetTableName() + " doesn't Exists!");
                 return res;
             }
         } else if (CommonInstance.TYPE_INTERFACE == scheduleModel.getConnType()) {
@@ -103,7 +104,7 @@ public class ScheduleController implements ScheduleRemoteService {
                 return res;
             } else if (false == dbOperateService.checkIfTableExists(scheduleModel.getTargetTableName())) {
                 res.put("result", "fail");
-                res.put("msg", "failed,Target table:" + scheduleModel.getTargetTableName() + " doesn't reachable!");
+                res.put("msg", "failed,Target table:" + scheduleModel.getTargetTableName() + " doesn't Exists!");
                 return res;
             }
         }

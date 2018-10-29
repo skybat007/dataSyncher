@@ -29,8 +29,6 @@ public class JobManageService implements com.cetc.cloud.datasynch.provider.servi
     @Autowired
     SynchJobLogInfoService synchJobLogInfoService;
     @Autowired
-    ScheduleService scheduleService;
-    @Autowired
     DbQueryService dbQueryService;
     @Autowired
     HttpOperateService httpOperateService;
