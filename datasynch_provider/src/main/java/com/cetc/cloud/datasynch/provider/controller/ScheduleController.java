@@ -57,14 +57,14 @@ public class ScheduleController implements ScheduleRemoteService {
             res.put("msg", "param error! source,targetTableName,cronExpression,pageSize cannot be null!");
             return res;
         }
-        if (connType == CommonInstance.TYPE_INTERFACE) {
+        if (connType == CommonInstance.TYPE_DB) {
             if (null == orderByColumnName) {
                 res.put("result", "fail");
                 res.put("msg", "param error! orderByColumnName cannot be null!");
                 return res;
             }
         } else if (connType == CommonInstance.TYPE_INTERFACE) {
-            if (null == httpParamExpression || null == httpParamPageSize || null == httpParamPageNum || null == httpJsonExtractRule) {
+            if (null == httpParamExpression || null == httpJsonExtractRule) {
                 res.put("result", "fail");
                 res.put("msg", "param error! httpParamExpression,httpParamPageSize,httpParamPageNum,httpJsonExtractRule cannot be null!");
                 return res;

@@ -18,16 +18,16 @@ import java.util.List;
 @Api(value = "自增序列管理")
 public interface DbSequenceManageRemoteService {
 
-    @ApiOperation(value = "querySequenceList", notes = "查询当前业务库所有序列名称", produces = "application/json")
+    @ApiOperation(value = "查询当前业务库所有序列名称", notes = "查询当前业务库所有序列名称", produces = "application/json")
     List<String> querySequenceList();
 
-    @ApiOperation(value = "create", notes = "设置序列的下一个值", produces = "application/json")
+    @ApiOperation(value = "设置序列的下一个值", notes = "设置序列的下一个值", produces = "application/json")
     List<String> create(String sequenceName,String value);
 
-    @ApiOperation(value = "setNextValueBySequenceName", notes = "设置序列的下一个值", produces = "application/json")
+    @ApiOperation(value = "设置序列的下一个值", notes = "设置序列的下一个值", produces = "application/json")
     List<String> setNextValueBySequenceName(String sequenceName,String value);
 
-    @ApiOperation(value = "alterMaxValue", notes = "修改序列的最大允许值", produces = "application/json")
+    @ApiOperation(value = "修改序列的最大允许值", notes = "修改序列的最大允许值", produces = "application/json")
     List<String> alterMaxValue(String sequenceName,String maxvalue);
 
 

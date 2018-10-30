@@ -37,7 +37,10 @@ public class MyScheduleRunnable implements Runnable {
 
     @Override
     public void run() {
-        logger.info("\n\n----->>>> executing run() method");
+//        Thread.currentThread().setName(scheduleModel.getTargetTableName());
+        logger.info("\n\n----->>>> executing run() method,\nThread.currentThread().Name:"
+                +Thread.currentThread().getName()
+                +"\nThread.currentThread().getId():"+Thread.currentThread().getId());
         try {
             //根据接入方式决定生成SQL query还是Http请求
             if (scheduleModel.getConnType() == 0) {

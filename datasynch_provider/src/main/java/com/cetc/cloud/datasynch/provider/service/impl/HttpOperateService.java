@@ -7,6 +7,8 @@ import com.cetc.cloud.datasynch.api.model.Token;
 import com.cetc.cloud.datasynch.provider.core.util.HttpUtil;
 import com.cetc.cloud.datasynch.provider.core.util.JsonUtil;
 import com.cetc.cloud.datasynch.provider.common.CommonInstance;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -19,6 +21,7 @@ import java.util.List;
 @Service("httpOperateService")
 public class HttpOperateService implements com.cetc.cloud.datasynch.provider.service.HttpOperateService {
 
+    private Logger logger = LoggerFactory.getLogger(HttpOperateService.class);
     @Override
     public List<HashMap> doHttpQuery(ScheduleModel model, int pageNum) {
         //获取URL
@@ -49,7 +52,7 @@ public class HttpOperateService implements com.cetc.cloud.datasynch.provider.ser
             //获取json解析规则
             String jsonExtractRule = model.getHttpJsonExtractRule();
             //解析，并生成结果数据集
-            if (200 == Integer.parseInt((String) httpResult.get(CommonInstance.HTTP_RES_CODE))) {
+            if (200 == (Integer) httpResult.get(CommonInstance.HTTP_RES_CODE)) {
                 String data = (String) httpResult.get("data");
                 JSONObject jsonResultData = JSONObject.parseObject(data);
 
@@ -67,24 +70,29 @@ public class HttpOperateService implements com.cetc.cloud.datasynch.provider.ser
      */
     public List<HashMap> ExtractListData(JSONObject jsonResultData, String jsonExtractRule) {
         String[] splits = null;
-
-        if (jsonExtractRule.contains("\\."))
+        JSONArray arrData = null;
+        if (jsonExtractRule.contains("\\.")) {
             splits = jsonExtractRule.split("\\.");
 
-        int size = splits.length;
+            int size = splits.length;
 
-        JSONObject extractJson = jsonResultData;
-        JSONArray arrData = null;
+            JSONObject extractJson = jsonResultData;
 
-        for (int i = 0; i < size; i++) {
-            if (i == size - 1) {
-                arrData = extractJson.getJSONArray(splits[i]);
-            } else {
-                extractJson = extractJson.getJSONObject(splits[i]);
+
+            for (int i = 0; i < size; i++) {
+                if (i == size - 1) {
+                    arrData = extractJson.getJSONArray(splits[i]);
+                } else {
+                    extractJson = extractJson.getJSONObject(splits[i]);
+                }
             }
+            List<HashMap> list = JsonUtil.parseArray2List(arrData);
+            return list;
+        }else {
+            arrData = jsonResultData.getJSONArray(jsonExtractRule);
+            List<HashMap> list = JsonUtil.parseArray2List(arrData);
+            return list;
         }
-        List<HashMap> list = JsonUtil.parseArray2List(arrData);
-        return list;
     }
 
     /**
@@ -93,22 +101,24 @@ public class HttpOperateService implements com.cetc.cloud.datasynch.provider.ser
     public int ExtractTotalData(JSONObject jsonResultData, String totalExtractRule) {
 
         String[] splits = null;
-
-        if (totalExtractRule.contains("\\.")) {
-            splits = totalExtractRule.split("\\.");
-        }
-        int size = splits.length;
-
+        int size = 1;
         JSONObject extractTotal = jsonResultData;
         String total = null;
 
-        for (int i = 0; i < size; i++) {
-            if (i == size - 1) {
-                total = extractTotal.getString(splits[i]);
-            } else {
-                extractTotal = extractTotal.getJSONObject(splits[i]);
+        if (totalExtractRule.contains("\\.")) {
+            splits = totalExtractRule.split("\\.");
+            size = splits.length;
+            for (int i = 0; i < size; i++) {
+                if (i == size - 1) {
+                    total = extractTotal.getString(splits[i]);
+                } else {
+                    extractTotal = extractTotal.getJSONObject(splits[i]);
+                }
             }
+        } else {
+            total = extractTotal.getString(totalExtractRule);
         }
+
         if (null != total) {
             return Integer.parseInt(total);
         }
@@ -142,15 +152,7 @@ public class HttpOperateService implements com.cetc.cloud.datasynch.provider.ser
             int pageSize = model.getPageSize();
             httpQueryParams.put(model.getHttpParamPageSize(), String.valueOf(pageSize));
 
-            if (null != httpParamExpression) {
-                String[] split = httpParamExpression.split("&");
 
-                for (int i = 0; i < split.length; i++) {
-                    String param = split[i];
-                    String[] k_v = param.split("=");
-                    httpQueryParams.put(k_v[0], k_v[1]);
-                }
-            }
         }
         return httpQueryParams;
     }
@@ -197,11 +199,12 @@ public class HttpOperateService implements com.cetc.cloud.datasynch.provider.ser
         }
 
         //解析，并生成结果数据集
-        if (200 == Integer.parseInt((String) httpResult.get(CommonInstance.HTTP_RES_CODE))) {
+        if (200 == (Integer) httpResult.get(CommonInstance.HTTP_RES_CODE)) {
             String data = (String) httpResult.get("data");
             JSONObject jsonResultData = JSONObject.parseObject(data);
 
             total = ExtractTotalData(jsonResultData, totalExtractRule);
+            logger.info("\n---->>> getTotalRows of URL:"+model.getSource()+" is :"+total);
         }
 
         return total;

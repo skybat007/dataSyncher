@@ -31,8 +31,7 @@
     </sql>
     <sql id="BaseColumns_Insert">
         ID,CONN_TYPE,SOURCE,ORDER_BY_COL_NAME,HTTP_PARAM_EXPRESSION,HTTP_TOKEN,
-        HTTP_PARAM_PAGESIZE,HTTP_PARAM_PAGENUM,HTTP_JSON_EXTRACTRULE,HTTP_TOTAL_EXTRACTRULE,TARGET_TABLE_NAME,PAGE_SIZE,CRON_EXPRESSION,
-        IS_ENABLED
+        HTTP_PARAM_PAGESIZE,HTTP_PARAM_PAGENUM,HTTP_JSON_EXTRACTRULE,HTTP_TOTAL_EXTRACTRULE,TARGET_TABLE_NAME,PAGE_SIZE,CRON_EXPRESSION
     </sql>
 
     <!--int addScheduleInstance(ScheduleModel scheduleModel);-->
@@ -45,20 +44,19 @@
         INSERT INTO <include refid="BaseTable"/>
         (<include refid="BaseColumns_Insert"/> )
         VALUES (
-        #{id,jdbcType=INTEGER},
-        #{connType,jdbcType=INTEGER},
-        #{source,jdbcType=VARCHAR},
-        #{orderByColumnName,jdbcType=VARCHAR},
-        #{httpParamExpression,jdbcType=VARCHAR},
-        #{httpToken,jdbcType=VARCHAR},
-        #{httpParamPageSize,jdbcType=VARCHAR},
-        #{httpParamPageNum,jdbcType=VARCHAR},
-        #{httpJsonExtractRule,jdbcType=VARCHAR},
-        #{httpTotalExtractRule,jdbcType=VARCHAR},
-        #{targetTableName,jdbcType=VARCHAR},
-        #{pageSize,jdbcType=INTEGER},
-        #{cronExpression,jdbcType=VARCHAR},
-        #{isEnabled,jdbcType=INTEGER}
+        #{scheduleModel.id,jdbcType=INTEGER},
+        #{scheduleModel.connType,jdbcType=INTEGER},
+        #{scheduleModel.source,jdbcType=VARCHAR},
+        #{scheduleModel.orderByColumnName,jdbcType=VARCHAR},
+        #{scheduleModel.httpParamExpression,jdbcType=VARCHAR},
+        #{scheduleModel.httpToken,jdbcType=VARCHAR},
+        #{scheduleModel.httpParamPageSize,jdbcType=VARCHAR},
+        #{scheduleModel.httpParamPageNum,jdbcType=VARCHAR},
+        #{scheduleModel.httpJsonExtractRule,jdbcType=VARCHAR},
+        #{scheduleModel.httpTotalExtractRule,jdbcType=VARCHAR},
+        #{scheduleModel.targetTableName,jdbcType=VARCHAR},
+        #{scheduleModel.pageSize,jdbcType=INTEGER},
+        #{scheduleModel.cronExpression,jdbcType=VARCHAR}
         )
     </insert>
     <select id="queryScheduleJobList" resultMap="BaseResultMap" parameterType="java.lang.Long">
