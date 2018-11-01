@@ -364,7 +364,7 @@ public class DbOperateService implements DbBaseService {
         int failCounter = 0;
         List keyList_SQL = new ArrayList<String>();
 
-        //todo: 要让映射过程可控，就需要以定义的mapping表为参考拼接SQL
+        /**要让映射过程可控，就需要以定义的mapping表为参考标准拼接SQL*/
         //遍历mapping，并根据mapping结果集中的key，将值通过映射表映射到数据库中
         Set set = mapping.keySet();//这里以mapping的keyset作为参考表，即使源表中多余的字段，也不会因mapping中没有对应的字段映射而报错
         Iterator iterator = set.iterator();

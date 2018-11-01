@@ -16,5 +16,5 @@ public interface HttpOperateService {
      * @param pageNum
      * @return
      */
-    List<HashMap> doHttpQuery(ScheduleModel model, int pageNum);
+    List<HashMap> doHttpQueryList(ScheduleModel model, int pageNum);
 }

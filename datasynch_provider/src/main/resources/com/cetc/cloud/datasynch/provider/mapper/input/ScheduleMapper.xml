@@ -44,19 +44,19 @@
         INSERT INTO <include refid="BaseTable"/>
         (<include refid="BaseColumns_Insert"/> )
         VALUES (
-        #{scheduleModel.id,jdbcType=INTEGER},
-        #{scheduleModel.connType,jdbcType=INTEGER},
-        #{scheduleModel.source,jdbcType=VARCHAR},
-        #{scheduleModel.orderByColumnName,jdbcType=VARCHAR},
-        #{scheduleModel.httpParamExpression,jdbcType=VARCHAR},
-        #{scheduleModel.httpToken,jdbcType=VARCHAR},
-        #{scheduleModel.httpParamPageSize,jdbcType=VARCHAR},
-        #{scheduleModel.httpParamPageNum,jdbcType=VARCHAR},
-        #{scheduleModel.httpJsonExtractRule,jdbcType=VARCHAR},
-        #{scheduleModel.httpTotalExtractRule,jdbcType=VARCHAR},
-        #{scheduleModel.targetTableName,jdbcType=VARCHAR},
-        #{scheduleModel.pageSize,jdbcType=INTEGER},
-        #{scheduleModel.cronExpression,jdbcType=VARCHAR}
+        #{id,jdbcType=INTEGER},
+        #{connType,jdbcType=INTEGER},
+        #{source,jdbcType=VARCHAR},
+        #{orderByColumnName,jdbcType=VARCHAR},
+        #{httpParamExpression,jdbcType=VARCHAR},
+        #{httpToken,jdbcType=VARCHAR},
+        #{httpParamPageSize,jdbcType=VARCHAR},
+        #{httpParamPageNum,jdbcType=VARCHAR},
+        #{httpJsonExtractRule,jdbcType=VARCHAR},
+        #{httpTotalExtractRule,jdbcType=VARCHAR},
+        #{targetTableName,jdbcType=VARCHAR},
+        #{pageSize,jdbcType=INTEGER},
+        #{cronExpression,jdbcType=VARCHAR}
         )
     </insert>
     <select id="queryScheduleJobList" resultMap="BaseResultMap" parameterType="java.lang.Long">

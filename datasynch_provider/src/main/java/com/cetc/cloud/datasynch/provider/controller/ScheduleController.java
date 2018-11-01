@@ -64,11 +64,11 @@ public class ScheduleController implements ScheduleRemoteService {
                 return res;
             }
         } else if (connType == CommonInstance.TYPE_INTERFACE) {
-            if (null == httpParamExpression || null == httpJsonExtractRule) {
-                res.put("result", "fail");
-                res.put("msg", "param error! httpParamExpression,httpParamPageSize,httpParamPageNum,httpJsonExtractRule cannot be null!");
-                return res;
-            }
+//            if (null == httpParamExpression || null == httpJsonExtractRule) {
+//                res.put("result", "fail");
+//                res.put("msg", "param error! httpParamExpression,httpParamPageSize,httpParamPageNum,httpJsonExtractRule cannot be null!");
+//                return res;
+//            }
         }
 
         ScheduleModel scheduleModel = new ScheduleModel();
@@ -97,12 +97,13 @@ public class ScheduleController implements ScheduleRemoteService {
                 return res;
             }
         } else if (CommonInstance.TYPE_INTERFACE == scheduleModel.getConnType()) {
-            boolean ping = Ping.ping(Ping.getIpAddressFromURL(scheduleModel.getSource()));
-            if (ping == false) {
-                res.put("result", "fail");
-                res.put("msg", "failed,source URL:" + scheduleModel.getSource() + " doesn't reachable!");
-                return res;
-            } else if (false == dbOperateService.checkIfTableExists(scheduleModel.getTargetTableName())) {
+//            boolean ping = Ping.ping(Ping.getIpAddressFromURL(scheduleModel.getSource()));
+//            if (ping == false) {
+//                res.put("result", "fail");
+//                res.put("msg", "failed,source URL:" + scheduleModel.getSource() + " doesn't reachable!");
+//                return res;
+//            } else
+            if (false == dbOperateService.checkIfTableExists(scheduleModel.getTargetTableName())) {
                 res.put("result", "fail");
                 res.put("msg", "failed,Target table:" + scheduleModel.getTargetTableName() + " doesn't Exists!");
                 return res;

@@ -6,9 +6,6 @@ import com.cetc.cloud.datasynch.provider.middleware.SQLCreator;
 import com.cetc.cloud.datasynch.provider.service.impl.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
-import org.springframework.stereotype.Component;
 
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -37,7 +34,7 @@ public class MyScheduleRunnable implements Runnable {
 
     @Override
     public void run() {
-//        Thread.currentThread().setName(scheduleModel.getTargetTableName());
+        Thread.currentThread().setName(scheduleModel.getTargetTableName());
         logger.info("\n\n----->>>> executing run() method,\nThread.currentThread().Name:"
                 +Thread.currentThread().getName()
                 +"\nThread.currentThread().getId():"+Thread.currentThread().getId());
@@ -234,9 +231,10 @@ public class MyScheduleRunnable implements Runnable {
                 }
 
                 //通过Http在线获取数据
-                List<HashMap> queryResult = httpOperateService.doHttpQuery(scheduleModel, toDoPageNum);
+                List<HashMap> queryResult = httpOperateService.doHttpQueryList(scheduleModel, toDoPageNum);
 
                 if (null == queryResult) {
+                    logger.info("queryResult is:"+queryResult);
                     break;
                 }
                 logger.info("\n" +
@@ -260,6 +258,15 @@ public class MyScheduleRunnable implements Runnable {
                 synchJobLogInfoModel.setTotalSuccessCount(singleJobTotalSuccessCount);
                 synchJobLogInfoModel.setTotalFailCount(singleJobTotalFailCount);
 
+
+                if (logModel != null) {
+                    if (logModel.getQueryResultSize() < synchJobLogInfoModel.getQueryResultSize()) {
+                        reachedLastRow = false;
+                    } else {
+                        return true;
+                    }
+                }
+
                 int count = synchJobLogInfoService.add(synchJobLogInfoModel);
 
                 if (count >= 1) {
@@ -282,13 +289,10 @@ public class MyScheduleRunnable implements Runnable {
                 if (compareRes == true) {
                     compareRes = false;//该标志位只在启动时有效，之后不能以该标志位作为参考,故设为false
                 }
-                if (logModel != null) {
-                    if (logModel.getQueryResultSize() == scheduleModel.getPageSize()) {
-                        reachedLastRow = false;
-                    } else {
-                        return true;
-                    }
+                if (null==scheduleModel.getHttpParamPageNum()){
+                    return true;
                 }
+
             }
         }
 

@@ -385,7 +385,7 @@ public class HttpUtil {
              * 在Header增加token认证信息
              */
             if (null != token) {
-                httpUrlConnection.setRequestProperty(token.getKey(), token.getValue());
+                httpUrlConnection.addRequestProperty(token.getKey(), token.getValue());
             }
 
             httpUrlConnection.connect();
@@ -407,16 +407,19 @@ public class HttpUtil {
                 result.put("data", baos.toString("UTF-8"));
                 result.put("code", 200);
                 result.put("msg", "请求成功");
+                return result;
             } else {
                 result.put("success", false);
                 result.put("code", responseCode);
                 result.put("msg", "请求异常");
+                return result;
             }
         } catch (Exception e) {
             result.put("success", false);
             result.put("code", 500);
             result.put("msg",
                     "请求异常，异常信息：" + e.getClass() + "->" + e.getMessage());
+            return result;
         } finally {
             if (baos != null) {
                 try {
@@ -426,6 +429,7 @@ public class HttpUtil {
                     result.put("code", 500);
                     result.put("msg",
                             "请求异常，异常信息：" + e.getClass() + "->" + e.getMessage());
+                    return result;
                 }
             }
             if (in != null) {
@@ -436,12 +440,10 @@ public class HttpUtil {
                     result.put("code", 500);
                     result.put("msg",
                             "请求异常，异常信息：" + e.getClass() + "->" + e.getMessage());
+                    return result;
                 }
             }
         }
-
-        return result;
     }
-
 
 }
