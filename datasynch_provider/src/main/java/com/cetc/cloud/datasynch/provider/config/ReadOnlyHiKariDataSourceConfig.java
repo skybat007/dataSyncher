@@ -49,7 +49,7 @@ public class ReadOnlyHiKariDataSourceConfig {
     }
 
     @Bean(name = "readOnlyJdbcTemplate")
-    public JdbcTemplate secondJdbcTemplate(@Qualifier("readOnlyDatasource") DataSource dataSource) {
+    public JdbcTemplate readOnlyJdbcTemplate(@Qualifier("readOnlyDatasource") DataSource dataSource) {
         return new JdbcTemplate(dataSource);
     }
 

@@ -54,9 +54,9 @@ public class PrimaryHikariDataSourceConfig {
     }
 
 
-    @Bean
+    @Bean(name = "primaryJdbcTemplate")
     @Primary
-    public JdbcTemplate primaryJdbcTemplate(DataSource dataSource) {
+    public JdbcTemplate primaryJdbcTemplate(@Qualifier("primaryDataSource")DataSource dataSource) {
         return new JdbcTemplate(dataSource);
     }
 

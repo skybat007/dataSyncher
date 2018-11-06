@@ -144,4 +144,25 @@ public class SynchJobLogInfoModel implements Serializable{
     public void setUpdateTime(Date updateTime) {
         this.updateTime = updateTime;
     }
+
+    @Override
+    public String toString() {
+        return "SynchJobLogInfoModel{" +
+                "id=" + id +
+                ", jobId=" + jobId +
+                ", isSuccess=" + isSuccess +
+                ", queryResultSize=" + queryResultSize +
+                ", currentPageNum=" + currentPageNum +
+                ", currentPageSize=" + currentPageSize +
+                ", startRow=" + startRow +
+                ", endRow=" + endRow +
+                ", connType=" + connType +
+                ", successCount=" + successCount +
+                ", failCount=" + failCount +
+                ", totalSuccessCount=" + totalSuccessCount +
+                ", totalFailCount=" + totalFailCount +
+                ", createTime=" + createTime +
+                ", updateTime=" + updateTime +
+                '}';
+    }
 }

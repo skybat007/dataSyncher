@@ -11,6 +11,7 @@ public class ScheduleModel implements Serializable {
     private int id;                         //job唯一主键
     private int connType;                   //连接方式（0：前置机方式 1：接口方式）
     private String source;                  //源（请求URL路径@token/前置机view视图的名称）
+    private int isPagingQuery;              //是否是分页查询
     private String orderByColumnName;       //（数据库请求独有参数）源-排序字段名称
     private String httpParamExpression;     //（HTTP请求独有参数）入参表达式
     private String httpToken;               //（HTTP请求独有参数）token表达式
@@ -24,6 +25,14 @@ public class ScheduleModel implements Serializable {
     private int isEnabled;                  //是否开启（0：关闭 1：开启）
     private Date createTime;                //创建时间
     private Date updateTime;                //更新时间
+
+    public int getIsPagingQuery() {
+        return isPagingQuery;
+    }
+
+    public void setIsPagingQuery(int isPagingQuery) {
+        this.isPagingQuery = isPagingQuery;
+    }
 
     public int getId() {
         return id;
@@ -151,5 +160,28 @@ public class ScheduleModel implements Serializable {
 
     public void setUpdateTime(Date updateTime) {
         this.updateTime = updateTime;
+    }
+
+    @Override
+    public String toString() {
+        return "ScheduleModel{" +
+                "id=" + id +
+                ", connType=" + connType +
+                ", source='" + source + '\'' +
+                ", isPagingQuery=" + isPagingQuery +
+                ", orderByColumnName='" + orderByColumnName + '\'' +
+                ", httpParamExpression='" + httpParamExpression + '\'' +
+                ", httpToken='" + httpToken + '\'' +
+                ", httpParamPageSize='" + httpParamPageSize + '\'' +
+                ", httpParamPageNum='" + httpParamPageNum + '\'' +
+                ", httpJsonExtractRule='" + httpJsonExtractRule + '\'' +
+                ", httpTotalExtractRule='" + httpTotalExtractRule + '\'' +
+                ", targetTableName='" + targetTableName + '\'' +
+                ", pageSize=" + pageSize +
+                ", cronExpression='" + cronExpression + '\'' +
+                ", isEnabled=" + isEnabled +
+                ", createTime=" + createTime +
+                ", updateTime=" + updateTime +
+                '}';
     }
 }

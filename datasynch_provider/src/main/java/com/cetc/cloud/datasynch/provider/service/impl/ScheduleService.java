@@ -24,8 +24,11 @@ public class ScheduleService implements com.cetc.cloud.datasynch.provider.servic
         int pageSize = scheduleModel.getPageSize();
         String tableName = scheduleModel.getTargetTableName();
         String scheduleExpression = scheduleModel.getCronExpression();
+        int isPagingQuery = scheduleModel.getIsPagingQuery();
+
         int connType = scheduleModel.getConnType();
-        if (null==source || pageSize<1 || null==tableName ||null==scheduleExpression || connType<0||connType>1){
+        if (null==source || pageSize<1 || null==tableName ||null==scheduleExpression || connType<0||connType>1 ||
+                isPagingQuery<0 || isPagingQuery>1){
             return -1;
         }
         int jobId = scheduleMapper.addScheduleInstance(scheduleModel);

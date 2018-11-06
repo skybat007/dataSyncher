@@ -5,6 +5,7 @@ import com.cetc.cloud.datasynch.api.service.ScheduleRemoteService;
 import com.cetc.cloud.datasynch.provider.core.util.Ping;
 import com.cetc.cloud.datasynch.provider.service.impl.*;
 import com.cetc.cloud.datasynch.provider.common.CommonInstance;
+import org.apache.el.lang.ELArithmetic;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -44,36 +45,80 @@ public class ScheduleController implements ScheduleRemoteService {
 
 
     @Override
-    public HashMap createScheduleJob(int connType, String source,
+    public HashMap createScheduleJob(int connType, String source, int isPagingQuery,
                                      String orderByColumnName,
                                      String httpParamExpression, String httpToken, String httpParamPageSize,
-                                     String httpParamPageNum, String httpJsonExtractRule,String httpTotalExtractRule,
+                                     String httpParamPageNum, String httpJsonExtractRule, String httpTotalExtractRule,
                                      String targetTableName, String pageSize, String cronExpression) throws SQLException {
         HashMap res = new HashMap();
 
-        //参数完整性校验
+        //共有参数完整性校验
         if (null == source || null == targetTableName || null == cronExpression || null == pageSize) {
             res.put("result", "fail");
             res.put("msg", "param error! source,targetTableName,cronExpression,pageSize cannot be null!");
             return res;
         }
+        //独有参数完整性校验
         if (connType == CommonInstance.TYPE_DB) {
-            if (null == orderByColumnName) {
+            if (isPagingQuery == CommonInstance.DO_PAGING) {
+                if (null == orderByColumnName) {//做分页时一定要有排序字段
+                    res.put("result", "fail");
+                    res.put("msg", "param error! orderByColumnName cannot be null!");
+                    return res;
+                }
+            } else if (isPagingQuery == CommonInstance.NO_PAGING) {//如果不做分页，则需要指定rownum为排序字段
+                if (null == orderByColumnName || !"rownum".equalsIgnoreCase(orderByColumnName)) {
+                    res.put("result", "fail");
+                    res.put("msg", "param error! orderByColumnName cannot be null,you can figure it by input:\"rownum\"");
+                    return res;
+                }
+            } else {
                 res.put("result", "fail");
-                res.put("msg", "param error! orderByColumnName cannot be null!");
+                res.put("msg", "param error! isPagingQuery can not be otherValue, available value is:0 or 1");
                 return res;
             }
         } else if (connType == CommonInstance.TYPE_INTERFACE) {
-//            if (null == httpParamExpression || null == httpJsonExtractRule) {
-//                res.put("result", "fail");
-//                res.put("msg", "param error! httpParamExpression,httpParamPageSize,httpParamPageNum,httpJsonExtractRule cannot be null!");
-//                return res;
-//            }
+            if (isPagingQuery == CommonInstance.DO_PAGING) {
+                if (null == httpParamExpression || null == httpJsonExtractRule) {
+                    res.put("result", "fail");
+                    res.put("msg", "param error! httpParamExpression,httpParamPageSize,httpParamPageNum,httpJsonExtractRule cannot be null!");
+                    return res;
+                }
+            } else if (isPagingQuery == CommonInstance.NO_PAGING) {
+                if (!"[*]".equals(httpJsonExtractRule)) {
+                    res.put("result", "fail");
+                    res.put("msg", "param error! httpJsonExtractRule cannot be null!,default: \"[*]\"");
+                    return res;
+                }
+            } else {
+                res.put("result", "fail");
+                res.put("msg", "param error! isPagingQuery cannot be otherValue, available value is:0 or 1");
+                return res;
+            }
+        }
+        // 验证参数合法性
+        if (CommonInstance.TYPE_DB == connType) {
+            if (false == dbQueryService.checkIfTableExists(source)) {
+                res.put("result", "fail");
+                res.put("msg", "failed,source Table:" + source + " doesn't exists!");
+                return res;
+            } else if (false == dbOperateService.checkIfTableExists(targetTableName)) {
+                res.put("result", "fail");
+                res.put("msg", "failed,Target table:" + targetTableName + " doesn't Exists!");
+                return res;
+            }
+        } else if (CommonInstance.TYPE_INTERFACE == connType) {
+            if (false == dbOperateService.checkIfTableExists(targetTableName)) {
+                res.put("result", "fail");
+                res.put("msg", "failed,Target table:" + targetTableName + " doesn't Exists!");
+                return res;
+            }
         }
 
         ScheduleModel scheduleModel = new ScheduleModel();
         scheduleModel.setConnType(connType);
         scheduleModel.setSource(source);
+        scheduleModel.setIsPagingQuery(isPagingQuery);
         scheduleModel.setOrderByColumnName(orderByColumnName);
         scheduleModel.setHttpParamExpression(httpParamExpression);
         scheduleModel.setHttpToken(httpToken);
@@ -84,31 +129,6 @@ public class ScheduleController implements ScheduleRemoteService {
         scheduleModel.setTargetTableName(targetTableName);
         scheduleModel.setPageSize(Integer.parseInt(pageSize));
         scheduleModel.setCronExpression(cronExpression);
-
-        // 验证参数合法性
-        if (CommonInstance.TYPE_DB == scheduleModel.getConnType()) {
-            if (false == dbQueryService.checkIfTableExists(scheduleModel.getSource())) {
-                res.put("result", "fail");
-                res.put("msg", "failed,source Table:" + scheduleModel.getSource() + " doesn't exists!");
-                return res;
-            } else if (false == dbOperateService.checkIfTableExists(scheduleModel.getTargetTableName())) {
-                res.put("result", "fail");
-                res.put("msg", "failed,Target table:" + scheduleModel.getTargetTableName() + " doesn't Exists!");
-                return res;
-            }
-        } else if (CommonInstance.TYPE_INTERFACE == scheduleModel.getConnType()) {
-//            boolean ping = Ping.ping(Ping.getIpAddressFromURL(scheduleModel.getSource()));
-//            if (ping == false) {
-//                res.put("result", "fail");
-//                res.put("msg", "failed,source URL:" + scheduleModel.getSource() + " doesn't reachable!");
-//                return res;
-//            } else
-            if (false == dbOperateService.checkIfTableExists(scheduleModel.getTargetTableName())) {
-                res.put("result", "fail");
-                res.put("msg", "failed,Target table:" + scheduleModel.getTargetTableName() + " doesn't Exists!");
-                return res;
-            }
-        }
 
         //将创建的任务记录在数据库schedule表中
         int jobId = scheduleService.addScheduleInstance(scheduleModel);

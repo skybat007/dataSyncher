@@ -41,7 +41,7 @@ public class HttpOperateService implements com.cetc.cloud.datasynch.provider.ser
             }
         }
         //如果该接口需要使用分页来查询的话，就需要添加这个动态主键
-        if (null != model.getHttpParamPageNum() && null != model.getHttpParamPageSize()) {
+        if (CommonInstance.DO_PAGING == model.getIsPagingQuery() && null != model.getHttpParamPageNum() && null != model.getHttpParamPageSize()) {
             //组装参数 pageNum和pageSize
             httpParams.put(CommonInstance.PAGE_NUM_NAME, String.valueOf(pageNum));
             httpParams.put(CommonInstance.PAGE_SIZE_NAME, String.valueOf(model.getPageSize()));//测试,pageSize设为1
@@ -69,12 +69,15 @@ public class HttpOperateService implements com.cetc.cloud.datasynch.provider.ser
         //解析，并生成结果数据集
         if (200 == (Integer) httpResult.get(CommonInstance.HTTP_RES_CODE)) {
             String data = (String) httpResult.get("data");
-            if (null != jsonExtractRule && data.startsWith("{")) {
+            if (model.getIsPagingQuery()== CommonInstance.DO_PAGING && null != jsonExtractRule && data.startsWith("{")) {
                 JSONObject jsonResultData = JSONObject.parseObject(data);
                 listData = ExtractListData(jsonResultData, jsonExtractRule);
-            } else if (data.startsWith("[")) {
+            } else if (model.getIsPagingQuery()== CommonInstance.NO_PAGING &&data.startsWith("[") && "[*]".equals(jsonExtractRule)) {
                 JSONArray jsonResultData = JSONArray.parseArray(data);
                 listData = ExtractListData2(jsonResultData);
+            }else if (model.getIsPagingQuery()== CommonInstance.NO_PAGING &&data.startsWith("{")){
+                JSONObject jsonResultData = JSONObject.parseObject(data);
+                listData = ExtractListData(jsonResultData, jsonExtractRule);
             }
         }
 
@@ -106,7 +109,7 @@ public class HttpOperateService implements com.cetc.cloud.datasynch.provider.ser
         }
         //获取token
         String tokenStr = model.getHttpToken();
-        JSONObject httpResult = null;
+        JSONObject httpResult ;
         if (null != tokenStr && !"".equals(tokenStr)) {
             Token token = new Token();
             if (tokenStr.contains(":")) {
@@ -133,7 +136,6 @@ public class HttpOperateService implements com.cetc.cloud.datasynch.provider.ser
             }
             logger.info("\n---->>> getTotalRows of URL:" + model.getSource() + " is :" + total);
         }
-
         return total;
     }
 
@@ -149,7 +151,6 @@ public class HttpOperateService implements com.cetc.cloud.datasynch.provider.ser
             int size = splits.length;
 
             JSONObject extractJson = jsonResultData;
-
 
             for (int i = 0; i < size; i++) {
                 if (i == size - 1) {

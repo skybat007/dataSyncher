@@ -12,24 +12,24 @@ public interface CommonInstance {
 
     /**
      * 数据接入方式：
-     *      0：数据库方式
-     *      1：接口方式
+     * 0：数据库方式
+     * 1：接口方式
      */
     public static final int TYPE_DB = 0;
     public static final int TYPE_INTERFACE = 1;
 
     /**
      * 接口开启状态：
-     *      0：关闭
-     *      1：开启
+     * 0：关闭
+     * 1：开启
      */
     public static final int DISABLED = 0;
     public static final int ENABLED = 1;
 
     /**
-     *  默认分页大小
+     * 默认分页大小
      */
-    public static final int DefaultPageSize  = 100;
+    public static final int DefaultPageSize = 100;
 
 
     /**
@@ -45,4 +45,19 @@ public interface CommonInstance {
 
     String HTTP_RES_CODE = "code";
     String HTTP_RES_DATA = "data";
+
+    /**
+     * 是否做分页查询
+     */
+    int NO_PAGING = 0;
+    int DO_PAGING = 1;
+
+    /**
+     * 数据库默认全局字段名称、值
+     */
+    String GLOBAL_COLNAME_INCRE_ID = "OBJECT_ID";
+    String GLOBAL_COLNAME_CREATE_TIME = "CREATE_TIME";
+    String GLOBAL_COLNAME_UPDATE_TIME = "UPDATE_TIME";
+    String GLOBAL_COL_CREATE_TIME_DEFAULT_VAL = "SYSDATE";
+    String GLOBAL_COL_UPDATE_TIME_DEFAULT_VAL = "SYSDATE";
 }

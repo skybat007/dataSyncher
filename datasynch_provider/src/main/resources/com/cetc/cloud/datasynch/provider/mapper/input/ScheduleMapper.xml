@@ -5,6 +5,7 @@
         <result column="ID" jdbcType="INTEGER" property="id"/>
         <result column="CONN_TYPE" jdbcType="INTEGER" property="connType"/>
         <result column="SOURCE" jdbcType="VARCHAR" property="source"/>
+        <result column="IS_PAGING_QUERY" jdbcType="INTEGER" property="isPagingQuery"/>
         <result column="ORDER_BY_COL_NAME" jdbcType="VARCHAR" property="orderByColumnName"/>
         <result column="HTTP_PARAM_EXPRESSION" jdbcType="VARCHAR" property="httpParamExpression"/>
         <result column="HTTP_TOKEN" jdbcType="VARCHAR" property="httpToken"/>
@@ -25,12 +26,12 @@
     </sql>
 
     <sql id="BaseColumns">
-        ID,CONN_TYPE,SOURCE,ORDER_BY_COL_NAME,HTTP_PARAM_EXPRESSION,HTTP_TOKEN,
+        ID,CONN_TYPE,SOURCE,IS_PAGING_QUERY,ORDER_BY_COL_NAME,HTTP_PARAM_EXPRESSION,HTTP_TOKEN,
         HTTP_PARAM_PAGESIZE,HTTP_PARAM_PAGENUM,HTTP_JSON_EXTRACTRULE,HTTP_TOTAL_EXTRACTRULE,TARGET_TABLE_NAME,PAGE_SIZE,CRON_EXPRESSION,
         IS_ENABLED,CREATE_TIME,UPDATE_TIME
     </sql>
     <sql id="BaseColumns_Insert">
-        ID,CONN_TYPE,SOURCE,ORDER_BY_COL_NAME,HTTP_PARAM_EXPRESSION,HTTP_TOKEN,
+        ID,CONN_TYPE,SOURCE,IS_PAGING_QUERY,ORDER_BY_COL_NAME,HTTP_PARAM_EXPRESSION,HTTP_TOKEN,
         HTTP_PARAM_PAGESIZE,HTTP_PARAM_PAGENUM,HTTP_JSON_EXTRACTRULE,HTTP_TOTAL_EXTRACTRULE,TARGET_TABLE_NAME,PAGE_SIZE,CRON_EXPRESSION
     </sql>
 
@@ -47,6 +48,7 @@
         #{id,jdbcType=INTEGER},
         #{connType,jdbcType=INTEGER},
         #{source,jdbcType=VARCHAR},
+        #{isPagingQuery,jdbcType=INTEGER},
         #{orderByColumnName,jdbcType=VARCHAR},
         #{httpParamExpression,jdbcType=VARCHAR},
         #{httpToken,jdbcType=VARCHAR},
