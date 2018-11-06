@@ -25,4 +25,12 @@ public class DddTableCommentModel implements Serializable {
     public void setTableComment(String tableComment) {
         this.tableComment = tableComment;
     }
+
+    @Override
+    public String toString() {
+        return "DddTableCommentModel{" +
+                "tableName='" + tableName + '\'' +
+                ", tableComment='" + tableComment + '\'' +
+                '}';
+    }
 }

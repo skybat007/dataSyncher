@@ -39,9 +39,9 @@ public interface CommonInstance {
     String PAGE_SIZE_NAME = "PAR_pageNum";
 
     /**
-     * Excel默认数据起始行
+     * Excel默认数据起始行 --Excel中从0行开始记录
      */
-    int DEFAULT_EXCEL_STARTWROW = 1;
+    int DEFAULT_EXCEL_STARTWROW = 1;//默认需要Excel加表头
 
     String HTTP_RES_CODE = "code";
     String HTTP_RES_DATA = "data";
