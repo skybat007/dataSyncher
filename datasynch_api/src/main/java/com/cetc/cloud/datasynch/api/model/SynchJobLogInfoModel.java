@@ -89,7 +89,7 @@ public class SynchJobLogInfoModel implements Serializable{
         this.jobId = jobId;
     }
 
-    public int getCurrentPageNum() {
+    public int getLastQueryPageNum() {
         return currentPageNum;
     }
 

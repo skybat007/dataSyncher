@@ -28,28 +28,13 @@ public class HttpOperateService implements com.cetc.cloud.datasynch.provider.ser
         //获取URL
         String URL = model.getSource();
         List<HashMap> listData = null;
-        JSONObject httpParams = new JSONObject();
+        JSONObject httpParams = null;
 
-        //拼接请求参数
-        String httpParamExpression = model.getHttpParamExpression();
-        if (null != httpParamExpression) {
-            String[] split = httpParamExpression.split("&");
-            for (int i = 0; i < split.length; i++) {
-                String param = split[i];
-                String[] k_v = param.split("=");
-                httpParams.put(k_v[0], k_v[1]);
-            }
-        }
-        //如果该接口需要使用分页来查询的话，就需要添加这个动态主键
-        if (CommonInstance.DO_PAGING == model.getIsPagingQuery() && null != model.getHttpParamPageNum() && null != model.getHttpParamPageSize()) {
-            //组装参数 pageNum和pageSize
-            httpParams.put(CommonInstance.PAGE_NUM_NAME, String.valueOf(pageNum));
-            httpParams.put(CommonInstance.PAGE_SIZE_NAME, String.valueOf(model.getPageSize()));//测试,pageSize设为1
-        }
+        httpParams = getHttpParams(model, pageNum);
 
         //获取token
         String tokenStr = model.getHttpToken();
-        JSONObject httpResult ;
+        JSONObject httpResult;
         if (null != tokenStr && !"".equals(tokenStr)) {
             Token token = new Token();
             if (tokenStr.contains(":")) {
@@ -69,13 +54,13 @@ public class HttpOperateService implements com.cetc.cloud.datasynch.provider.ser
         //解析，并生成结果数据集
         if (200 == (Integer) httpResult.get(CommonInstance.HTTP_RES_CODE)) {
             String data = (String) httpResult.get("data");
-            if (model.getIsPagingQuery()== CommonInstance.DO_PAGING && null != jsonExtractRule && data.startsWith("{")) {
+            if (model.getIsPagingQuery() == CommonInstance.DO_PAGING && null != jsonExtractRule && data.startsWith("{")) {
                 JSONObject jsonResultData = JSONObject.parseObject(data);
                 listData = ExtractListData(jsonResultData, jsonExtractRule);
-            } else if (model.getIsPagingQuery()== CommonInstance.NO_PAGING &&data.startsWith("[") && "[*]".equals(jsonExtractRule)) {
+            } else if (model.getIsPagingQuery() == CommonInstance.NO_PAGING && data.startsWith("[") && "[*]".equals(jsonExtractRule)) {
                 JSONArray jsonResultData = JSONArray.parseArray(data);
                 listData = ExtractListData2(jsonResultData);
-            }else if (model.getIsPagingQuery()== CommonInstance.NO_PAGING &&data.startsWith("{")){
+            } else if (model.getIsPagingQuery() == CommonInstance.NO_PAGING && data.startsWith("{")) {
                 JSONObject jsonResultData = JSONObject.parseObject(data);
                 listData = ExtractListData(jsonResultData, jsonExtractRule);
             }
@@ -88,7 +73,7 @@ public class HttpOperateService implements com.cetc.cloud.datasynch.provider.ser
         //获取URL
         String URL = model.getSource();
         int total = 0;
-        JSONObject  httpParams = new JSONObject();
+        JSONObject httpParams = new JSONObject();
         //如果该接口需要使用分页来查询的话，就需要添加这个动态主键
         if (null != model.getHttpParamPageNum() && null != model.getHttpParamPageSize()) {
             //组装参数 pageNum和pageSize
@@ -109,7 +94,7 @@ public class HttpOperateService implements com.cetc.cloud.datasynch.provider.ser
         }
         //获取token
         String tokenStr = model.getHttpToken();
-        JSONObject httpResult ;
+        JSONObject httpResult;
         if (null != tokenStr && !"".equals(tokenStr)) {
             Token token = new Token();
             if (tokenStr.contains(":")) {
@@ -235,8 +220,6 @@ public class HttpOperateService implements com.cetc.cloud.datasynch.provider.ser
             httpQueryParams.put(model.getHttpParamPageNum(), String.valueOf(pageNum));
             int pageSize = model.getPageSize();
             httpQueryParams.put(model.getHttpParamPageSize(), String.valueOf(pageSize));
-
-
         }
         return httpQueryParams;
     }

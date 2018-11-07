@@ -407,16 +407,7 @@ public class DbOperateService implements DbBaseService {
     public boolean addColumn(String targetTableName, String columnName, String columnType_len) {
 
         String sql = "alter table " + targetTableName + " add " + columnName + " " + columnType_len;
-        SqlRowSet sqlRowSet = primaryJdbcTemplate.queryForRowSet(sql);
-        int count = 0;
-        while (sqlRowSet.next()) {
-            count = sqlRowSet.getInt(1);
-        }
-
-        if (count > 0) {
-            return true;
-        } else {
-            return false;
-        }
+        primaryJdbcTemplate.execute(sql);
+        return true;
     }
 }

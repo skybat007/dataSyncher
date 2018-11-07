@@ -34,7 +34,7 @@ public interface ScheduleRemoteService {
             @ApiImplicitParam(name = "httpTotalExtractRule", value = "【接口】httpTotal解析规则(例:total)", required = false, dataType = "String", paramType = "query"),
             @ApiImplicitParam(name = "targetTableName", value = "目标表名称", required = true, dataType = "String", paramType = "query"),
             @ApiImplicitParam(name = "pageSize", value = "页大小", required = true, dataType = "String", paramType = "query"),
-            @ApiImplicitParam(name = "cronExpression", value = "cron表达式(例：每30秒请求一次：0/30 0 \\* \\* \\* ? |每1分钟请求一次 0 0/1 \\* \\* \\* ?)", required = false, dataType = "String", paramType = "query")
+            @ApiImplicitParam(name = "cronExpression", value = "cron表达式(例：每30秒请求一次：0/30 \\* \\* \\* \\* ? |每1分钟请求一次 0 0/1 \\* \\* \\* ?)", required = false, dataType = "String", paramType = "query")
     })
     HashMap createScheduleJob(int connType, String source, int isPagingQuery,
                               String orderByColumnName,
