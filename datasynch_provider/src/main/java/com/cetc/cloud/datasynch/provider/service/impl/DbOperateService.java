@@ -410,4 +410,16 @@ public class DbOperateService implements DbBaseService {
         primaryJdbcTemplate.execute(sql);
         return true;
     }
+    public boolean addColumnComment(String targetTableName, String columnName, String columnComment) {
+
+        String sql = "COMMENT ON COLUMN \""+orclUsername+"\".\"" + targetTableName + "\".\"" + columnName + "\" IS " + columnComment;
+        primaryJdbcTemplate.execute(sql);
+        return true;
+    }
+    public boolean addTableComment(String targetTableName, String tableComment) {
+
+        String sql = "COMMENT ON TABLE \""+orclUsername+"\".\"" + targetTableName + "\" IS " + tableComment;
+        primaryJdbcTemplate.execute(sql);
+        return true;
+    }
 }

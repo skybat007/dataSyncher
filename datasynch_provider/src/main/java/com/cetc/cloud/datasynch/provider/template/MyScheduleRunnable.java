@@ -44,9 +44,9 @@ public class MyScheduleRunnable implements Runnable {
             //检查是否存在TargetTable对应的序列，如果不存在，则提前创建
             checkAndCreateSequence(scheduleModel.getTargetTableName());
             //所有的Target表都必须有自增id,create_time,update_time，如果不存在，则添加
-            checkAndCreateColumn(scheduleModel.getTargetTableName(), CommonInstance.GLOBAL_COLNAME_INCRE_ID,"NUMBER");
-            checkAndCreateColumn(scheduleModel.getTargetTableName(), CommonInstance.GLOBAL_COLNAME_CREATE_TIME,"DATE DEFAULT SYSDATE");
-            checkAndCreateColumn(scheduleModel.getTargetTableName(), CommonInstance.GLOBAL_COLNAME_UPDATE_TIME,"DATE DEFAULT SYSDATE");
+            checkAndCreateColumn(scheduleModel.getTargetTableName(), CommonInstance.GLOBAL_COLNAME_INCRE_ID,"NUMBER","id");
+            checkAndCreateColumn(scheduleModel.getTargetTableName(), CommonInstance.GLOBAL_COLNAME_CREATE_TIME,"DATE DEFAULT SYSDATE","创建时间");
+            checkAndCreateColumn(scheduleModel.getTargetTableName(), CommonInstance.GLOBAL_COLNAME_UPDATE_TIME,"DATE DEFAULT SYSDATE","更新时间");
 
             //根据接入方式决定生成SQL query还是Http请求
             if (scheduleModel.getConnType() == CommonInstance.TYPE_DB) {
@@ -66,10 +66,11 @@ public class MyScheduleRunnable implements Runnable {
         }
     }
 
-    private void checkAndCreateColumn(String targetTableName, String globalIncreIdColname,String columnType_len) {
-        boolean exists = dbOperateService.checkIfColumnExists(targetTableName, globalIncreIdColname);
+    private void checkAndCreateColumn(String targetTableName, String collumnName,String columnType_len,String comment) {
+        boolean exists = dbOperateService.checkIfColumnExists(targetTableName, collumnName);
         if (!exists) {
-            dbOperateService.addColumn(scheduleModel.getTargetTableName(), globalIncreIdColname, columnType_len);
+            dbOperateService.addColumn(scheduleModel.getTargetTableName(), collumnName, columnType_len);
+            dbOperateService.addColumnComment(scheduleModel.getTargetTableName(),collumnName,comment);
         }
     }
 

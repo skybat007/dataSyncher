@@ -39,7 +39,7 @@ public class CommentManageController implements CommentManageRemoteService {
 
 
     @Override
-    public List<DddTableCommentModel> importTableCommentExcel(MultipartFile file, String sheetNum) {
+    public List<DddTableCommentModel> importTableCommentExcel(MultipartFile file, String sheetName) {
 
         // 解析Excel，生成List<Model>
         List<DddTableCommentModel> modelList = new ArrayList<DddTableCommentModel>();
@@ -57,8 +57,8 @@ public class CommentManageController implements CommentManageRemoteService {
             logger.error("error when analyzing File:" + originalFilename);
         }
 
-        // 获取第一个sheet
-        Sheet sheet = workbook.getSheetAt(Integer.parseInt(sheetNum));
+        // 根据sheet名称获取sheet
+        Sheet sheet = workbook.getSheet(sheetName);
         // getLastRowNum，获取最后一行的行标
         logger.debug(String.valueOf(sheet.getLastRowNum()));
         for (int j = startRow; j < sheet.getLastRowNum(); j++) {
@@ -84,7 +84,7 @@ public class CommentManageController implements CommentManageRemoteService {
     }
 
     @Override
-    public List<DddColumnCommentModel> importColumnCommentExcel(MultipartFile file, String sheetNum) {
+    public List<DddColumnCommentModel> importColumnCommentExcel(MultipartFile file, String sheetName) {
 
         // 解析Excel，生成List<Model>
         List<DddColumnCommentModel> modelList = new ArrayList<DddColumnCommentModel>();
@@ -102,8 +102,8 @@ public class CommentManageController implements CommentManageRemoteService {
             logger.error("error when analyzing File:" + originalFilename);
         }
 
-        // 获取第一个sheet
-        Sheet sheet = workbook.getSheetAt(Integer.parseInt(sheetNum));
+        // 根据sheet名称获取sheet
+        Sheet sheet = workbook.getSheet(sheetName);
         // getLastRowNum，获取最后一行的行标
         logger.debug(String.valueOf(sheet.getLastRowNum()));
         for (int j = startRow; j < sheet.getLastRowNum(); j++) {

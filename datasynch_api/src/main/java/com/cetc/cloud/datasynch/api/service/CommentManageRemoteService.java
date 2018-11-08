@@ -27,16 +27,16 @@ public interface CommentManageRemoteService {
     @RequestMapping(value = "/commentmanage/import/tableComment", produces = "application/json", method = RequestMethod.POST)
     @ApiOperation(value = "批量导入带有注释的Excel文档-表注释", notes = "", produces = "application/json")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "sheetNum", value = "sheet编号（默认从0开始）", required = true, dataType = "String", paramType = "query"),
+            @ApiImplicitParam(name = "sheetName", value = "sheet名称", required = true, dataType = "String", paramType = "query"),
     })
-    List<DddTableCommentModel> importTableCommentExcel(MultipartFile file, String sheetNum);
+    List<DddTableCommentModel> importTableCommentExcel(MultipartFile file, String sheetName);
 
     @RequestMapping(value = "/commentmanage/import/columnComment", produces = "application/json", method = RequestMethod.POST)
     @ApiOperation(value = "批量导入带有注释的Excel文档-字段注释", notes = "", produces = "application/json")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "sheetNum", value = "sheet编号（默认从0开始）", required = true, dataType = "String", paramType = "query"),
+            @ApiImplicitParam(name = "sheetName", value = "sheet名称", required = true, dataType = "String", paramType = "query"),
     })
-    List<DddColumnCommentModel> importColumnCommentExcel(MultipartFile file, String sheetNum);
+    List<DddColumnCommentModel> importColumnCommentExcel(MultipartFile file, String sheetName);
     //todo 通过表名获取该表字段、字段注释、字段类型
 
     //todo 添加一条注释
