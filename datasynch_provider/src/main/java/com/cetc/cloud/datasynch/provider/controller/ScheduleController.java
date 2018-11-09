@@ -2,10 +2,8 @@ package com.cetc.cloud.datasynch.provider.controller;
 
 import com.cetc.cloud.datasynch.api.model.ScheduleModel;
 import com.cetc.cloud.datasynch.api.service.ScheduleRemoteService;
-import com.cetc.cloud.datasynch.provider.core.util.Ping;
 import com.cetc.cloud.datasynch.provider.service.impl.*;
 import com.cetc.cloud.datasynch.provider.common.CommonInstance;
-import org.apache.el.lang.ELArithmetic;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -47,8 +45,8 @@ public class ScheduleController implements ScheduleRemoteService {
     @Override
     public HashMap createScheduleJob(int connType, String source, int isPagingQuery,
                                      String orderByColumnName,
-                                     String httpParamExpression, String httpToken, String httpParamPageSize,
-                                     String httpParamPageNum, String httpJsonExtractRule, String httpTotalExtractRule,
+                                     String httpParamExpression, String httpToken, String httpPagingType, String httpParamPageSize,
+                                     String httpParamPageNum, String httpJsonExtractRule,
                                      String targetTableName, String pageSize, String cronExpression) throws SQLException {
         HashMap res = new HashMap();
 
@@ -122,10 +120,10 @@ public class ScheduleController implements ScheduleRemoteService {
         scheduleModel.setOrderByColumnName(orderByColumnName);
         scheduleModel.setHttpParamExpression(httpParamExpression);
         scheduleModel.setHttpToken(httpToken);
+        scheduleModel.setHttpPagingType(httpPagingType);
         scheduleModel.setHttpParamPageSize(httpParamPageSize);
         scheduleModel.setHttpParamPageNum(httpParamPageNum);
         scheduleModel.setHttpJsonExtractRule(httpJsonExtractRule);
-        scheduleModel.setHttpTotalExtractRule(httpTotalExtractRule);
         scheduleModel.setTargetTableName(targetTableName);
         scheduleModel.setPageSize(Integer.parseInt(pageSize));
         scheduleModel.setCronExpression(cronExpression);

@@ -14,13 +14,17 @@ import java.util.List;
  * Created by llj on 2018/10/14.
  */
 @Service("columnMappingService")
-public class ColumnMappingService implements com.cetc.cloud.datasynch.provider.service.ColumnMappingService {
+public class ColumnMappingService {
 
     @Autowired
     ColumnMappingMapper columnMappingMapper;
 
-
-    @Override
+    /**
+     * 根据目标表名称获取映射关系Map
+     * @param targetTable
+     * @return
+     */
+    
     public HashMap<String, String> getColumnMappingByTargetTableName(String targetTable) {
         List<ColumnMappingModel> list = columnMappingMapper.getMappingByTargetTableName(targetTable);
         if (list == null)
@@ -34,8 +38,12 @@ public class ColumnMappingService implements com.cetc.cloud.datasynch.provider.s
 
         return columnMap;
     }
-
-    @Override
+    /**
+     * 新增一条映射
+     * @param model
+     * @return
+     */
+    
     public int add(ColumnMappingModel model) {
         int count = columnMappingMapper.add(model);
         if (count>0) {
@@ -44,38 +52,65 @@ public class ColumnMappingService implements com.cetc.cloud.datasynch.provider.s
             return -1;
         }
     }
-
-    @Override
+    /**
+     * 批量添加，用于辅助Excel导入功能
+     * @param modelList
+     * @return
+     */
+    
     public int addList(List<ColumnMappingModel> modelList) {
         return columnMappingMapper.addList(modelList);
     }
-
-    @Override
+    /**
+     * 获取列表查询信息--通过源表名称/URL名称
+     * @param source
+     * @return
+     */
+    
     public List<ColumnMappingModel> getListInfoBySource(String source) {
         return columnMappingMapper.getListInfoBySource(source);
     }
-
-    @Override
+    /**
+     * 获取列表查询信息--通过目标表名称
+     * @param targetTbName
+     * @return
+     */
+    
     public List<ColumnMappingModel> getListInfoByTargetTableName(String targetTbName) {
         return columnMappingMapper.getListInfoByTargetTableName(targetTbName);
     }
-
-    @Override
+    /**
+     * 获取列表查询信息--通过目标字段-用于模糊检索
+     * @param targetColumnName
+     * @return
+     */
+    
     public List<ColumnMappingModel> getListInfoByTargetColumnName(String targetColumnName) {
         return columnMappingMapper.getListInfoByTargetColumnName(targetColumnName);
     }
-
-    @Override
+    /**
+     * 通过id更新该条信息
+     * @return
+     */
+    
     public int updateById(int id, String targetTable, String source, String srcColumnName, String targetColumnName) {
         return columnMappingMapper.updateById(id, targetTable, source, srcColumnName, targetColumnName);
     }
-
-    @Override
+    /**
+     * 删除一条映射 byId
+     * @param id
+     * @return
+     */
+    
     public int deleteById(int id) {
         return columnMappingMapper.deleteById(id);
     }
-
-    @Override
+    /**
+     * 删除目标表相关的所有映射规则
+     * @param targetTbName
+     * @return
+     */
+    
     public int deleteByTargetTbName(String targetTbName) {
         return columnMappingMapper.deleteByTargetTbName(targetTbName);
     }

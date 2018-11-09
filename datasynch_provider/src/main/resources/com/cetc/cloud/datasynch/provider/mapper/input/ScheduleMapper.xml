@@ -9,10 +9,10 @@
         <result column="ORDER_BY_COL_NAME" jdbcType="VARCHAR" property="orderByColumnName"/>
         <result column="HTTP_PARAM_EXPRESSION" jdbcType="VARCHAR" property="httpParamExpression"/>
         <result column="HTTP_TOKEN" jdbcType="VARCHAR" property="httpToken"/>
+        <result column="HTTP_PAGING_TYPE" jdbcType="INTEGER" property="httpPagingType"/>
         <result column="HTTP_PARAM_PAGESIZE" jdbcType="VARCHAR" property="httpParamPageSize"/>
         <result column="HTTP_PARAM_PAGENUM" jdbcType="VARCHAR" property="httpParamPageNum"/>
         <result column="HTTP_JSON_EXTRACTRULE" jdbcType="VARCHAR" property="httpJsonExtractRule"/>
-        <result column="HTTP_TOTAL_EXTRACTRULE" jdbcType="VARCHAR" property="httpTotalExtractRule"/>
         <result column="TARGET_TABLE_NAME" jdbcType="VARCHAR" property="targetTableName"/>
         <result column="PAGE_SIZE" jdbcType="INTEGER" property="pageSize"/>
         <result column="CRON_EXPRESSION" jdbcType="VARCHAR" property="cronExpression"/>
@@ -27,12 +27,12 @@
 
     <sql id="BaseColumns">
         ID,CONN_TYPE,SOURCE,IS_PAGING_QUERY,ORDER_BY_COL_NAME,HTTP_PARAM_EXPRESSION,HTTP_TOKEN,
-        HTTP_PARAM_PAGESIZE,HTTP_PARAM_PAGENUM,HTTP_JSON_EXTRACTRULE,HTTP_TOTAL_EXTRACTRULE,TARGET_TABLE_NAME,PAGE_SIZE,CRON_EXPRESSION,
+        HTTP_PAGING_TYPE,HTTP_PARAM_PAGESIZE,HTTP_PARAM_PAGENUM,HTTP_JSON_EXTRACTRULE,TARGET_TABLE_NAME,PAGE_SIZE,CRON_EXPRESSION,
         IS_ENABLED,CREATE_TIME,UPDATE_TIME
     </sql>
     <sql id="BaseColumns_Insert">
         ID,CONN_TYPE,SOURCE,IS_PAGING_QUERY,ORDER_BY_COL_NAME,HTTP_PARAM_EXPRESSION,HTTP_TOKEN,
-        HTTP_PARAM_PAGESIZE,HTTP_PARAM_PAGENUM,HTTP_JSON_EXTRACTRULE,HTTP_TOTAL_EXTRACTRULE,TARGET_TABLE_NAME,PAGE_SIZE,CRON_EXPRESSION
+        HTTP_PAGING_TYPE,HTTP_PARAM_PAGESIZE,HTTP_PARAM_PAGENUM,HTTP_JSON_EXTRACTRULE,TARGET_TABLE_NAME,PAGE_SIZE,CRON_EXPRESSION
     </sql>
 
     <!--int addScheduleInstance(ScheduleModel scheduleModel);-->
@@ -52,6 +52,7 @@
         #{orderByColumnName,jdbcType=VARCHAR},
         #{httpParamExpression,jdbcType=VARCHAR},
         #{httpToken,jdbcType=VARCHAR},
+        #{httpPagingType,jdbcType=INTEGER},
         #{httpParamPageSize,jdbcType=VARCHAR},
         #{httpParamPageNum,jdbcType=VARCHAR},
         #{httpJsonExtractRule,jdbcType=VARCHAR},

@@ -27,16 +27,27 @@ public interface CommonInstance {
     public static final int ENABLED = 1;
 
     /**
+     * 数据库默认全局字段名称、值
+     */
+    String GLOBAL_COLNAME_INCRE_ID = "OBJECT_ID";
+    String GLOBAL_COLNAME_CREATE_TIME = "CREATE_TIME";
+    String GLOBAL_COLNAME_UPDATE_TIME = "UPDATE_TIME";
+    String GLOBAL_COL_CREATE_TIME_DEFAULT_VAL = "SYSDATE";
+    String GLOBAL_COL_UPDATE_TIME_DEFAULT_VAL = "SYSDATE";
+
+    /**
      * 默认分页大小
      */
-    public static final int DefaultPageSize = 100;
+    int DefaultPageSize = 100;
 
 
     /**
-     * 接口方式分页参数名称
+     * 接口方式分页参数占位符名称
      */
-    String PAGE_NUM_NAME = "PAR_pageSize";
-    String PAGE_SIZE_NAME = "PAR_pageNum";
+    String PAGE_NUM_NAME = "$PAR_pageSize$";
+    String PAGE_SIZE_NAME = "$PAR_pageNum$";
+
+
 
     /**
      * Excel默认数据起始行 --Excel中从0行开始记录
@@ -53,11 +64,19 @@ public interface CommonInstance {
     int DO_PAGING = 1;
 
     /**
-     * 数据库默认全局字段名称、值
+     * 默认起始页码
      */
-    String GLOBAL_COLNAME_INCRE_ID = "OBJECT_ID";
-    String GLOBAL_COLNAME_CREATE_TIME = "CREATE_TIME";
-    String GLOBAL_COLNAME_UPDATE_TIME = "UPDATE_TIME";
-    String GLOBAL_COL_CREATE_TIME_DEFAULT_VAL = "SYSDATE";
-    String GLOBAL_COL_UPDATE_TIME_DEFAULT_VAL = "SYSDATE";
+    int DEFAULT_START_PAGE_NUM = 1;
+
+    /**
+     * 分页参数组织类型
+     */
+    String HTTP_PAGING_TYPE_NORMAL = "1";   //一般类型：pageNum=1&pageSize=100
+
+    String HTTP_PAGING_TYPE_JSON_QAJJ = "2";//安监接口类型:page={"pagenum":"1","pagesize":"50" }
+    String HTTP_PAGING_TYPE_JSON_QAJJ_key_pagenum = "pagenum";
+    String HTTP_PAGING_TYPE_JSON_QAJJ_key_pagesize = "pagesize";
+
+    String HTTP_PAGING_TYPE_COUNT = "3";    //城管案件：STARTPOSITION=0&MAXCOUNT=1000
+    String HTTP_PAGING_TYPE_COUNT_key_chengguan = "STARTPOSITION";    //城管案件：STARTPOSITION=0&MAXCOUNT=1000
 }

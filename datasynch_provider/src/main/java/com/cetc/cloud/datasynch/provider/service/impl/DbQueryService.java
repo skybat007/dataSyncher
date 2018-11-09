@@ -12,7 +12,6 @@ package com.cetc.cloud.datasynch.provider.service.impl;
  * 使用本资料必须获得相应的书面授权，承担保密责任和接受相应的法律约束。
  *************************************************************************/
 
-import com.cetc.cloud.datasynch.provider.service.DbBaseService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,7 +38,7 @@ import java.util.List;
  * Update_Description: huangzezhou 补充
  **/
 @Service("dbQueryService")
-public class DbQueryService implements DbBaseService {
+public class DbQueryService {
 
     @Autowired
     @Qualifier("readOnlyJdbcTemplate")
@@ -114,7 +113,6 @@ public class DbQueryService implements DbBaseService {
         return data;
     }
 
-    @Override
     public boolean checkIfTableExists(String tbName) {
         String sql = "SELECT COUNT(*) FROM \"" + tbName + "\"";
         logger.debug("sql: " + sql);
@@ -129,7 +127,6 @@ public class DbQueryService implements DbBaseService {
         }
         return false;
     }
-    @Override
     public int getTableRowCounts(String tbName) {
         String sql = "SELECT COUNT(*) FROM \"" + tbName + "\"";
         logger.debug("sql: " + sql);

@@ -3,9 +3,10 @@ package com.cetc.cloud.datasynch.provider.service.impl;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.cetc.cloud.datasynch.api.model.ScheduleModel;
+import com.cetc.cloud.datasynch.api.model.SynchJobLogInfoModel;
 import com.cetc.cloud.datasynch.api.model.Token;
 import com.cetc.cloud.datasynch.provider.core.util.HttpUtil;
-import com.cetc.cloud.datasynch.provider.core.util.JsonUtil;
+import com.cetc.cloud.datasynch.provider.core.util.JsonExtractor;
 import com.cetc.cloud.datasynch.provider.common.CommonInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,11 +20,17 @@ import java.util.List;
  * Created by llj on 2018/10/11.
  */
 @Service("httpOperateService")
-public class HttpOperateService implements com.cetc.cloud.datasynch.provider.service.HttpOperateService {
+public class HttpOperateService {
 
     private Logger logger = LoggerFactory.getLogger(HttpOperateService.class);
 
-    @Override
+    /**
+     * 通过HTTP协议请求对应的URL获取数据
+     *
+     * @param model
+     * @param pageNum
+     * @return
+     */
     public List<HashMap> doHttpQueryList(ScheduleModel model, int pageNum) {
         //获取URL
         String URL = model.getSource();
@@ -56,110 +63,29 @@ public class HttpOperateService implements com.cetc.cloud.datasynch.provider.ser
             String data = (String) httpResult.get("data");
             if (model.getIsPagingQuery() == CommonInstance.DO_PAGING && null != jsonExtractRule && data.startsWith("{")) {
                 JSONObject jsonResultData = JSONObject.parseObject(data);
-                listData = ExtractListData(jsonResultData, jsonExtractRule);
+                listData = JsonExtractor.ExtractListData(jsonResultData, jsonExtractRule);
             } else if (model.getIsPagingQuery() == CommonInstance.NO_PAGING && data.startsWith("[") && "[*]".equals(jsonExtractRule)) {
                 JSONArray jsonResultData = JSONArray.parseArray(data);
-                listData = ExtractListData2(jsonResultData);
+                listData = JsonExtractor.ExtractListData2(jsonResultData);
             } else if (model.getIsPagingQuery() == CommonInstance.NO_PAGING && data.startsWith("{")) {
                 JSONObject jsonResultData = JSONObject.parseObject(data);
-                listData = ExtractListData(jsonResultData, jsonExtractRule);
+                listData = JsonExtractor.ExtractListData(jsonResultData, jsonExtractRule);
             }
         }
 
         return listData;
     }
 
-    public int getTotalRows(ScheduleModel model) {
-        //获取URL
-        String URL = model.getSource();
-        int total = 0;
-        JSONObject httpParams = new JSONObject();
-        //如果该接口需要使用分页来查询的话，就需要添加这个动态主键
-        if (null != model.getHttpParamPageNum() && null != model.getHttpParamPageSize()) {
-            //组装参数 pageNum和pageSize
-            httpParams.put(CommonInstance.PAGE_NUM_NAME, String.valueOf(1));
-            httpParams.put(CommonInstance.PAGE_SIZE_NAME, String.valueOf(1));//测试,pageSize设为1
-        }
-        //获取json解析规则
-        String totalExtractRule = model.getHttpTotalExtractRule();
-
-        String httpParamExpression = model.getHttpParamExpression();
-        if (null != httpParamExpression) {
-            String[] split = httpParamExpression.split("&");
-            for (int i = 0; i < split.length; i++) {
-                String param = split[i];
-                String[] k_v = param.split("=");
-                httpParams.put(k_v[0], k_v[1]);
-            }
-        }
-        //获取token
-        String tokenStr = model.getHttpToken();
-        JSONObject httpResult;
-        if (null != tokenStr && !"".equals(tokenStr)) {
-            Token token = new Token();
-            if (tokenStr.contains(":")) {
-                String[] split = tokenStr.split(":");
-                if (!"".equals(split[0]) && !"".equals(split[1])) {
-                    token.setKey(split[0]);
-                    token.setValue(split[1]);
-                }
-            }
-            httpResult = HttpUtil.doGetWithAuthoration(URL, httpParams, token);
-        } else {
-            httpResult = HttpUtil.doGet(URL, httpParams);
-        }
-
-        //解析，并生成结果数据集
-        if (200 == (Integer) httpResult.get(CommonInstance.HTTP_RES_CODE)) {
-            String data = (String) httpResult.get("data");
-            if (data.startsWith("{")) {
-                JSONObject jsonResultData = JSONObject.parseObject(data);
-                total = ExtractTotalData(jsonResultData, totalExtractRule);
-            } else if (data.startsWith("[")) {
-                JSONArray jsonResultData = JSONArray.parseArray(data);
-                total = jsonResultData.size();
-            }
-            logger.info("\n---->>> getTotalRows of URL:" + model.getSource() + " is :" + total);
-        }
-        return total;
-    }
-
-    /**
-     * 根据传入json解析规则 获取JsonArray形式的Data主体
-     */
-    public List<HashMap> ExtractListData(JSONObject jsonResultData, String jsonExtractRule) {
-        String[] splits = null;
-        JSONArray arrData = null;
-        if (jsonExtractRule.contains("\\.")) {
-            splits = jsonExtractRule.split("\\.");
-
-            int size = splits.length;
-
-            JSONObject extractJson = jsonResultData;
-
-            for (int i = 0; i < size; i++) {
-                if (i == size - 1) {
-                    arrData = extractJson.getJSONArray(splits[i]);
-                } else {
-                    extractJson = extractJson.getJSONObject(splits[i]);
-                }
-            }
-            List<HashMap> list = JsonUtil.parseArray2List(arrData);
-            return list;
-        } else {
-            arrData = jsonResultData.getJSONArray(jsonExtractRule);
-            List<HashMap> list = JsonUtil.parseArray2List(arrData);
-            return list;
+    public int getHttpCurrentPageTotalRows(ScheduleModel model, SynchJobLogInfoModel logInfoModel) {
+        List<HashMap> queryResult = doHttpQueryList(model, logInfoModel.getLastQueryPageNum());
+        if (null!=queryResult) {
+            return queryResult.size();
+        }else {
+            return 0;
         }
     }
 
-    /**
-     * 根据传入json解析规则 从JSONArray对象中获取JsonArray形式的Data主体
-     */
-    public List<HashMap> ExtractListData2(JSONArray jsonResultData) {
-        List<HashMap> list = JsonUtil.parseArray2List(jsonResultData);
-        return list;
-    }
+
 
     /**
      * 根据传入json解析规则 获取JsonArray形式的Data主体
@@ -215,11 +141,24 @@ public class HttpOperateService implements com.cetc.cloud.datasynch.provider.ser
         }
 
         //如果该接口需要使用分页来查询的话，就需要添加这个动态参数
-        if (null != model.getHttpParamPageNum() && null != model.getHttpParamPageSize()) {
-            //组装参数 pageNum和pageSize
-            httpQueryParams.put(model.getHttpParamPageNum(), String.valueOf(pageNum));
-            int pageSize = model.getPageSize();
-            httpQueryParams.put(model.getHttpParamPageSize(), String.valueOf(pageSize));
+        if (null != model.getHttpPagingType() && null != model.getHttpParamPageNum() && null != model.getHttpParamPageSize()) {
+            /**一般类型：pageNum=1&pageSize=100*/
+            if (CommonInstance.HTTP_PAGING_TYPE_NORMAL == model.getHttpPagingType()) {
+                //组装参数 pageNum和pageSize
+                httpQueryParams.put(model.getHttpParamPageNum(), String.valueOf(pageNum));
+                httpQueryParams.put(model.getHttpParamPageSize(), String.valueOf(model.getPageSize()));
+                /**安监接口类型:page={"pagenum":"1","pagesize":"50" }*/
+            } else if (CommonInstance.HTTP_PAGING_TYPE_JSON_QAJJ == model.getHttpPagingType()) {
+                JSONObject innerPageParam = new JSONObject();
+                innerPageParam.put(CommonInstance.HTTP_PAGING_TYPE_JSON_QAJJ_key_pagenum,String.valueOf(pageNum));
+                innerPageParam.put(CommonInstance.HTTP_PAGING_TYPE_JSON_QAJJ_key_pagesize, String.valueOf(model.getPageSize()));
+                httpQueryParams.put(model.getHttpParamPageNum() , innerPageParam);
+                /**城管案件：STARTPOSITION=0&MAXCOUNT=1000*/
+            } else if (CommonInstance.HTTP_PAGING_TYPE_COUNT == model.getHttpPagingType()) {
+                int startPosition=(pageNum-1)*model.getPageSize();
+                httpQueryParams.put(CommonInstance.HTTP_PAGING_TYPE_COUNT_key_chengguan, String.valueOf(startPosition));
+                httpQueryParams.put(model.getHttpParamPageSize(), String.valueOf(model.getPageSize()));
+            }
         }
         return httpQueryParams;
     }

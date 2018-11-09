@@ -13,12 +13,12 @@ import java.util.List;
  * Created by luolinjie on 2018/10/10.
  */
 @Service("scheduleService")
-public class ScheduleService implements com.cetc.cloud.datasynch.provider.service.ScheduleService {
+public class ScheduleService{
 
     @Autowired
     ScheduleMapper scheduleMapper;
 
-    @Override
+    
     public int addScheduleInstance(ScheduleModel scheduleModel) {
         String source = scheduleModel.getSource();
         int pageSize = scheduleModel.getPageSize();
@@ -38,25 +38,24 @@ public class ScheduleService implements com.cetc.cloud.datasynch.provider.servic
             return -1;
         }
     }
-    @Override
+    
     public int deleteScheduleByJobId(int jobId) {
         return scheduleMapper.deleteJobByJobId(jobId);
     }
 
-    @Override
     public List<ScheduleModel> queryScheduleJobList() {
         return scheduleMapper.queryScheduleJobList();
     }
 
-    @Override
+    
     public int updateCronByJobId(int jobId, String cron) {
         return scheduleMapper.updateCronByJobId(jobId, cron);
     }
-    @Override
+    
     public int disableStatusByJobId(int jobId) {
         return scheduleMapper.updateEnableStatusByJobId(jobId, CommonInstance.DISABLED);
     }
-    @Override
+    
     public int enableStatusByJobId(int jobId) {
         //获取运行状态
         int status = scheduleMapper.getStatusByJobId(jobId);
@@ -67,7 +66,7 @@ public class ScheduleService implements com.cetc.cloud.datasynch.provider.servic
         }
     }
 
-    @Override
+    
     public ScheduleModel queryModelByJobId(int jobId) {
         return scheduleMapper.queryModelByJobId(jobId);
     }

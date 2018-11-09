@@ -13,17 +13,21 @@ import java.util.List;
  * Created by llj on 2018/10/10.
  */
 @Service("synchJobLogInfoService")
-public class SynchJobLogInfoService implements com.cetc.cloud.datasynch.provider.service.SynchJobLogInfoService {
+public class SynchJobLogInfoService {
 
     @Autowired
     SyhchJobLogInfoMapper synchJobLogInfoMapper;
-
-    @Override
+    /**
+     * 根据jobID查询最近一次成功请求的分页参数
+     */
     public SynchJobLogInfoModel queryLatestInfoByJobId(int jobId) {
         return synchJobLogInfoMapper.queryLatestLogInfoByJobId(jobId);
     }
-
-    @Override
+    /**
+     * 查询最近一次分页参数，并以【pageNum,pageSize】返回
+     * @param jobId
+     * @return
+     */
     public List<Integer> queryLatestPageParamsByJobId(int jobId) {
         SynchJobLogInfoModel synchJobLogInfoModel = synchJobLogInfoMapper.queryLatestPageParamsByJobID(jobId);
         ArrayList<Integer> list = new ArrayList<Integer>();
@@ -31,8 +35,11 @@ public class SynchJobLogInfoService implements com.cetc.cloud.datasynch.provider
         list.add(synchJobLogInfoModel.getCurrentPageSize());
         return list;
     }
-
-    @Override
+    /**
+     * 新增一条同步日志
+     * @param synchJobLogInfoModel
+     * @return
+     */
     public int add(SynchJobLogInfoModel synchJobLogInfoModel) {
 
         return synchJobLogInfoMapper.add(synchJobLogInfoModel);

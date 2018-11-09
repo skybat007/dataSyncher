@@ -15,7 +15,6 @@ package com.cetc.cloud.datasynch.provider.service.impl;
 import com.cetc.cloud.datasynch.api.model.ScheduleModel;
 import com.cetc.cloud.datasynch.provider.common.CommonInstance;
 import com.cetc.cloud.datasynch.provider.core.util.ListUtil;
-import com.cetc.cloud.datasynch.provider.service.DbBaseService;
 import com.cetc.cloud.datasynch.provider.tools.DbTools;
 import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.jdbc.ScriptRunner;
@@ -46,7 +45,7 @@ import java.util.*;
  * Update_Description: huangzezhou 补充
  **/
 @Service("dbOperateService")
-public class DbOperateService implements DbBaseService {
+public class DbOperateService {
     private final Logger logger = LoggerFactory.getLogger(DbOperateService.class);
 
     @Autowired
@@ -328,7 +327,7 @@ public class DbOperateService implements DbBaseService {
         return ListUtil.toStringWithoutBracket(valueList);
     }
 
-    @Override
+
     public boolean checkIfTableExists(String tbName) {
         String sql = "SELECT COUNT(*) COUNT FROM " + tbName;
         try {
@@ -344,7 +343,7 @@ public class DbOperateService implements DbBaseService {
         return false;
     }
 
-    @Override
+
     public int getTableRowCounts(String tbName) throws SQLException {
         String sql = "SELECT COUNT(*) FROM \"" + tbName + "\"";
         logger.debug("sql: " + sql);
@@ -410,15 +409,17 @@ public class DbOperateService implements DbBaseService {
         primaryJdbcTemplate.execute(sql);
         return true;
     }
+
     public boolean addColumnComment(String targetTableName, String columnName, String columnComment) {
 
-        String sql = "COMMENT ON COLUMN \""+orclUsername+"\".\"" + targetTableName + "\".\"" + columnName + "\" IS " + columnComment;
+        String sql = "COMMENT ON COLUMN \"" + orclUsername + "\".\"" + targetTableName + "\".\"" + columnName + "\" IS " + columnComment;
         primaryJdbcTemplate.execute(sql);
         return true;
     }
+
     public boolean addTableComment(String targetTableName, String tableComment) {
 
-        String sql = "COMMENT ON TABLE \""+orclUsername+"\".\"" + targetTableName + "\" IS " + tableComment;
+        String sql = "COMMENT ON TABLE \"" + orclUsername + "\".\"" + targetTableName + "\" IS " + tableComment;
         primaryJdbcTemplate.execute(sql);
         return true;
     }

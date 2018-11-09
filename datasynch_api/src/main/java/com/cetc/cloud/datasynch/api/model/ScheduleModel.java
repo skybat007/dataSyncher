@@ -11,14 +11,14 @@ public class ScheduleModel implements Serializable {
     private int id;                         //job唯一主键
     private int connType;                   //连接方式（0：前置机方式 1：接口方式）
     private String source;                  //源（请求URL路径@token/前置机view视图的名称）
-    private int isPagingQuery;              //是否是分页查询
+    private int isPagingQuery;              //是否是分页查询(如果不做分页,则全量请求入库,没有pagesize)
     private String orderByColumnName;       //（数据库请求独有参数）源-排序字段名称
     private String httpParamExpression;     //（HTTP请求独有参数）入参表达式
     private String httpToken;               //（HTTP请求独有参数）token表达式
     private String httpParamPageSize;       //（HTTP请求独有参数）pageSize映射参数名
     private String httpParamPageNum;        //（HTTP请求独有参数）pageNum映射参数名
+    private String httpPagingType;          //（HTTP请求独有参数）分页参数组织类型（1:normal;2:json;3:position）
     private String httpJsonExtractRule;     //（HTTP请求独有参数）json解析规则
-    private String httpTotalExtractRule;    //（HTTP请求独有参数）total参数解析规则
     private String targetTableName;         //入库表名
     private int pageSize;                   //页大小
     private String cronExpression;          //定时表达式
@@ -98,20 +98,20 @@ public class ScheduleModel implements Serializable {
         this.httpParamPageNum = httpParamPageNum;
     }
 
+    public String getHttpPagingType() {
+        return httpPagingType;
+    }
+
+    public void setHttpPagingType(String httpPagingType) {
+        this.httpPagingType = httpPagingType;
+    }
+
     public String getHttpJsonExtractRule() {
         return httpJsonExtractRule;
     }
 
     public void setHttpJsonExtractRule(String httpJsonExtractRule) {
         this.httpJsonExtractRule = httpJsonExtractRule;
-    }
-
-    public String getHttpTotalExtractRule() {
-        return httpTotalExtractRule;
-    }
-
-    public void setHttpTotalExtractRule(String httpTotalExtractRule) {
-        this.httpTotalExtractRule = httpTotalExtractRule;
     }
 
     public String getTargetTableName() {
@@ -175,7 +175,6 @@ public class ScheduleModel implements Serializable {
                 ", httpParamPageSize='" + httpParamPageSize + '\'' +
                 ", httpParamPageNum='" + httpParamPageNum + '\'' +
                 ", httpJsonExtractRule='" + httpJsonExtractRule + '\'' +
-                ", httpTotalExtractRule='" + httpTotalExtractRule + '\'' +
                 ", targetTableName='" + targetTableName + '\'' +
                 ", pageSize=" + pageSize +
                 ", cronExpression='" + cronExpression + '\'' +

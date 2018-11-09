@@ -67,6 +67,12 @@
             <version>1.5.7.RELEASE</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <!-- JSONQuery @ https://JSONQuery.kagura.me -->
+            <groupId>me.kagura</groupId>
+            <artifactId>JSONQuery</artifactId>
+            <version>0.2.5</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>

@@ -21,7 +21,7 @@ import java.util.concurrent.ScheduledFuture;
  * Created by luolinjie on 2018/10/9.
  */
 @Service("jobManageService")
-public class JobManageService implements com.cetc.cloud.datasynch.provider.service.JobManageService {
+public class JobManageService {
 
     Logger logger = LoggerFactory.getLogger(JobManageService.class);
     @Autowired
@@ -38,7 +38,6 @@ public class JobManageService implements com.cetc.cloud.datasynch.provider.servi
 
     private Map<String, Future> futures = new ConcurrentHashMap<String, Future>();
 
-    @Override
     public Map<String, Future> getRunningFutures() {
         return futures;
     }
@@ -57,7 +56,9 @@ public class JobManageService implements com.cetc.cloud.datasynch.provider.servi
         return threadPoolTaskScheduler;
     }
 
-    @Override
+    /**
+     * 根据传入的jobId和run方法的执行体创建内容
+     */
     public int startJob(int jobID, ScheduleModel scheduleModel) {
         //创建定时任务
         MyScheduleRunnable runnableInstance = new MyScheduleRunnable(scheduleModel, synchJobLogInfoService, dbQueryService, dbOperateService, httpOperateService);
@@ -72,9 +73,9 @@ public class JobManageService implements com.cetc.cloud.datasynch.provider.servi
             /**将定时任务记录在内存中，供其他功能查询*/
             futures.put(String.valueOf(jobID), future);
             logger.info("job:" + jobID + "--started!");
-            logger.info("cron:"+scheduleModel.getCronExpression());
-            logger.info("source:"+scheduleModel.getSource());
-            logger.info("target:"+scheduleModel.getTargetTableName());
+            logger.info("cron:" + scheduleModel.getCronExpression());
+            logger.info("source:" + scheduleModel.getSource());
+            logger.info("target:" + scheduleModel.getTargetTableName());
             return jobID;
         } catch (Exception e) {
             logger.info("job:" + jobID + "--started error!");
@@ -82,11 +83,12 @@ public class JobManageService implements com.cetc.cloud.datasynch.provider.servi
         }
     }
 
-    @Override
     /**
-     * stop:1:正常停止
-     *      0：还在运行
-     *      -1：异常
+     * 通过jobID取消定时任务
+     *
+     * @param jobID stop:1:正常停止
+     *              0：还在运行
+     *              -1：异常
      */
     public int removeJob(int jobID) {
         if (threadPoolTaskScheduler != null) {
@@ -108,8 +110,16 @@ public class JobManageService implements com.cetc.cloud.datasynch.provider.servi
         return -1;
     }
 
-    //   cron表达式： "\*"/"10 * * * * *
-    @Override
+    //
+
+    /**
+     * 通过jobID修改定时规则并重新启动（需要重新传入运行实体）
+     *
+     * @param jobID            -- 任务标识符
+     * @param cron             -- cron表达式
+     * @param runnableInstance -- 带有run方法的执行实体
+     *                         cron表达式： "\*"/"10 * * * * *
+     */
     public String changeJob(int jobID, String cron, Runnable runnableInstance) {
         removeJob(jobID);// 先停止，再开启
         ScheduledFuture<?> future = threadPoolTaskScheduler.schedule(runnableInstance, new CronTrigger(cron));
