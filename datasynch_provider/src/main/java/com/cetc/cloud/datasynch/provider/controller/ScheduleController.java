@@ -83,9 +83,9 @@ public class ScheduleController implements ScheduleRemoteService {
                     return res;
                 }
             } else if (isPagingQuery == CommonInstance.NO_PAGING) {
-                if (!"[*]".equals(httpJsonExtractRule)) {
+                if (null==httpJsonExtractRule||"".equals(httpJsonExtractRule)) {
                     res.put("result", "fail");
-                    res.put("msg", "param error! httpJsonExtractRule cannot be null!,default: \"[*]\"");
+                    res.put("msg", "param error! httpJsonExtractRule cannot be null!");
                     return res;
                 }
             } else {

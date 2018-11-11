@@ -22,7 +22,7 @@ public interface ColumnMappingRemoteService {
     @RequestMapping(value = "/columnmapping/importExcel", produces = "application/json", method = RequestMethod.POST)
     @ApiOperation(value = "将Excel映射表导入数据库", notes = "将Excel人工维护的 srcTable-targetTable 字段映射表导入数据库进行维护," +
             "\r\n字段排序：\t源,源字段名,目标字段名,目标表\n", produces = "application/json")
-    String importExcelIntoDB(MultipartFile file, String Data_StartRow_Num);
+    String importExcelIntoDB(MultipartFile file, String sheetName);
 
     @RequestMapping(value = "/columnmapping/getListInfo/byTargetTableName", produces = "application/json", method = RequestMethod.GET)
     @ApiOperation(value = "根据源表名称查询该表的映射关系列表", notes = "根据源表名称查询该表的映射关系列表", produces = "application/json")

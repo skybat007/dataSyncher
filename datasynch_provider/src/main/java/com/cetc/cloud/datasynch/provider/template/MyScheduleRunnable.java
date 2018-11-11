@@ -258,6 +258,8 @@ public class MyScheduleRunnable implements Runnable {
             logger.info("\n\n----->>>> current page has new data? -- " + doInsertQueryResult);
 
             if (doInsertQueryResult == true) {
+                singleJobTotalSuccessCount = logModel.getTotalSuccessCount();
+                singleJobTotalFailCount = logModel.getTotalFailCount();
                 /**初次执行or未到达最后一页or有新的数据 --- 继续请求**/
                 // 判断是否到达最后一页(未到达最后一页的标志：queryDataSize==pageSize; 若达到最后一页: rowNum==0||rownum<pageSize
                 // null==model表示还未发起过请求)
@@ -334,7 +336,7 @@ public class MyScheduleRunnable implements Runnable {
                     int count = synchJobLogInfoService.add(synchJobLogInfoModel);
 
                     if (count >= 1) {
-                        logger.info("\n\n----->>>>successfuly done a SQL query: " +
+                        logger.info("\n\n----->>>>successfuly done a HTTP query: " +
                                         "\n" + scheduleModel.getSource() + "," +
                                         "\ncurrent tableName: " + scheduleModel.getTargetTableName() +
                                         "\ncurrent page: " + synchJobLogInfoModel.getLastQueryPageNum() +
@@ -417,7 +419,11 @@ public class MyScheduleRunnable implements Runnable {
         }
         int currentPageTotalRows = httpOperateService.getHttpCurrentPageTotalRows(scheduleModel, logModel);
         int lastPageTotalRows = logModel.getQueryResultSize();
-        return currentPageTotalRows > lastPageTotalRows ? true : false;
+        if (currentPageTotalRows == scheduleModel.getPageSize()){
+            return true;
+        }else {
+            return currentPageTotalRows > lastPageTotalRows ? true : false;
+        }
 
     }
 }

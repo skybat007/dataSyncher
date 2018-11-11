@@ -64,6 +64,13 @@ public interface CommonInstance {
     int DO_PAGING = 1;
 
     /**
+     * 当前请求是否成功
+     */
+    int SUCCESS = 1;
+    int FAIL = 0;
+    int ERROR = -1;
+
+    /**
      * 默认起始页码
      */
     int DEFAULT_START_PAGE_NUM = 1;

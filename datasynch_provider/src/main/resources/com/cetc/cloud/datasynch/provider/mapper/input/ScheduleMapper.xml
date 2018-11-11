@@ -56,7 +56,6 @@
         #{httpParamPageSize,jdbcType=VARCHAR},
         #{httpParamPageNum,jdbcType=VARCHAR},
         #{httpJsonExtractRule,jdbcType=VARCHAR},
-        #{httpTotalExtractRule,jdbcType=VARCHAR},
         #{targetTableName,jdbcType=VARCHAR},
         #{pageSize,jdbcType=INTEGER},
         #{cronExpression,jdbcType=VARCHAR}

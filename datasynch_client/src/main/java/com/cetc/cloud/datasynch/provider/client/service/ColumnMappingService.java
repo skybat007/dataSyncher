@@ -26,7 +26,7 @@ public interface ColumnMappingService extends ColumnMappingRemoteService {
     class HystrixClientFallback implements ColumnMappingService {
 
         @Override
-        public String importExcelIntoDB(MultipartFile file, String Data_StartRow_Num) {
+        public String importExcelIntoDB(MultipartFile file, String sheetName) {
             JSONObject result = new JSONObject();
             result.put("result","failed");
             result.put("data","null");

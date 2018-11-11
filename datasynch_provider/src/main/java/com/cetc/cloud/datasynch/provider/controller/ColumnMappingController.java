@@ -33,18 +33,13 @@ public class ColumnMappingController implements ColumnMappingRemoteService {
     Logger logger = LoggerFactory.getLogger(ColumnMappingController.class);
 
     @Override
-    public String importExcelIntoDB(MultipartFile file, String Data_StartRow_Num) {
+    public String importExcelIntoDB(MultipartFile file, String sheetName) {
 
         JSONObject res = new JSONObject();
 
         // 解析Excel，生成List<Model>
         List<ColumnMappingModel> modelList = new ArrayList<ColumnMappingModel>();
-        int startRow;
-        if (null == Data_StartRow_Num || "".equals(Data_StartRow_Num)) {
-            startRow = CommonInstance.DEFAULT_EXCEL_STARTWROW;
-        } else {
-            startRow = Integer.valueOf(Data_StartRow_Num) - 1;
-        }
+        int startRow = CommonInstance.DEFAULT_EXCEL_STARTWROW;
         Workbook workbook = null;
         String originalFilename = file.getOriginalFilename();
         try {
@@ -59,7 +54,7 @@ public class ColumnMappingController implements ColumnMappingRemoteService {
         }
 
         // 获取第一个sheet
-        Sheet sheet = workbook.getSheetAt(0);
+        Sheet sheet = workbook.getSheet(sheetName);
         // getLastRowNum，获取最后一行的行标
         logger.debug(String.valueOf(sheet.getLastRowNum()));
         for (int j = startRow; j < sheet.getLastRowNum(); j++) {

@@ -116,8 +116,14 @@ public class DbQueryService {
     public boolean checkIfTableExists(String tbName) {
         String sql = "SELECT COUNT(*) FROM \"" + tbName + "\"";
         logger.debug("sql: " + sql);
+        SqlRowSet resultSet = null;
+        try {
+            resultSet = readOnlyJdbcTemplate.queryForRowSet(sql);
+        }catch (Exception e){
+            logger.error("SQLSyntaxErrorException: ORA-00942: 表或视图 "+tbName+" 不存在");
+            return false;
+        }
 
-        SqlRowSet resultSet = readOnlyJdbcTemplate.queryForRowSet(sql);
         String count = null;
         while (resultSet.next()) {
              count = resultSet.getString(1);

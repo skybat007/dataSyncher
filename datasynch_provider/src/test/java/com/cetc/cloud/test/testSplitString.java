@@ -35,9 +35,14 @@ public class testSplitString {
 ////        System.out.println("split :" + split.toString());
 ////        System.out.println("split[1]:"+split[1]);
 
-        List<String> subRule = JsonExtractor.getSubRule(".rule1.rule2");
-        List<String> subRule1 = JsonExtractor.getSubRule("rule1.rule2.");
-        System.out.println(subRule);
-        System.out.println(subRule1);
+//        List<String> subRule = JsonExtractor.getSubRule(".rule1.rule2");
+//        List<String> subRule1 = JsonExtractor.getSubRule("rule1.rule2.");
+//        System.out.println(subRule);
+//        System.out.println(subRule1);
+        String httpParamExpression = "customer_code=ftqw";
+        String[] paramKeyValues = httpParamExpression.split("&");
+        System.out.println(paramKeyValues.length);
+        System.out.println(paramKeyValues[0]);
+//        String[] split = paramKeyValues[0].split("=");
     }
 }

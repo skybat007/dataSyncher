@@ -119,9 +119,13 @@ public class HttpOperateService {
                 if (split.length == 2) {
                     String key = split[0];
                     String value = split[1];
-                    if (model.getHttpParamPageNum().equals(key) || model.getHttpParamPageSize().equals(key)) {
-                        continue;
-                    } else {
+                    if (CommonInstance.DO_PAGING == model.getIsPagingQuery()) {
+                        if (model.getHttpParamPageNum().equals(key) || model.getHttpParamPageSize().equals(key)) {
+                            continue;
+                        } else {
+                            httpQueryParams.put(key, value);
+                        }
+                    }else if (CommonInstance.NO_PAGING == model.getIsPagingQuery()){
                         httpQueryParams.put(key, value);
                     }
                 } else {

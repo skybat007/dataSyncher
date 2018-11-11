@@ -258,7 +258,7 @@ public class DbOperateService {
             if (null == tableValues || "".equals(tableValues)) {
                 logger.error("cannot find target table:\"" + targetTableName + "\" in targetDB");
                 List<Integer> resList = new ArrayList<Integer>();
-                resList.add(-1);
+                resList.add(CommonInstance.ERROR);
                 resList.add(0);
                 resList.add(0);
                 return resList;
@@ -290,7 +290,7 @@ public class DbOperateService {
         }
 
         List<Integer> resList = new ArrayList<Integer>();
-        resList.add(0);
+        resList.add(CommonInstance.SUCCESS);
         resList.add(successCounter);
         resList.add(failCounter);
         return resList;
@@ -412,7 +412,7 @@ public class DbOperateService {
 
     public boolean addColumnComment(String targetTableName, String columnName, String columnComment) {
 
-        String sql = "COMMENT ON COLUMN \"" + orclUsername + "\".\"" + targetTableName + "\".\"" + columnName + "\" IS " + columnComment;
+        String sql = "COMMENT ON COLUMN \"" + orclUsername + "\".\"" + targetTableName + "\".\"" + columnName + "\" IS \'" + columnComment+"\'";
         primaryJdbcTemplate.execute(sql);
         return true;
     }
