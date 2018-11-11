@@ -61,16 +61,7 @@ public class HttpOperateService {
         //解析，并生成结果数据集
         if (200 == (Integer) httpResult.get(CommonInstance.HTTP_RES_CODE)) {
             String data = (String) httpResult.get("data");
-            if (model.getIsPagingQuery() == CommonInstance.DO_PAGING && null != jsonExtractRule && data.startsWith("{")) {
-                JSONObject jsonResultData = JSONObject.parseObject(data);
-                listData = JsonExtractor.ExtractListData(jsonResultData, jsonExtractRule);
-            } else if (model.getIsPagingQuery() == CommonInstance.NO_PAGING && data.startsWith("[") && "[*]".equals(jsonExtractRule)) {
-                JSONArray jsonResultData = JSONArray.parseArray(data);
-                listData = JsonExtractor.ExtractListData2(jsonResultData);
-            } else if (model.getIsPagingQuery() == CommonInstance.NO_PAGING && data.startsWith("{")) {
-                JSONObject jsonResultData = JSONObject.parseObject(data);
-                listData = JsonExtractor.ExtractListData(jsonResultData, jsonExtractRule);
-            }
+            listData = JsonExtractor.ExtractListData(data, jsonExtractRule);
         }
 
         return listData;
@@ -78,13 +69,12 @@ public class HttpOperateService {
 
     public int getHttpCurrentPageTotalRows(ScheduleModel model, SynchJobLogInfoModel logInfoModel) {
         List<HashMap> queryResult = doHttpQueryList(model, logInfoModel.getLastQueryPageNum());
-        if (null!=queryResult) {
+        if (null != queryResult) {
             return queryResult.size();
-        }else {
+        } else {
             return 0;
         }
     }
-
 
 
     /**
@@ -150,12 +140,12 @@ public class HttpOperateService {
                 /**安监接口类型:page={"pagenum":"1","pagesize":"50" }*/
             } else if (CommonInstance.HTTP_PAGING_TYPE_JSON_QAJJ == model.getHttpPagingType()) {
                 JSONObject innerPageParam = new JSONObject();
-                innerPageParam.put(CommonInstance.HTTP_PAGING_TYPE_JSON_QAJJ_key_pagenum,String.valueOf(pageNum));
+                innerPageParam.put(CommonInstance.HTTP_PAGING_TYPE_JSON_QAJJ_key_pagenum, String.valueOf(pageNum));
                 innerPageParam.put(CommonInstance.HTTP_PAGING_TYPE_JSON_QAJJ_key_pagesize, String.valueOf(model.getPageSize()));
-                httpQueryParams.put(model.getHttpParamPageNum() , innerPageParam);
+                httpQueryParams.put(model.getHttpParamPageNum(), innerPageParam);
                 /**城管案件：STARTPOSITION=0&MAXCOUNT=1000*/
             } else if (CommonInstance.HTTP_PAGING_TYPE_COUNT == model.getHttpPagingType()) {
-                int startPosition=(pageNum-1)*model.getPageSize();
+                int startPosition = (pageNum - 1) * model.getPageSize();
                 httpQueryParams.put(CommonInstance.HTTP_PAGING_TYPE_COUNT_key_chengguan, String.valueOf(startPosition));
                 httpQueryParams.put(model.getHttpParamPageSize(), String.valueOf(model.getPageSize()));
             }
