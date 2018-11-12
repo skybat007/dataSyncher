@@ -303,7 +303,7 @@ public class MyScheduleRunnable implements Runnable {
                         //未到达最后一页的入库方式：全量入库 // 已到达最后一页：全量入库
                         insertResList = dbOperateService.insertIntoTargetTable(queryResult, scheduleModel);
                     } else if (queryResult.size() > lastQueryResultSize && logModel.getLastQueryPageNum() == toDoPageNum) {
-                        subQueryResult = queryResult.subList(lastQueryResultSize + 1, queryResult.size() + 1);
+                        subQueryResult = queryResult.subList(lastQueryResultSize, queryResult.size());
                         //再次启动后：已到达最后一页的续接方式：新增部分入库
                         insertResList = dbOperateService.insertIntoTargetTable(subQueryResult, scheduleModel);
                     }
@@ -325,8 +325,8 @@ public class MyScheduleRunnable implements Runnable {
                         synchJobLogInfoModel.setIsSuccess(insertResList.get(0));
                         synchJobLogInfoModel.setSuccessCount(insertResList.get(1));
                         synchJobLogInfoModel.setFailCount(insertResList.get(2));
-                        singleJobTotalSuccessCount += insertResList.get(1);
-                        singleJobTotalFailCount += insertResList.get(2);
+                        singleJobTotalSuccessCount += synchJobLogInfoModel.getSuccessCount();
+                        singleJobTotalFailCount += synchJobLogInfoModel.getFailCount();
                     }
                     synchJobLogInfoModel.setCurrentPageSize(scheduleModel.getPageSize());
                     synchJobLogInfoModel.setCurrentPageNum(toDoPageNum);
