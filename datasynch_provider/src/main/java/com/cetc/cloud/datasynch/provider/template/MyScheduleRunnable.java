@@ -248,8 +248,10 @@ public class MyScheduleRunnable implements Runnable {
 
             try {
                 logModel = synchJobLogInfoService.queryLatestInfoByJobId(scheduleModel.getId());
+                singleJobTotalSuccessCount = logModel.getTotalSuccessCount();
+                singleJobTotalFailCount = logModel.getTotalFailCount();
             } catch (Exception e) {
-                logger.info("获取最近一次日志的分页参数为NULL！");
+                logger.info("recent paging param is null!");
             }
 
             // 如果当前请求结果集大小大于上次结果集大小，则进行入库
@@ -258,8 +260,7 @@ public class MyScheduleRunnable implements Runnable {
             logger.info("\n\n----->>>> current page has new data? -- " + doInsertQueryResult);
 
             if (doInsertQueryResult == true) {
-                singleJobTotalSuccessCount = logModel.getTotalSuccessCount();
-                singleJobTotalFailCount = logModel.getTotalFailCount();
+
                 /**初次执行or未到达最后一页or有新的数据 --- 继续请求**/
                 // 判断是否到达最后一页(未到达最后一页的标志：queryDataSize==pageSize; 若达到最后一页: rowNum==0||rownum<pageSize
                 // null==model表示还未发起过请求)
@@ -269,12 +270,13 @@ public class MyScheduleRunnable implements Runnable {
                     //重新计算分页参数toDoPageNum
                     if (null == logModel) {
                         toDoPageNum = CommonInstance.DEFAULT_START_PAGE_NUM;
-                        ;
+
                         //比较结果为false(说明已经在while循环中且已经完成了第一次循环)&&上次访问到的数据体大小==pageSize： todoPage+1
                     } else if (reachedLastRow == false && logModel.getQueryResultSize() == scheduleModel.getPageSize()) {
                         toDoPageNum = logModel.getLastQueryPageNum() + 1;
                         //比较结果为true&上次访问到的数据体大小<pageSize：todoPage不变，做非完整页面续接
-                    } else if (reachedLastRow == true && logModel.getQueryResultSize() < scheduleModel.getPageSize()) {
+                    } else if (logModel.getQueryResultSize() < scheduleModel.getPageSize()) {
+                        reachedLastRow = true;
                         toDoPageNum = logModel.getLastQueryPageNum();
                     }
 
@@ -321,15 +323,16 @@ public class MyScheduleRunnable implements Runnable {
                     synchJobLogInfoModel.setJobId(scheduleModel.getId());
                     if (insertResList != null) {
                         synchJobLogInfoModel.setIsSuccess(insertResList.get(0));
+                        synchJobLogInfoModel.setSuccessCount(insertResList.get(1));
+                        synchJobLogInfoModel.setFailCount(insertResList.get(2));
+                        singleJobTotalSuccessCount += insertResList.get(1);
+                        singleJobTotalFailCount += insertResList.get(2);
                     }
                     synchJobLogInfoModel.setCurrentPageSize(scheduleModel.getPageSize());
                     synchJobLogInfoModel.setCurrentPageNum(toDoPageNum);
                     synchJobLogInfoModel.setQueryResultSize(queryResult.size());
                     synchJobLogInfoModel.setConnType(scheduleModel.getConnType());
-                    synchJobLogInfoModel.setSuccessCount(insertResList.get(1));
-                    synchJobLogInfoModel.setFailCount(insertResList.get(2));
-                    singleJobTotalSuccessCount += insertResList.get(1);
-                    singleJobTotalFailCount += insertResList.get(2);
+
                     synchJobLogInfoModel.setTotalSuccessCount(singleJobTotalSuccessCount);
                     synchJobLogInfoModel.setTotalFailCount(singleJobTotalFailCount);
 
@@ -419,9 +422,9 @@ public class MyScheduleRunnable implements Runnable {
         }
         int currentPageTotalRows = httpOperateService.getHttpCurrentPageTotalRows(scheduleModel, logModel);
         int lastPageTotalRows = logModel.getQueryResultSize();
-        if (currentPageTotalRows == scheduleModel.getPageSize()){
+        if (currentPageTotalRows == scheduleModel.getPageSize()) {
             return true;
-        }else {
+        } else {
             return currentPageTotalRows > lastPageTotalRows ? true : false;
         }
 

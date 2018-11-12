@@ -261,6 +261,7 @@ public class DbOperateService {
                 resList.add(CommonInstance.ERROR);
                 resList.add(0);
                 resList.add(0);
+                Thread.currentThread().interrupt();
                 return resList;
             }
 
@@ -315,12 +316,13 @@ public class DbOperateService {
                 //根据字段类型判断输出值的形式（加""或者to_date()）, 拼接至值列表中
                 String decoratedColumn = DbTools.getDecoratedColumn(column_type, valueList_sql.get(i));
                 if (null == decoratedColumn) {
+                    logger.error("DbOperateService.getTableValuesSQLString():\"tbStructureMap\" cannot find :\"" + tableName + "\"对应字段\"" + keyList_SQL.get(i) + "\"对应的字段类型，请在对应的表中补全后重试！！！");
                     return null;
                 } else {
                     valueList.add(decoratedColumn);
                 }
             } catch (Exception e) {
-                logger.error("DbOperateService.getTableValuesSQLString()方法中的\"tbStructureMap\"没有找到表\"" + tableName + "\"对应字段\"" + keyList_SQL.get(i) + "\"对应的字段类型，\r\n请在对应的表中补全后重试！！！");
+                logger.error("DbOperateService.getTableValuesSQLString()方法中的\"tbStructureMap\"没有找到表\"" + tableName + "\"对应字段\"" + keyList_SQL.get(i) + "\"对应的字段类型，请在对应的表中补全后重试！！！");
                 return null;
             }
         }

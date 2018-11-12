@@ -30,20 +30,22 @@ public class DbTools {
      */
     public static String getDecoratedColumn(String columnType, String value) {
 
-        if (null == value) {
+        if (null == value || Type_BLOB.equals(columnType)) {
             return "null";
         }
 
-        if (Type_FLOAT.equals(columnType)||Type_LONG.equals(columnType)||Type_NUMBER.equals(columnType)
-            || Type_VARCHAR2.equals(columnType)|| Type_NVARCHAR2.equals(columnType) || Type_VARCHAR2.equals(columnType)
-            || Type_CHAR.equals(columnType)||Type_NCHAR.equals(columnType)||Type_VARCHAR.equals(columnType)) {
+        if (Type_FLOAT.equals(columnType) || Type_LONG.equals(columnType) || Type_NUMBER.equals(columnType)
+                || Type_VARCHAR2.equals(columnType) || Type_NVARCHAR2.equals(columnType) || Type_VARCHAR2.equals(columnType)
+                || Type_CHAR.equals(columnType) || Type_NCHAR.equals(columnType) || Type_VARCHAR.equals(columnType)
+                || Type_CLOB.equals(columnType) || Type_NCLOB.equals(columnType)) {
+            if (value.contains("'")){
+                value = value.replaceAll("'","''");
+            }
             return "'" + value + "'";
         } else if (Type_DATE.equals(columnType)) {
             return "TO_DATE('" + value + "', 'YYYY-MM-DD HH24:MI:SS')";
-        } else if( columnType.contains(Type_TIMESTAMP)) {
+        } else if (columnType.contains(Type_TIMESTAMP)) {
             return "TO_TIMESTAMP('" + value + "', 'YYYY-MM-DD HH24:MI:SS')";
-        } else if (Type_CLOB.equals(columnType)||Type_NCLOB.equals(columnType)) {
-            return "'"+value+"'";
         }
 
         return null;

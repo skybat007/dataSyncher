@@ -137,18 +137,18 @@ public class HttpOperateService {
         //如果该接口需要使用分页来查询的话，就需要添加这个动态参数
         if (null != model.getHttpPagingType() && null != model.getHttpParamPageNum() && null != model.getHttpParamPageSize()) {
             /**一般类型：pageNum=1&pageSize=100*/
-            if (CommonInstance.HTTP_PAGING_TYPE_NORMAL == model.getHttpPagingType()) {
+            if (CommonInstance.HTTP_PAGING_TYPE_NORMAL .equals( model.getHttpPagingType())) {
                 //组装参数 pageNum和pageSize
                 httpQueryParams.put(model.getHttpParamPageNum(), String.valueOf(pageNum));
                 httpQueryParams.put(model.getHttpParamPageSize(), String.valueOf(model.getPageSize()));
                 /**安监接口类型:page={"pagenum":"1","pagesize":"50" }*/
-            } else if (CommonInstance.HTTP_PAGING_TYPE_JSON_QAJJ == model.getHttpPagingType()) {
+            } else if (CommonInstance.HTTP_PAGING_TYPE_JSON_QAJJ .equals( model.getHttpPagingType())) {
                 JSONObject innerPageParam = new JSONObject();
                 innerPageParam.put(CommonInstance.HTTP_PAGING_TYPE_JSON_QAJJ_key_pagenum, String.valueOf(pageNum));
                 innerPageParam.put(CommonInstance.HTTP_PAGING_TYPE_JSON_QAJJ_key_pagesize, String.valueOf(model.getPageSize()));
                 httpQueryParams.put(model.getHttpParamPageNum(), innerPageParam);
                 /**城管案件：STARTPOSITION=0&MAXCOUNT=1000*/
-            } else if (CommonInstance.HTTP_PAGING_TYPE_COUNT == model.getHttpPagingType()) {
+            } else if (CommonInstance.HTTP_PAGING_TYPE_COUNT .equals( model.getHttpPagingType())) {
                 int startPosition = (pageNum - 1) * model.getPageSize();
                 httpQueryParams.put(CommonInstance.HTTP_PAGING_TYPE_COUNT_key_chengguan, String.valueOf(startPosition));
                 httpQueryParams.put(model.getHttpParamPageSize(), String.valueOf(model.getPageSize()));
