@@ -41,7 +41,6 @@ public class SynchJobLogInfoService {
      * @return
      */
     public int add(SynchJobLogInfoModel synchJobLogInfoModel) {
-
         return synchJobLogInfoMapper.add(synchJobLogInfoModel);
     }
 }

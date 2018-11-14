@@ -27,4 +27,5 @@ public interface ScheduleMapper {
     int addScheduleInstance( ScheduleModel scheduleModel);
 
     int getStatusByJobId(@Param("jobId")int jobId);
+
 }

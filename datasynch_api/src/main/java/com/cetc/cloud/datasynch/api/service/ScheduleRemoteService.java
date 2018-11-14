@@ -46,9 +46,17 @@ public interface ScheduleRemoteService {
     List<ScheduleModel> queryScheduleJobList();
 
 
-    @RequestMapping(value = "/schedule/job/start", produces = "application/json", method = RequestMethod.POST)
+    @RequestMapping(value = "/schedule/job/start/byJobId", produces = "application/json", method = RequestMethod.POST)
     @ApiOperation(value = "根据jobID启动任务", notes = "根据jobID启动任务", produces = "application/json")
     HashMap<String, String> startScheduleJobByJobId(int jobId);
+
+    @RequestMapping(value = "/schedule/job/start/array", produces = "application/json", method = RequestMethod.POST)
+    @ApiOperation(value = "根据启动任务List", notes = "job1,job2,...,jobN", produces = "application/json")
+    HashMap<String, String> startScheduleJobArrayByJobId(String jobs);
+
+    @RequestMapping(value = "/schedule/job/start/all", produces = "application/json", method = RequestMethod.POST)
+    @ApiOperation(value = "启动job列表中所有任务", notes = "", produces = "application/json")
+    HashMap<String, String> startAllScheduleJobsByJobId();
 
     @RequestMapping(value = "/schedule/job/stop", produces = "application/json", method = RequestMethod.POST)
     @ApiOperation(value = "根据jobID停止任务", notes = "根据jobID停止任务", produces = "application/json")

@@ -40,7 +40,11 @@ public class MyScheduleRunnable implements Runnable {
                 + Thread.currentThread().getName()
                 + "\nThread.currentThread().getId():" + Thread.currentThread().getId());
         try {
-
+            boolean ifExistsTable = checkIfTableExists(scheduleModel.getTargetTableName());
+            if (ifExistsTable==false){
+                logger.error("table doesn't exists:"+scheduleModel.getTargetTableName()+" ,please create table first!");
+                return;
+            }
             //检查是否存在TargetTable对应的序列，如果不存在，则提前创建
             checkAndCreateSequence(scheduleModel.getTargetTableName());
             //所有的Target表都必须有自增id,create_time,update_time，如果不存在，则添加
@@ -55,15 +59,27 @@ public class MyScheduleRunnable implements Runnable {
                 if (b) {
                     logger.info("\n\n----->>>>MyScheduleRunnable.doSQLPulling：finished!!!");
                 } else {
-                    logger.info("\n\n----->>>>MyScheduleRunnable.doSQLPulling：finished with error!!!");
+                    logger.error("\n\n----->>>>MyScheduleRunnable.doSQLPulling：finished with error!!!");
+                    throw new RuntimeException();
                 }
             } else if (scheduleModel.getConnType() == CommonInstance.TYPE_INTERFACE) {
                 //接口接入方式
-                doHttpPulling(synchJobLogInfoService, httpOperateService, dbOperateService);
+                boolean b = doHttpPulling(synchJobLogInfoService, httpOperateService, dbOperateService);
+                if (b) {
+                    logger.info("\n\n----->>>>MyScheduleRunnable.doSQLPulling：finished!!!");
+                } else {
+                    logger.error("\n\n----->>>>MyScheduleRunnable.doSQLPulling：finished with error!!!");
+                    throw new RuntimeException();
+                }
             } else return;
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    private boolean checkIfTableExists(String targetTableName) {
+        boolean exists = dbOperateService.checkIfExistsTable(targetTableName);
+        return exists;
     }
 
     private void checkAndCreateColumn(String targetTableName, String collumnName, String columnType_len, String comment) {
@@ -327,6 +343,8 @@ public class MyScheduleRunnable implements Runnable {
                         synchJobLogInfoModel.setFailCount(insertResList.get(2));
                         singleJobTotalSuccessCount += synchJobLogInfoModel.getSuccessCount();
                         singleJobTotalFailCount += synchJobLogInfoModel.getFailCount();
+                    }else {
+                        return false;
                     }
                     synchJobLogInfoModel.setCurrentPageSize(scheduleModel.getPageSize());
                     synchJobLogInfoModel.setCurrentPageNum(toDoPageNum);

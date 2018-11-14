@@ -6,6 +6,7 @@ import com.cetc.cloud.datasynch.provider.mapper.input.ScheduleMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -13,12 +14,12 @@ import java.util.List;
  * Created by luolinjie on 2018/10/10.
  */
 @Service("scheduleService")
-public class ScheduleService{
+public class ScheduleService {
 
     @Autowired
     ScheduleMapper scheduleMapper;
 
-    
+
     public int addScheduleInstance(ScheduleModel scheduleModel) {
         String source = scheduleModel.getSource();
         int pageSize = scheduleModel.getPageSize();
@@ -27,18 +28,18 @@ public class ScheduleService{
         int isPagingQuery = scheduleModel.getIsPagingQuery();
 
         int connType = scheduleModel.getConnType();
-        if (null==source || pageSize<1 || null==tableName ||null==scheduleExpression || connType<0||connType>1 ||
-                isPagingQuery<0 || isPagingQuery>1){
+        if (null == source || pageSize < 1 || null == tableName || null == scheduleExpression || connType < 0 || connType > 1 ||
+                isPagingQuery < 0 || isPagingQuery > 1) {
             return -1;
         }
         int jobId = scheduleMapper.addScheduleInstance(scheduleModel);
-        if (jobId>0) {
+        if (jobId > 0) {
             return scheduleModel.getId();
-        }else {
+        } else {
             return -1;
         }
     }
-    
+
     public int deleteScheduleByJobId(int jobId) {
         return scheduleMapper.deleteJobByJobId(jobId);
     }
@@ -47,28 +48,39 @@ public class ScheduleService{
         return scheduleMapper.queryScheduleJobList();
     }
 
-    
+
     public int updateCronByJobId(int jobId, String cron) {
         return scheduleMapper.updateCronByJobId(jobId, cron);
     }
-    
+
     public int disableStatusByJobId(int jobId) {
         return scheduleMapper.updateEnableStatusByJobId(jobId, CommonInstance.DISABLED);
     }
-    
+
     public int enableStatusByJobId(int jobId) {
         //获取运行状态
         int status = scheduleMapper.getStatusByJobId(jobId);
         if (CommonInstance.ENABLED == status) {
             return 1;
-        }else{
+        } else {
             return scheduleMapper.updateEnableStatusByJobId(jobId, CommonInstance.ENABLED);
         }
     }
 
-    
+
     public ScheduleModel queryModelByJobId(int jobId) {
         return scheduleMapper.queryModelByJobId(jobId);
     }
 
+    public List<Integer> queryJobIdList() {
+        List<ScheduleModel> scheduleModels = queryScheduleJobList();
+        ArrayList<Integer> jobList = new ArrayList<Integer>();
+        for (ScheduleModel model: scheduleModels){
+            int isEnabled = model.getIsEnabled();
+            if (isEnabled==1) {
+                jobList.add(model.getId());
+            }
+        }
+        return jobList;
+    }
 }

@@ -3,10 +3,10 @@ declare
 begin
 	select count(1) into num from user_tables where table_name = upper('LABOR_DISPUTE') ;
 	if num > 0 then
-		execute immediate 'drop table "ZHFT123"."LABOR_DISPUTE"' ;
+		execute immediate 'drop table "ZHFTYJJCPT"."LABOR_DISPUTE"' ;
 	end if;
 end;
-CREATE TABLE "ZHFT123"."LABOR_DISPUTE" (
+CREATE TABLE "ZHFTYJJCPT"."LABOR_DISPUTE" (
 "ROW_ID" VARCHAR2(200 BYTE) NULL ,
 "SOURCE" VARCHAR2(200 BYTE) NULL ,
 "PUSH_TIME" VARCHAR2(200 BYTE) NULL ,

@@ -1,5 +1,6 @@
 package com.cetc.cloud.datasynch.provider.controller;
 
+import com.cetc.cloud.datasynch.api.model.InterfaceScheduleModel;
 import com.cetc.cloud.datasynch.api.model.ScheduleModel;
 import com.cetc.cloud.datasynch.api.service.ScheduleRemoteService;
 import com.cetc.cloud.datasynch.provider.service.impl.*;
@@ -8,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -83,7 +85,7 @@ public class ScheduleController implements ScheduleRemoteService {
                     return res;
                 }
             } else if (isPagingQuery == CommonInstance.NO_PAGING) {
-                if (null==httpJsonExtractRule||"".equals(httpJsonExtractRule)) {
+                if (null == httpJsonExtractRule || "".equals(httpJsonExtractRule)) {
                     res.put("result", "fail");
                     res.put("msg", "param error! httpJsonExtractRule cannot be null!");
                     return res;
@@ -160,6 +162,48 @@ public class ScheduleController implements ScheduleRemoteService {
         } else {
             res.put("result", "fail");
             res.put("msg", "start job:" + jobid + " failed!");
+        }
+        return res;
+    }
+
+    @Override
+    public HashMap<String, String> startScheduleJobArrayByJobId(String jobs) {
+        HashMap res = new HashMap();
+        if (null == jobs && "".equals(jobs)) {
+            res.put("res", "fail");
+            res.put("msg", "param: jobs cannot be null!");
+
+        }
+        String[] split = jobs.split(",");
+        List<String> jobList = Arrays.asList(split);
+        if (jobList.size() >= 1) {
+            for (int i = 0; i < jobList.size(); i++) {
+                startScheduleJobByJobId(Integer.parseInt(jobList.get(i)));
+            }
+            res.put("res", "success");
+            res.put("msg", "jobs " + jobs + " started!");
+            return res;
+        } else {
+            res.put("res", "fail");
+            res.put("msg", "param: jobs cannot be null!");
+            return res;
+        }
+
+    }
+
+    @Override
+    public HashMap<String, String> startAllScheduleJobsByJobId() {
+        HashMap res = new HashMap();
+        List<Integer> list = scheduleService.queryJobIdList();
+        if (list!=null){
+            for (int i=0;i<list.size();i++) {
+                startScheduleJobByJobId(list.get(i));
+            }
+            res.put("res","success");
+            res.put("msg","start all jobs successful!"+list.toString());
+        }else {
+            res.put("res","fail");
+            res.put("msg","jobIds is null!");
         }
         return res;
     }

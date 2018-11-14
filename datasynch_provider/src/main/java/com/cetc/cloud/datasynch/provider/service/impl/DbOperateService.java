@@ -221,7 +221,7 @@ public class DbOperateService {
 
 
     public List<Integer> insertIntoTargetTable(List<HashMap> queryResult, ScheduleModel scheduleModel) throws SQLException {
-
+        List<Integer> resList = new ArrayList<Integer>();
         //获取 "字段-字段类型" 映射map
         HashMap<String, HashMap> tbStructureMap = queryTableStructureByTableName(scheduleModel.getTargetTableName());
 
@@ -230,6 +230,13 @@ public class DbOperateService {
         int successCounter = 0;
         int failCounter = 0;
         List keyList_SQL = new ArrayList<String>();
+
+        if (mapping.size() == 0) {
+            resList.add(CommonInstance.SUCCESS);
+            resList.add(successCounter);
+            resList.add(failCounter);
+            return resList;
+        }
 
         /**要让映射过程可控，就需要以定义的mapping表为参考标准拼接SQL*/
         //遍历mapping，并根据mapping结果集中的key，将值通过映射表映射到数据库中
@@ -257,11 +264,9 @@ public class DbOperateService {
             //异常情况处理：如果不能在业务库中找到这张目标表对应的表结构,则放弃执行该任务
             if (null == tableValues || "".equals(tableValues)) {
                 logger.error("cannot find target table:\"" + targetTableName + "\" in targetDB");
-                List<Integer> resList = new ArrayList<Integer>();
                 resList.add(CommonInstance.ERROR);
                 resList.add(0);
                 resList.add(0);
-                Thread.currentThread().interrupt();
                 return resList;
             }
 
@@ -290,7 +295,7 @@ public class DbOperateService {
             }
         }
 
-        List<Integer> resList = new ArrayList<Integer>();
+
         resList.add(CommonInstance.SUCCESS);
         resList.add(successCounter);
         resList.add(failCounter);
@@ -337,9 +342,9 @@ public class DbOperateService {
             if (hashMaps.size() > 0) {
                 return true;
             }
-        } catch (SQLException e) {
+        } catch (Exception e) {
             logger.error("DbOperateService.checkIfTableExists(),SQL:" + sql);
-            e.printStackTrace();
+//            e.printStackTrace();
             return false;
         }
         return false;
@@ -414,7 +419,7 @@ public class DbOperateService {
 
     public boolean addColumnComment(String targetTableName, String columnName, String columnComment) {
 
-        String sql = "COMMENT ON COLUMN \"" + orclUsername + "\".\"" + targetTableName + "\".\"" + columnName + "\" IS \'" + columnComment+"\'";
+        String sql = "COMMENT ON COLUMN \"" + orclUsername + "\".\"" + targetTableName + "\".\"" + columnName + "\" IS \'" + columnComment + "\'";
         primaryJdbcTemplate.execute(sql);
         return true;
     }
@@ -424,5 +429,20 @@ public class DbOperateService {
         String sql = "COMMENT ON TABLE \"" + orclUsername + "\".\"" + targetTableName + "\" IS " + tableComment;
         primaryJdbcTemplate.execute(sql);
         return true;
+    }
+
+    public boolean checkIfExistsTable(String targetTableName) {
+        String sql = "SELECT count(1) from user_all_tables " +
+                "WHERE table_name ='" + targetTableName + "'";
+        SqlRowSet sqlRowSet = primaryJdbcTemplate.queryForRowSet(sql);
+        int count = 0;
+        while (sqlRowSet.next()) {
+            count = sqlRowSet.getInt(1);
+        }
+        if (count == 1) {
+            return true;
+        } else {
+            return false;
+        }
     }
 }

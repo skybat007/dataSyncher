@@ -64,7 +64,7 @@ public class JobManageService {
         MyScheduleRunnable runnableInstance = new MyScheduleRunnable(scheduleModel, synchJobLogInfoService, dbQueryService, dbOperateService, httpOperateService);
         String cron = scheduleModel.getCronExpression();
         if (null == cron) {
-            cron = "0 0/1 * * * ?";//默认是每天凌晨0点更新
+            cron = "0 0 23 * * ?";//默认是每天凌晨0点更新
         }
         try {
             //创建定时任务并启动
@@ -78,7 +78,7 @@ public class JobManageService {
             logger.info("target:" + scheduleModel.getTargetTableName());
             return jobID;
         } catch (Exception e) {
-            logger.info("job:" + jobID + "--started error!");
+            logger.info("job:" + jobID + "--started error! please check your cron expression!");
             return -1;
         }
     }

@@ -56,9 +56,9 @@ spring:
   primary-datasource:
     type: com.zaxxer.hikari.HikariDataSource
     driverClassName: oracle.jdbc.driver.OracleDriver
-    url: jdbc:oracle:thin:@10.192.19.108:1521/ORCL
-    username: ZHFT123
-    password: 123456
+    url: jdbc:oracle:thin:@10.190.55.65:9205/ORCL
+    username: ZHFTYJJCPT
+    password: ToKreDi*nJ
     hikari:
       connection-test-query: SELECT 1 FROM DUAL
       minimum-idle: 3
