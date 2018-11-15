@@ -69,7 +69,7 @@ public class MyScheduleRunnable implements Runnable {
                     logger.info("\n\n----->>>>MyScheduleRunnable.doSQLPulling：finished!!!");
                 } else {
                     logger.error("\n\n----->>>>MyScheduleRunnable.doSQLPulling：finished with error!!!");
-                    throw new RuntimeException();
+                    return;
                 }
             } else return;
         } catch (SQLException e) {
@@ -303,7 +303,17 @@ public class MyScheduleRunnable implements Runnable {
                         logger.error("\n\nqueryResult is null:" +
                                 "\n\nscheduleModel:" + scheduleModel.toString() +
                                 "\n\n toDoPageNum:" + toDoPageNum);
-                        break;
+                        SynchJobLogInfoModel synchJobLogInfoModel = new SynchJobLogInfoModel();
+                        synchJobLogInfoModel.setJobId(scheduleModel.getId());
+                        synchJobLogInfoModel.setIsSuccess(0);
+                        synchJobLogInfoModel.setCurrentPageSize(scheduleModel.getPageSize());
+                        synchJobLogInfoModel.setCurrentPageNum(toDoPageNum);
+                        synchJobLogInfoModel.setQueryResultSize(0);
+                        synchJobLogInfoModel.setConnType(scheduleModel.getConnType());
+                        synchJobLogInfoModel.setTotalSuccessCount(singleJobTotalSuccessCount);
+                        synchJobLogInfoModel.setTotalFailCount(singleJobTotalFailCount);
+                        int count = synchJobLogInfoService.add(synchJobLogInfoModel);
+                        return false;
                     }
 
                     // 根据上次log日志，提取未入库的内容进行入库，同时记录该位置，以供下次查询比对，pageNum不变
@@ -344,6 +354,15 @@ public class MyScheduleRunnable implements Runnable {
                         singleJobTotalSuccessCount += synchJobLogInfoModel.getSuccessCount();
                         singleJobTotalFailCount += synchJobLogInfoModel.getFailCount();
                     }else {
+                        synchJobLogInfoModel.setJobId(scheduleModel.getId());
+                        synchJobLogInfoModel.setIsSuccess(0);
+                        synchJobLogInfoModel.setCurrentPageSize(scheduleModel.getPageSize());
+                        synchJobLogInfoModel.setCurrentPageNum(toDoPageNum);
+                        synchJobLogInfoModel.setQueryResultSize(0);
+                        synchJobLogInfoModel.setConnType(scheduleModel.getConnType());
+                        synchJobLogInfoModel.setTotalSuccessCount(singleJobTotalSuccessCount);
+                        synchJobLogInfoModel.setTotalFailCount(singleJobTotalFailCount);
+                        int count = synchJobLogInfoService.add(synchJobLogInfoModel);
                         return false;
                     }
                     synchJobLogInfoModel.setCurrentPageSize(scheduleModel.getPageSize());
@@ -387,7 +406,18 @@ public class MyScheduleRunnable implements Runnable {
             List<HashMap> queryResult = httpOperateService.doHttpQueryList(scheduleModel, toDoPageNum);
 
             if (null == queryResult) {
-                logger.info("queryResult is:" + queryResult);
+                logger.info("queryResult is: null");
+                SynchJobLogInfoModel synchJobLogInfoModel = new SynchJobLogInfoModel();
+                synchJobLogInfoModel.setJobId(scheduleModel.getId());
+                synchJobLogInfoModel.setIsSuccess(0);
+                synchJobLogInfoModel.setCurrentPageSize(scheduleModel.getPageSize());
+                synchJobLogInfoModel.setCurrentPageNum(toDoPageNum);
+                synchJobLogInfoModel.setQueryResultSize(0);
+                synchJobLogInfoModel.setConnType(scheduleModel.getConnType());
+                synchJobLogInfoModel.setTotalSuccessCount(singleJobTotalSuccessCount);
+                synchJobLogInfoModel.setTotalFailCount(singleJobTotalFailCount);
+                int count = synchJobLogInfoService.add(synchJobLogInfoModel);
+                return false;
             }
             logger.info("\n" +
                     "\n" +

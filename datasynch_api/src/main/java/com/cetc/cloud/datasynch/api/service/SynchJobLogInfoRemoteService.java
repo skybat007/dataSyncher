@@ -21,4 +21,8 @@ public interface SynchJobLogInfoRemoteService {
     @RequestMapping(value = "/jobLog/get", produces = "application/json", method = RequestMethod.GET)
     @ApiOperation(value = "通过jobId获取最近一次历史执行日志", notes = "通过jobId获取最近一次历史执行日志", produces = "application/json")
     SynchJobLogInfoModel queryLatestInfoByJobId(int jobId);
+
+    @RequestMapping(value = "/jobLog/delete/byJobId", produces = "application/json", method = RequestMethod.POST)
+    @ApiOperation(value = "清空该jobId的所有同步log记录", notes = "清空该jobId的所有同步log记录", produces = "application/json")
+    int deleteByJobId(int jobId);
 }

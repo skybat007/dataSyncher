@@ -108,6 +108,9 @@ public class JsonExtractor {
 
                 return parseArray2List(array1);
             }
+        }else if (jsonExtractRule.equals("*") && data.startsWith("[") && data.endsWith("]")) {//只有"*"
+            JSONArray array1 = JSON.parseArray(data);
+            return parseArray2List(array1);
         }
         return null;
     }

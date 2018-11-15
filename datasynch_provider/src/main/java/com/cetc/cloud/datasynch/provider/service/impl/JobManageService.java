@@ -64,7 +64,7 @@ public class JobManageService {
         MyScheduleRunnable runnableInstance = new MyScheduleRunnable(scheduleModel, synchJobLogInfoService, dbQueryService, dbOperateService, httpOperateService);
         String cron = scheduleModel.getCronExpression();
         if (null == cron) {
-            cron = "0 0 23 * * ?";//默认是每天凌晨0点更新
+            cron = "0 0 23 * * ?";//默认是每天晚23点更新
         }
         try {
             //创建定时任务并启动

@@ -43,4 +43,8 @@ public class SynchJobLogInfoService {
     public int add(SynchJobLogInfoModel synchJobLogInfoModel) {
         return synchJobLogInfoMapper.add(synchJobLogInfoModel);
     }
+
+    public int deleteByJobId(int jobId) {
+        return synchJobLogInfoMapper.deleteByJobId(jobId);
+    }
 }

@@ -81,4 +81,8 @@
         WHERE JOBID = #{jobId}
         )
     </select>
+    <delete id="deleteByJobId" parameterType="java.lang.Integer">
+        DELETE FROM <include refid="BaseTable"/>
+        WHERE JOBID = #{jobId}
+    </delete>
 </mapper>

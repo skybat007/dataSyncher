@@ -25,4 +25,7 @@ public class SynchJobLogInfoController implements SynchJobLogInfoRemoteService {
     @Override
     public SynchJobLogInfoModel queryLatestInfoByJobId(int jobId){return synchJobLogInfoService.queryLatestInfoByJobId(jobId);}
 
+    @Override
+    public int deleteByJobId(int jobId){return synchJobLogInfoService.deleteByJobId(jobId);}
+
 }
