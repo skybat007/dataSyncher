@@ -214,10 +214,10 @@ public class ScheduleController implements ScheduleRemoteService {
         int updateRes = scheduleService.alterJobStatusByJobId(jobId,CommonInstance.DISABLED);
         if (updateRes > 0) {
             res.put("result", "success");
-            res.put("msg", "stopping job:" + jobId + " success!");
+            res.put("msg", "disable JobStatus By JobId:" + jobId + " success!");
         } else {
             res.put("result", "fail");
-            res.put("msg", "alterJobStatusByJobId job:" + jobId + " failed!");
+            res.put("msg", "disable JobStatus By JobId:" + jobId + " failed!");
         }
         return res;
     }
@@ -229,10 +229,10 @@ public class ScheduleController implements ScheduleRemoteService {
         int updateRes = scheduleService.alterJobStatusByJobId(jobId,CommonInstance.ENABLED);
         if (updateRes > 0) {
             res.put("result", "success");
-            res.put("msg", "stopping job:" + jobId + " success!");
+            res.put("msg", "enable JobStatus By JobId:" + jobId + " success!");
         } else {
             res.put("result", "fail");
-            res.put("msg", "alterJobStatusByJobId job:" + jobId + " failed!");
+            res.put("msg", "enable JobStatus By JobId :" + jobId + " failed!");
         }
         return res;
     }
