@@ -25,5 +25,10 @@ public interface SynchJobLogInfoService extends SynchJobLogInfoRemoteService {
         public SynchJobLogInfoModel queryLatestInfoByJobId(int jobId) {
             return null;
         }
+
+        @Override
+        public int deleteByJobId(int jobId) {
+            return 0;
+        }
     }
 }

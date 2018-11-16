@@ -44,7 +44,22 @@ public interface ScheduleService extends ScheduleRemoteService {
         }
 
         @Override
+        public HashMap<String, String> startScheduleJobArrayByJobId(String jobs) {
+            return null;
+        }
+
+        @Override
+        public HashMap<String, String> startAllScheduleJobsByJobId() {
+            return null;
+        }
+
+        @Override
         public HashMap<String, String> disableJobStatusByJobId(int jobId) {
+            return null;
+        }
+
+        @Override
+        public HashMap<String, String> enableJobStatusByJobId(int jobId) {
             return null;
         }
 
