@@ -44,7 +44,7 @@ public interface ScheduleService extends ScheduleRemoteService {
         }
 
         @Override
-        public HashMap<String, String> stopScheduleJobByJobId(int jobId) {
+        public HashMap<String, String> disableJobStatusByJobId(int jobId) {
             return null;
         }
 

@@ -32,7 +32,8 @@ public class JobManageService {
     DbQueryService dbQueryService;
     @Autowired
     HttpOperateService httpOperateService;
-
+    @Autowired
+    private ScheduleService scheduleService;
     @Autowired
     private ThreadPoolTaskScheduler threadPoolTaskScheduler;
 
@@ -61,7 +62,7 @@ public class JobManageService {
      */
     public int startJob(int jobID, ScheduleModel scheduleModel) {
         //创建定时任务
-        MyScheduleRunnable runnableInstance = new MyScheduleRunnable(scheduleModel, synchJobLogInfoService, dbQueryService, dbOperateService, httpOperateService);
+        MyScheduleRunnable runnableInstance = new MyScheduleRunnable(scheduleModel, synchJobLogInfoService,scheduleService, dbQueryService, dbOperateService, httpOperateService);
         String cron = scheduleModel.getCronExpression();
         if (null == cron) {
             cron = "0 0 23 * * ?";//默认是每天晚23点更新

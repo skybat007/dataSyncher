@@ -53,8 +53,18 @@ public class ScheduleService {
         return scheduleMapper.updateCronByJobId(jobId, cron);
     }
 
-    public int disableStatusByJobId(int jobId) {
-        return scheduleMapper.updateEnableStatusByJobId(jobId, CommonInstance.DISABLED);
+    public int alterJobStatusByJobId(int jobId,int statusToChange) {
+        //获取运行状态
+        int status = scheduleMapper.getStatusByJobId(jobId);
+        if (statusToChange == status) {
+            return 1;
+        }
+        //修改运行状态
+        if (statusToChange==CommonInstance.ENABLED||statusToChange==CommonInstance.DISABLED) {
+            return scheduleMapper.updateEnableStatusByJobId(jobId, statusToChange);
+        }else {
+            return -1;
+        }
     }
 
     public int enableStatusByJobId(int jobId) {

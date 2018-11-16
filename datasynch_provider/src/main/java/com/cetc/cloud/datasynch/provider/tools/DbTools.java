@@ -38,6 +38,9 @@ public class DbTools {
                 || Type_VARCHAR2.equals(columnType) || Type_NVARCHAR2.equals(columnType) || Type_VARCHAR2.equals(columnType)
                 || Type_CHAR.equals(columnType) || Type_NCHAR.equals(columnType) || Type_VARCHAR.equals(columnType)
                 || Type_CLOB.equals(columnType) || Type_NCLOB.equals(columnType)) {
+            if (value.length()>3999){
+                value = value.substring(0,4000);
+            }
             if (value.contains("'")){
                 value = value.replaceAll("'","''");
             }

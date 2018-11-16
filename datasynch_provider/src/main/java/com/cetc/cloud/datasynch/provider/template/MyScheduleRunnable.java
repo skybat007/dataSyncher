@@ -7,6 +7,7 @@ import com.cetc.cloud.datasynch.provider.middleware.SQLCreator;
 import com.cetc.cloud.datasynch.provider.service.impl.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -21,13 +22,15 @@ public class MyScheduleRunnable implements Runnable {
 
     private Logger logger = LoggerFactory.getLogger(MyScheduleRunnable.class);
     private SynchJobLogInfoService synchJobLogInfoService;
+    private ScheduleService scheduleService;
     private DbQueryService dbQueryService;
     private DbOperateService dbOperateService;
     private HttpOperateService httpOperateService;
 
-    public MyScheduleRunnable(ScheduleModel scheduleModel, SynchJobLogInfoService synchJobLogInfoService, DbQueryService dbQueryService, DbOperateService dbOperateService, HttpOperateService httpOperateService) {
+    public MyScheduleRunnable(ScheduleModel scheduleModel, SynchJobLogInfoService synchJobLogInfoService,ScheduleService scheduleService, DbQueryService dbQueryService, DbOperateService dbOperateService, HttpOperateService httpOperateService) {
         this.scheduleModel = scheduleModel;
         this.synchJobLogInfoService = synchJobLogInfoService;
+        this.scheduleService = scheduleService;
         this.dbQueryService = dbQueryService;
         this.dbOperateService = dbOperateService;
         this.httpOperateService = httpOperateService;
@@ -35,6 +38,11 @@ public class MyScheduleRunnable implements Runnable {
 
     @Override
     public void run() {
+        //更新任务
+        updateScheduleModel(scheduleModel);
+        if (scheduleModel.getIsEnabled()==0){
+            return;
+        }
         Thread.currentThread().setName(scheduleModel.getTargetTableName());
         logger.info("\n\n----->>>> executing run() method,\nThread.currentThread().Name:"
                 + Thread.currentThread().getName()
@@ -66,15 +74,19 @@ public class MyScheduleRunnable implements Runnable {
                 //接口接入方式
                 boolean b = doHttpPulling(synchJobLogInfoService, httpOperateService, dbOperateService);
                 if (b) {
-                    logger.info("\n\n----->>>>MyScheduleRunnable.doSQLPulling：finished!!!");
+                    logger.info("\n\n----->>>>MyScheduleRunnable.doHttpPulling：finished!!!");
                 } else {
-                    logger.error("\n\n----->>>>MyScheduleRunnable.doSQLPulling：finished with error!!!");
+                    logger.error("\n\n----->>>>MyScheduleRunnable.doHttpPulling：finished with error!!!");
                     return;
                 }
             } else return;
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    private void updateScheduleModel(ScheduleModel scheduleModel) {
+        this.scheduleModel = scheduleService.queryModelByJobId(scheduleModel.getId());
     }
 
     private boolean checkIfTableExists(String targetTableName) {

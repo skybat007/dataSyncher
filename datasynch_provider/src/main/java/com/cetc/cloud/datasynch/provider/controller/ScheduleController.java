@@ -1,6 +1,5 @@
 package com.cetc.cloud.datasynch.provider.controller;
 
-import com.cetc.cloud.datasynch.api.model.InterfaceScheduleModel;
 import com.cetc.cloud.datasynch.api.model.ScheduleModel;
 import com.cetc.cloud.datasynch.api.service.ScheduleRemoteService;
 import com.cetc.cloud.datasynch.provider.service.impl.*;
@@ -195,38 +194,45 @@ public class ScheduleController implements ScheduleRemoteService {
     public HashMap<String, String> startAllScheduleJobsByJobId() {
         HashMap res = new HashMap();
         List<Integer> list = scheduleService.queryJobIdList();
-        if (list!=null){
-            for (int i=0;i<list.size();i++) {
+        if (list != null) {
+            for (int i = 0; i < list.size(); i++) {
                 startScheduleJobByJobId(list.get(i));
             }
-            res.put("res","success");
-            res.put("msg","start all jobs successful!"+list.toString());
-        }else {
-            res.put("res","fail");
-            res.put("msg","jobIds is null!");
+            res.put("res", "success");
+            res.put("msg", "start all jobs successful!" + list.toString());
+        } else {
+            res.put("res", "fail");
+            res.put("msg", "jobIds is null!");
         }
         return res;
     }
 
     @Override
-    public HashMap<String, String> stopScheduleJobByJobId(int jobId) {
+    public HashMap<String, String> disableJobStatusByJobId(int jobId) {
         HashMap res = new HashMap();
-        //停止当前任务
-        int status = jobManageService.removeJob(jobId);
-
-        if (status == 1) {
-            //更新当前任务状态
-            int updateRes = scheduleService.disableStatusByJobId(jobId);
-            if (updateRes > 0) {
-                res.put("result", "success");
-                res.put("msg", "stopping job:" + jobId + " success!");
-            } else {
-                res.put("result", "fail");
-                res.put("msg", "disableStatusByJobId job:" + jobId + " failed!");
-            }
+        //更新当前任务状态
+        int updateRes = scheduleService.alterJobStatusByJobId(jobId,CommonInstance.DISABLED);
+        if (updateRes > 0) {
+            res.put("result", "success");
+            res.put("msg", "stopping job:" + jobId + " success!");
         } else {
             res.put("result", "fail");
-            res.put("msg", "stopScheduleJobByJobId job:" + jobId + " failed!");
+            res.put("msg", "alterJobStatusByJobId job:" + jobId + " failed!");
+        }
+        return res;
+    }
+
+    @Override
+    public HashMap<String, String> enableJobStatusByJobId(int jobId) {
+        HashMap res = new HashMap();
+        //更新当前任务状态
+        int updateRes = scheduleService.alterJobStatusByJobId(jobId,CommonInstance.ENABLED);
+        if (updateRes > 0) {
+            res.put("result", "success");
+            res.put("msg", "stopping job:" + jobId + " success!");
+        } else {
+            res.put("result", "fail");
+            res.put("msg", "alterJobStatusByJobId job:" + jobId + " failed!");
         }
         return res;
     }
@@ -272,7 +278,7 @@ public class ScheduleController implements ScheduleRemoteService {
         HashMap<String, String> restartRes = startScheduleJobByJobId(jobId);
         if ("success".equals(restartRes.get("result"))) {
             //更改当前任务状态为Disabled
-            scheduleService.disableStatusByJobId(jobId);
+            scheduleService.alterJobStatusByJobId(jobId,CommonInstance.DISABLED);
             result.put("result" + jobId, "success");
             result.put("msg", "alterScheduleJobCron:" + jobId + ", success!");
             return result;
