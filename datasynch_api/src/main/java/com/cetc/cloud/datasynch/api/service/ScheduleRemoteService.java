@@ -55,8 +55,8 @@ public interface ScheduleRemoteService {
     HashMap<String, String> startScheduleJobArrayByJobId(String jobs);
 
     @RequestMapping(value = "/schedule/job/start/all", produces = "application/json", method = RequestMethod.POST)
-    @ApiOperation(value = "启动job列表中所有任务", notes = "", produces = "application/json")
-    HashMap<String, String> startAllScheduleJobsByJobId();
+    @ApiOperation(value = "启动job列表中所有处于Enable状态的任务", notes = "", produces = "application/json")
+    HashMap<String, String> startAllEnabledScheduleJobs();
 
     @RequestMapping(value = "/schedule/job/disable", produces = "application/json", method = RequestMethod.POST)
     @ApiOperation(value = "根据jobID Disable任务（定时任务空转）", notes = "根据jobID Disable任务", produces = "application/json")

@@ -191,9 +191,9 @@ public class ScheduleController implements ScheduleRemoteService {
     }
 
     @Override
-    public HashMap<String, String> startAllScheduleJobsByJobId() {
+    public HashMap<String, String> startAllEnabledScheduleJobs() {
         HashMap res = new HashMap();
-        List<Integer> list = scheduleService.queryJobIdList();
+        List<Integer> list = scheduleService.queryEnabledJobIdList();
         if (list != null) {
             for (int i = 0; i < list.size(); i++) {
                 startScheduleJobByJobId(list.get(i));

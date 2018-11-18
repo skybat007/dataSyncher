@@ -82,7 +82,7 @@ public class ScheduleService {
         return scheduleMapper.queryModelByJobId(jobId);
     }
 
-    public List<Integer> queryJobIdList() {
+    public List<Integer> queryEnabledJobIdList() {
         List<ScheduleModel> scheduleModels = queryScheduleJobList();
         ArrayList<Integer> jobList = new ArrayList<Integer>();
         for (ScheduleModel model: scheduleModels){

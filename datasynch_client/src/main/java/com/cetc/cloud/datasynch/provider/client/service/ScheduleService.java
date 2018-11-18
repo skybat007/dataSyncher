@@ -49,7 +49,7 @@ public interface ScheduleService extends ScheduleRemoteService {
         }
 
         @Override
-        public HashMap<String, String> startAllScheduleJobsByJobId() {
+        public HashMap<String, String> startAllEnabledScheduleJobs() {
             return null;
         }
 
