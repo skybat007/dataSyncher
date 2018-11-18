@@ -57,7 +57,7 @@ public class ColumnMappingController implements ColumnMappingRemoteService {
         Sheet sheet = workbook.getSheet(sheetName);
         // getLastRowNum，获取最后一行的行标
         logger.debug(String.valueOf(sheet.getLastRowNum()));
-        for (int j = startRow; j < sheet.getLastRowNum(); j++) {
+        for (int j = startRow; j < sheet.getLastRowNum()+1; j++) {
             Row row = sheet.getRow(j);
             String col1 = "";
             String col2 = "";
@@ -85,13 +85,20 @@ public class ColumnMappingController implements ColumnMappingRemoteService {
 
             modelList.add(model);
         }
+        if (modelList.size()==0){
+            logger.error("data content is null!");
+            res.put("faild", "faild imported file" + originalFilename + ":data content is null!");
+            return res.toJSONString();
+        }
         int i = columnMappingService.addList(modelList);
         if (i > 0) {
             res.put("success", "successfully imported file" + originalFilename);
+            res.put("count", modelList.size());
             return res.toJSONString();
         } else {
             //入库
             res.put("faild", "faild imported file" + originalFilename);
+            res.put("count", modelList.size());
             return res.toJSONString();
         }
     }
