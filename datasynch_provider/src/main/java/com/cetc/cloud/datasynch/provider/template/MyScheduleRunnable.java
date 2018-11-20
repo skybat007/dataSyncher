@@ -300,7 +300,7 @@ public class MyScheduleRunnable implements Runnable {
                         toDoPageNum = CommonInstance.DEFAULT_START_PAGE_NUM;
 
                         //比较结果为false(说明已经在while循环中且已经完成了第一次循环)&&上次访问到的数据体大小==pageSize： todoPage+1
-                    } else if (reachedLastRow == false && logModel.getQueryResultSize() == scheduleModel.getPageSize()) {
+                    } else if (reachedLastRow == false && logModel.getQueryResultSize() == scheduleModel.getPageSize()&&logModel.getIsSuccess()==CommonInstance.SUCCESS) {
                         toDoPageNum = logModel.getLastQueryPageNum() + 1;
                         //比较结果为true&上次访问到的数据体大小<pageSize：todoPage不变，做非完整页面续接
                     } else if (logModel.getQueryResultSize() < scheduleModel.getPageSize()) {

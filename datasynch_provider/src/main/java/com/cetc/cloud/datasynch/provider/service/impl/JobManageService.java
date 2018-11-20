@@ -72,7 +72,7 @@ public class JobManageService {
             ScheduledFuture<?> future = threadPoolTaskScheduler.schedule(runnableInstance, new CronTrigger(cron));
 //            ScheduledFuture<?> future = threadPoolTaskScheduler.schedule(runnableInstance, new Date());
             /**将定时任务记录在内存中，供其他功能查询*/
-            futures.put(String.valueOf(jobID), future);
+            futures.put(String.valueOf(jobID)+"-"+scheduleModel.getTargetTableName(), future);
             logger.info("job:" + jobID + "--started!");
             logger.info("cron:" + scheduleModel.getCronExpression());
             logger.info("source:" + scheduleModel.getSource());
