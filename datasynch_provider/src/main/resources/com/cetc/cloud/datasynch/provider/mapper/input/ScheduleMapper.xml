@@ -98,6 +98,7 @@
         SELECT <include refid="BaseColumns"/>
         FROM <include refid="BaseTable"/>
         WHERE TARGET_TABLE_NAME = #{tableName}
+        AND IS_ENABLED = 1
     </select>
 
     <select id="getStatusByJobId" parameterType="java.lang.Integer" resultType="java.lang.Integer">
