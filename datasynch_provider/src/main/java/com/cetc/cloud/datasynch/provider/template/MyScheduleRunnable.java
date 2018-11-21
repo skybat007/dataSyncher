@@ -14,7 +14,7 @@ import java.util.HashMap;
 import java.util.List;
 
 /**
- * Description：创建执行实例
+ * Description：创建自定义执行实例定时同步任务实例
  * Created by luolinjie on 2018/10/10.
  */
 public class MyScheduleRunnable implements Runnable {
@@ -298,7 +298,6 @@ public class MyScheduleRunnable implements Runnable {
                     //重新计算分页参数toDoPageNum
                     if (null == logModel) {
                         toDoPageNum = CommonInstance.DEFAULT_START_PAGE_NUM;
-
                         //比较结果为false(说明已经在while循环中且已经完成了第一次循环)&&上次访问到的数据体大小==pageSize： todoPage+1
                     } else if (reachedLastRow == false && logModel.getQueryResultSize() == scheduleModel.getPageSize()&&logModel.getIsSuccess()==CommonInstance.SUCCESS) {
                         toDoPageNum = logModel.getLastQueryPageNum() + 1;

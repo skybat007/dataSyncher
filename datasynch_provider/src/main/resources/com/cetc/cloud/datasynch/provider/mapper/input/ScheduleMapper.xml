@@ -94,6 +94,11 @@
         FROM <include refid="BaseTable"/>
         WHERE ID = #{jobId}
     </select>
+    <select id="queryModelByTableName" parameterType="java.lang.String" resultMap="BaseResultMap">
+        SELECT <include refid="BaseColumns"/>
+        FROM <include refid="BaseTable"/>
+        WHERE TARGET_TABLE_NAME = #{tableName}
+    </select>
 
     <select id="getStatusByJobId" parameterType="java.lang.Integer" resultType="java.lang.Integer">
         SELECT IS_ENABLED

@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.cetc.cloud.datasynch.api.model.ScheduleModel;
 import com.cetc.cloud.datasynch.api.model.SynchJobLogInfoModel;
 import com.cetc.cloud.datasynch.api.model.Token;
+import com.cetc.cloud.datasynch.provider.core.util.HttpClientUtil2;
 import com.cetc.cloud.datasynch.provider.core.util.HttpUtil;
 import com.cetc.cloud.datasynch.provider.core.util.JsonExtractor;
 import com.cetc.cloud.datasynch.provider.common.CommonInstance;
@@ -51,15 +52,15 @@ public class HttpOperateService {
                     token.setValue(split[1]);
                 }
             }
-            httpResult = HttpUtil.doGetWithAuthoration(URL, httpParams, token);
+            httpResult = HttpClientUtil2.doGetWithAuthoration(URL, httpParams, token);
         } else {
-            httpResult = HttpUtil.doGet(URL, httpParams);
+            httpResult = HttpClientUtil2.doGet(URL, httpParams);
         }
 
         //获取json解析规则
         String jsonExtractRule = model.getHttpJsonExtractRule();
         //解析，并生成结果数据集
-        if (200 == (Integer) httpResult.get(CommonInstance.HTTP_RES_CODE)) {
+        if (200 == (Integer)httpResult.get(CommonInstance.HTTP_RES_CODE)) {
             String data = (String) httpResult.get("data");
             listData = JsonExtractor.ExtractListData(data, jsonExtractRule);
         }

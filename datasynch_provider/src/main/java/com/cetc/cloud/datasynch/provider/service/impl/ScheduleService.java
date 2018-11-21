@@ -19,7 +19,6 @@ public class ScheduleService {
     @Autowired
     ScheduleMapper scheduleMapper;
 
-
     public int addScheduleInstance(ScheduleModel scheduleModel) {
         String source = scheduleModel.getSource();
         int pageSize = scheduleModel.getPageSize();
@@ -71,7 +70,7 @@ public class ScheduleService {
         //获取运行状态
         int status = scheduleMapper.getStatusByJobId(jobId);
         if (CommonInstance.ENABLED == status) {
-            return 1;
+            return 2;
         } else {
             return scheduleMapper.updateEnableStatusByJobId(jobId, CommonInstance.ENABLED);
         }
@@ -80,6 +79,9 @@ public class ScheduleService {
 
     public ScheduleModel queryModelByJobId(int jobId) {
         return scheduleMapper.queryModelByJobId(jobId);
+    }
+    public ScheduleModel queryModelByTableName(String tableName) {
+        return scheduleMapper.queryModelByTableName(tableName);
     }
 
     public List<Integer> queryEnabledJobIdList() {

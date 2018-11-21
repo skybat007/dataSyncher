@@ -1,9 +1,6 @@
 package com.cetc.cloud.test;
 
-import com.cetc.cloud.datasynch.provider.core.util.JsonExtractor;
 import org.junit.Test;
-
-import java.util.List;
 
 /**
  * PackageName:   com.cetc.cloud.test
@@ -18,31 +15,20 @@ import java.util.List;
 public class testSplitString {
     @Test
     public void testSplitString() {
-//        String s = "*.e.f.g";
-//        String[] split =  s.split("\\.");
-//
-//        List<String> list = Arrays.asList(split);
-////
-//        System.out.println("split.length:" + split.length);
-//
-//        List<String> list1 = list.subList(1, list.size());
-//        System.out.println(" list1.size():" +  list1.size());
-////
-//        for(int i=0;i<list1.size();i++){
-//            System.out.println("---");
-//            System.out.println(list1.get(i));
-//        }
-////        System.out.println("split :" + split.toString());
-////        System.out.println("split[1]:"+split[1]);
+        String s = "http://10.190.55.62/wwgl-sjsu/v1/eventList.action";
+        String[] split =  s.split("//");
+        String s1 = split[1].split("/")[0];
+        if (s1.contains(":")){
+            String ip = s1.split(":")[0];
+            String port = s1.split(":")[1];
+            System.out.println("IP:"+ip);
+            System.out.println("PORT:"+port);
+        }else {
+            String ip = s1;
+            String port = "80";
+            System.out.println("IP:"+ip);
+            System.out.println("PORT:"+port);
+        }
 
-//        List<String> subRule = JsonExtractor.getSubRule(".rule1.rule2");
-//        List<String> subRule1 = JsonExtractor.getSubRule("rule1.rule2.");
-//        System.out.println(subRule);
-//        System.out.println(subRule1);
-        String httpParamExpression = "customer_code=ftqw";
-        String[] paramKeyValues = httpParamExpression.split("&");
-        System.out.println(paramKeyValues.length);
-        System.out.println(paramKeyValues[0]);
-//        String[] split = paramKeyValues[0].split("=");
     }
 }

@@ -64,9 +64,11 @@ public class JobManageService {
         //创建定时任务
         MyScheduleRunnable runnableInstance = new MyScheduleRunnable(scheduleModel, synchJobLogInfoService,scheduleService, dbQueryService, dbOperateService, httpOperateService);
         String cron = scheduleModel.getCronExpression();
+
         if (null == cron) {
             cron = "0 0 23 * * ?";//默认是每天晚23点更新
         }
+
         try {
             //创建定时任务并启动
             ScheduledFuture<?> future = threadPoolTaskScheduler.schedule(runnableInstance, new CronTrigger(cron));

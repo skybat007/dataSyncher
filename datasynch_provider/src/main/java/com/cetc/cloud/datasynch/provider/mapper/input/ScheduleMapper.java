@@ -28,4 +28,5 @@ public interface ScheduleMapper {
 
     int getStatusByJobId(@Param("jobId")int jobId);
 
+    ScheduleModel queryModelByTableName(@Param("tableName")String tableName);
 }

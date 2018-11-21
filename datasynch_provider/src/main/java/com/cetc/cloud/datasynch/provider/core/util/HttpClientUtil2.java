@@ -2,6 +2,7 @@ package com.cetc.cloud.datasynch.provider.core.util;
 
 import com.alibaba.fastjson.JSONObject;
 import com.cetc.cloud.datasynch.api.model.Token;
+import com.cetc.cloud.datasynch.provider.common.CommonInstance;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.http.*;
 import org.apache.http.client.config.RequestConfig;
@@ -19,11 +20,10 @@ import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.*;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * PackageName:   com.cetc.cloud.datasynch.provider.core.util
@@ -38,73 +38,32 @@ import java.util.Map;
 public class HttpClientUtil2 {
     private static final Logger logger = LoggerFactory.getLogger(HttpClientUtil2.class);
 
-    static PoolingHttpClientConnectionManager cm;
-    static CloseableHttpClient httpClient;
+    static ConcurrentHashMap<String, PoolingHttpClientConnectionManager> cmHashMap =
+            new ConcurrentHashMap<String, PoolingHttpClientConnectionManager>();
+    static ConcurrentHashMap<String, CloseableHttpClient> clientHashMap =
+            new ConcurrentHashMap<String, CloseableHttpClient>();
 
-    static {
-
-        cm = new PoolingHttpClientConnectionManager();
-        // 将最大连接数增加到200
-        cm.setMaxTotal(200);
-        // 将每个路由基础的连接增加到20
-        cm.setDefaultMaxPerRoute(20);
-        //将目标主机的最大连接数增加到50
-        HttpHost localhost = new HttpHost("10.192.19.161", 80);
-        cm.setMaxPerRoute(new HttpRoute(localhost), 50);
-
-        httpClient = HttpClients.custom()
-                .setConnectionManager(cm)
-                .build();
-
-    }
-
-    /**
-     * Get方法：带Token认证
-     * @param url
-     * @param params
-     * @param token
-     * @return
-     */
-    public static JSONObject doGetWithAuthoration(String url, JSONObject params, Token token) {
-        JSONObject result = new JSONObject();
-        result.put("success", true);
-        result.put("data", null);
-        result.put("code", 200);
-        result.put("msg", null);
-        HttpGet httpGet = null;
-        StatusLine status = null;
-        try {
-            URIBuilder builder = new URIBuilder(url);
-            if (!MapUtils.isEmpty(params)) {
-                for (String key : params.keySet()) {
-                    builder.setParameter(key, params.getString(key));
-                }
-            }
-            httpGet = new HttpGet(builder.build());
-            RequestConfig config = RequestConfig.custom()
-                    .setSocketTimeout(6000)
-                    .setConnectTimeout(6000)
-                    .setConnectionRequestTimeout(6000).build();
-            httpGet.setConfig(config);
-            httpGet.setHeader(token.getKey(),token.getValue());
-            HttpResponse response = httpClient.execute(httpGet);
-            status = response.getStatusLine();                          //获取返回的状态码
-            HttpEntity entity = response.getEntity();                   //获取响应内容
-            result.put("success", true);
-            result.put("data", EntityUtils.toString(entity, "UTF-8"));
-            result.put("code", 200);
-            result.put("msg", "请求成功");
-        } catch (Exception e) {
-            result.put("success", false);
-            result.put("code", status);
-            result.put("msg","请求异常，异常信息：" + e.getClass() + "->" + e.getMessage());
-        } finally {
-            httpGet.abort();//中止请求，连接被释放回连接池
+    private static synchronized CloseableHttpClient getHttpClient(String url) {
+        String[] ip_port = getIpAndPortFromUrl(url);
+        String ip = ip_port[0];
+        int port = Integer.parseInt(ip_port[1]);
+        if (clientHashMap.keySet().contains(ip + "-" + port)) {
+            return clientHashMap.get(ip + "-" + port);
+        } else {
+            PoolingHttpClientConnectionManager cm = new PoolingHttpClientConnectionManager();
+            cm.setMaxTotal(200);// 将最大连接数增加到200
+            cm.setDefaultMaxPerRoute(20);// 将每个路由基础的连接增加到20
+            HttpHost localhost = new HttpHost(ip, 80);
+            cm.setMaxPerRoute(new HttpRoute(localhost), 10);//将目标主机的最大连接数增加到10
+            CloseableHttpClient buildHttpClient = HttpClients.custom()
+                    .setConnectionManager(cm)
+                    .build();
+            cmHashMap.put(ip + "-" + port, cm);
+            clientHashMap.put(ip + "-" + port, buildHttpClient);
+            return buildHttpClient;
         }
-        return result;
 
     }
-
     /**
      * Get方法：不带Token认证
      * @param url
@@ -112,7 +71,8 @@ public class HttpClientUtil2 {
      * @return
      * @throws URISyntaxException
      */
-    public static JSONObject doGet(String url, JSONObject params) throws URISyntaxException, IOException {
+    public static JSONObject doGet(String url, JSONObject params) {
+        CloseableHttpClient httpClient = getHttpClient(url);
         JSONObject result = new JSONObject();
         result.put("success", true);
         result.put("data", null);
@@ -142,8 +102,8 @@ public class HttpClientUtil2 {
             result.put("msg", "请求成功");
         } catch (Exception e) {
             result.put("success", false);
-            result.put("code", status);
-            result.put("msg","请求异常，异常信息：" + e.getClass() + "->" + e.getMessage());
+            result.put("code", 500);
+            result.put("msg", "请求异常，异常信息：" + e.getClass() + "->" + e.getMessage());
         } finally {
             httpGet.abort();//中止请求，连接被释放回连接池
         }
@@ -151,14 +111,78 @@ public class HttpClientUtil2 {
     }
 
     /**
+     * Get方法：带Token认证
+     *
      * @param url
-     * @param paramMap
+     * @param params
+     * @param token
      * @return
-     * @throws IOException
-     * @throws URISyntaxException
      */
+    public static JSONObject doGetWithAuthoration(String url, JSONObject params, Token token) {
+        CloseableHttpClient httpClient = getHttpClient(url);
+        JSONObject result = new JSONObject();
+        result.put("success", true);
+        result.put("data", null);
+        result.put("code", 200);
+        result.put("msg", null);
+        HttpGet httpGet = null;
+        StatusLine status = null;
+        try {
+            URIBuilder builder = new URIBuilder(url);
+            if (!MapUtils.isEmpty(params)) {
+                for (String key : params.keySet()) {
+                    builder.setParameter(key, params.getString(key));
+                }
+            }
+            httpGet = new HttpGet(builder.build());
+            RequestConfig config = RequestConfig.custom()
+                    .setSocketTimeout(6000)
+                    .setConnectTimeout(6000)
+                    .setConnectionRequestTimeout(6000).build();
+            httpGet.setConfig(config);
+            httpGet.setHeader(token.getKey(), token.getValue());
+            HttpResponse response = httpClient.execute(httpGet);
+            status = response.getStatusLine();                          //获取返回的状态码
+            HttpEntity entity = response.getEntity();                   //获取响应内容
+            result.put("success", true);
+            result.put("data", EntityUtils.toString(entity, "UTF-8"));
+            result.put("code", 200);
+            result.put("msg", "请求成功");
+        } catch (Exception e) {
+            result.put("success", false);
+            result.put("code", 500);
+            result.put("msg", "请求异常，异常信息：" + e.getClass() + "->" + e.getMessage());
+        } finally {
+            httpGet.abort();//中止请求，连接被释放回连接池
+        }
+        return result;
+
+    }
+
+
+
+    private static String[] getIpAndPortFromUrl(String URL) {
+        if (URL != null && !"".equals(URL)) {
+            String[] ip_port = new String[2];
+            String[] split =  URL.split("//");
+            String s1 = split[1].split("/")[0];
+            if (s1.contains(":")){
+                ip_port[0] = s1.split(":")[0];
+                ip_port[1] = s1.split(":")[1];
+            }else {
+                ip_port[0] = s1;
+                ip_port[1] = "80";
+            }
+            return ip_port;
+        } else {
+            return null;
+        }
+    }
+
+
     public static String get(String url, JSONObject paramMap) throws IOException, URISyntaxException {
-        String result = "";
+        CloseableHttpClient httpClient = getHttpClient(url);
+        String result = null;
         URIBuilder builder = new URIBuilder(url);
         if (!MapUtils.isEmpty(paramMap)) {
             for (String key : paramMap.keySet()) {
@@ -182,18 +206,9 @@ public class HttpClientUtil2 {
         return result;
     }
 
-    private static String getIpFromUrl(String URL) {
-        if (URL != null && !"".equals(URL)) {
-            return URL.split(":")[0];
-        } else {
-            return null;
-        }
-    }
-
-
     public static String put(String url, String params) throws IOException {
-        String result = "";
-
+        CloseableHttpClient httpClient = getHttpClient(url);
+        String result = null;
         HttpPut httpPut = new HttpPut(url);
 
         httpPut.setHeader("Content-Type", "application/json;charset=UTF-8");
@@ -210,8 +225,8 @@ public class HttpClientUtil2 {
     }
 
     public static String post(String url, String params) throws IOException {
+        CloseableHttpClient httpClient = getHttpClient(url);
         String result = "";
-
         HttpPost httpPost = new HttpPost(url);
 
         httpPost.setHeader("Content-Type", "application/json;charset=UTF-8");
@@ -228,7 +243,8 @@ public class HttpClientUtil2 {
     }
 
     public static String get(String url, Map<String, String> paramMap) throws IOException, URISyntaxException {
-        String result = "";
+        CloseableHttpClient httpClient = getHttpClient(url);
+        String result = null;
         URIBuilder builder = new URIBuilder(url);
         if (!MapUtils.isEmpty(paramMap)) {
             for (String key : paramMap.keySet()) {
@@ -255,7 +271,8 @@ public class HttpClientUtil2 {
 
 
     public static String delete(String url) throws IOException {
-        String result = "";
+        CloseableHttpClient httpClient = getHttpClient(url);
+        String result = null;
 
         HttpDelete httpDelete = new HttpDelete(url);
         httpDelete.setHeader("Content-Type", "application/json;charset=UTF-8");
@@ -268,5 +285,24 @@ public class HttpClientUtil2 {
         }
         httpDelete.abort();//中止请求，连接被释放回连接池
         return result;
+    }
+
+    public static JSONObject getHttpParams(String httpParamExpression){
+        JSONObject httpQueryParams = new JSONObject();
+        if (null != httpParamExpression) {
+            String[] paramKeyValues = httpParamExpression.split("&");
+
+            for (int i = 0; i < paramKeyValues.length; i++) {
+                String[] split = paramKeyValues[i].split("=");
+                if (split.length == 2) {
+                    String key = split[0];
+                    String value = split[1];
+                    httpQueryParams.put(key, value);
+                } else {
+                    continue;
+                }
+            }
+        }
+        return httpQueryParams;
     }
 }

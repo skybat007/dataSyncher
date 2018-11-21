@@ -75,10 +75,10 @@
     <select id="queryLatestPageParamsByJobId" parameterType="java.lang.Integer" resultMap="BaseResultMap">
         SELECT <include refid="BaseColumns"/>
         FROM <include refid="BaseTable"/>
-        WHERE JOBID  = (
-        SELECT max(id)
-        FROM DS_SYNCH_JOB_LOG_INFO
-        WHERE JOBID = #{jobId}
+        WHERE ID  = (
+            SELECT max(id)
+            FROM DS_SYNCH_JOB_LOG_INFO
+            WHERE JOBID = #{jobId}
         )
     </select>
     <delete id="deleteByJobId" parameterType="java.lang.Integer">

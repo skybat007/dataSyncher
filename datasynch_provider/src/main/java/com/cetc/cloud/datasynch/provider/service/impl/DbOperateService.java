@@ -445,4 +445,16 @@ public class DbOperateService {
             return false;
         }
     }
+
+    public boolean clearTableByTbName(String targetTbName) {
+        boolean ifExistsTable = checkIfExistsTable(targetTbName);
+        if (ifExistsTable) {
+            String sql = "truncate TABLE \""+orclUsername+"\".\"" + targetTbName + "\"";
+            primaryJdbcTemplate.execute(sql);
+            return true;
+        }else {
+            logger.error("\n >>> Table does not exists! tableName:"+targetTbName);
+            return false;
+        }
+    }
 }
