@@ -136,9 +136,9 @@ public class HttpClientUtil2 {
             }
             httpGet = new HttpGet(builder.build());
             RequestConfig config = RequestConfig.custom()
-                    .setSocketTimeout(6000)
-                    .setConnectTimeout(6000)
-                    .setConnectionRequestTimeout(6000).build();
+                    .setSocketTimeout(30000)
+                    .setConnectTimeout(30000)
+                    .setConnectionRequestTimeout(30000).build();
             httpGet.setConfig(config);
             httpGet.setHeader(token.getKey(), token.getValue());
             HttpResponse response = httpClient.execute(httpGet);
@@ -191,9 +191,9 @@ public class HttpClientUtil2 {
         }
         HttpGet httpGet = new HttpGet(builder.build());
         RequestConfig config = RequestConfig.custom()
-                .setSocketTimeout(6000)
-                .setConnectTimeout(6000)
-                .setConnectionRequestTimeout(6000).build();
+                .setSocketTimeout(30000)
+                .setConnectTimeout(30000)
+                .setConnectionRequestTimeout(30000).build();
         httpGet.setConfig(config);
         HttpResponse response = httpClient.execute(httpGet);
         StatusLine status = response.getStatusLine();                   //获取返回的状态码
@@ -254,9 +254,9 @@ public class HttpClientUtil2 {
 
         HttpGet httpGet = new HttpGet(builder.build());
         RequestConfig config = RequestConfig.custom()
-                .setSocketTimeout(6000)
-                .setConnectTimeout(6000)
-                .setConnectionRequestTimeout(6000).build();
+                .setSocketTimeout(30000)
+                .setConnectTimeout(30000)
+                .setConnectionRequestTimeout(30000).build();
         httpGet.setConfig(config);
         HttpResponse response = httpClient.execute(httpGet);
         StatusLine status = response.getStatusLine();                   //获取返回的状态码
