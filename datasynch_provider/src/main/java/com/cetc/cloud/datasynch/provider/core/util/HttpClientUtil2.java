@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.*;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -93,6 +94,52 @@ public class HttpClientUtil2 {
                     .setConnectTimeout(6000)
                     .setConnectionRequestTimeout(6000).build();
             httpGet.setConfig(config);
+            HttpResponse response = httpClient.execute(httpGet);
+            status = response.getStatusLine();                          //获取返回的状态码
+            HttpEntity entity = response.getEntity();                   //获取响应内容
+            result.put("success", true);
+            result.put("data", EntityUtils.toString(entity, "UTF-8"));
+            result.put("code", 200);
+            result.put("msg", "请求成功");
+        } catch (Exception e) {
+            result.put("success", false);
+            result.put("code", 500);
+            result.put("msg", "请求异常，异常信息：" + e.getClass() + "->" + e.getMessage());
+        } finally {
+            httpGet.abort();//中止请求，连接被释放回连接池
+        }
+        return result;
+    }
+    public static JSONObject doGetWithBody(String url, JSONObject params,JSONObject bodys) {
+        CloseableHttpClient httpClient = getHttpClient(url);
+        JSONObject result = new JSONObject();
+        result.put("success", true);
+        result.put("data", null);
+        result.put("code", 200);
+        result.put("msg", null);
+        HttpGet httpGet = null;
+        StatusLine status = null;
+        try {
+            URIBuilder builder = new URIBuilder(url);
+            if (!MapUtils.isEmpty(params)) {
+                for (String key : params.keySet()) {
+                    builder.setParameter(key, params.getString(key));
+                }
+            }
+            httpGet = new HttpGet(builder.build());
+            RequestConfig config = RequestConfig.custom()
+                    .setSocketTimeout(6000)
+                    .setConnectTimeout(6000)
+                    .setConnectionRequestTimeout(6000).build();
+            httpGet.setConfig(config);
+            if (null!=bodys && "".equals(bodys)) {
+                Iterator<String> iterator = bodys.keySet().iterator();
+                while (iterator.hasNext()) {
+                    String key = iterator.next();
+                    httpGet.setHeader(key, bodys.getString(key));
+                }
+            }
+
             HttpResponse response = httpClient.execute(httpGet);
             status = response.getStatusLine();                          //获取返回的状态码
             HttpEntity entity = response.getEntity();                   //获取响应内容

@@ -1,5 +1,6 @@
 package com.cetc.cloud.test;
 
+import com.cetc.cloud.datasynch.provider.controller.SingleJobController;
 import com.cetc.cloud.datasynch.provider.service.impl.DbOperateService;
 import org.junit.After;
 import org.junit.Before;
@@ -11,6 +12,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
+
+import java.sql.SQLException;
 
 /**
  * PackageName:   com.cetc.cloud.test
@@ -29,7 +32,8 @@ public class SpringbootTest {
 
 
     @Autowired
-    DbOperateService dbOperateService;
+    SingleJobController singleJobController;
+
 
     @Before
     public void init() {
@@ -37,15 +41,22 @@ public class SpringbootTest {
     }
 
     @Test
-    public void testApplicationMethod(){
-//        boolean exists = dbOperateService.checkIfSequenceExists("123");
-//        System.out.println(exists);
-//
-//        boolean sequence = dbOperateService.createSequence("SEQ_1234");
-//        System.out.println("create sequence SEQ_1234:"+sequence);
-        boolean exists = dbOperateService.checkIfColumnExists("WEEKLY_WEIWEN", "ID");
-        System.out.println(exists);
+    public void testApplicationMethod() throws SQLException {
+        singleJobController.truncateTable();
+        System.out.println("\nFinished! calculateHasTroubleSanXiao \n");
     }
+
+    @Test
+    public void testApplicationMethod2() throws SQLException {
+        singleJobController.calculateHasTroubleSanXiao();
+        System.out.println("\nFinished! calculateHasTroubleSanXiao \n");
+    }
+    @Test
+    public void testApplicationMethod3() throws SQLException {
+        singleJobController.calculateRealSanXiaoCount();
+        System.out.println("\nFinished! calculateRealSanXiaoCount \n");
+    }
+
     @After
     public void after() {
         System.out.println("测试结束-----------------");

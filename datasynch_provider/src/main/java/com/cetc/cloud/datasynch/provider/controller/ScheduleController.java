@@ -150,7 +150,7 @@ public class ScheduleController implements ScheduleRemoteService {
         ScheduleModel scheduleModel = scheduleService.queryModelByJobId(jobId);
 
         //启动任务
-        int jobid = jobManageService.startJob(jobId, scheduleModel);
+        int jobid = jobManageService.startScheduledJob(scheduleModel);
         if (-1 != jobid) {
             //修改状态
             int i = scheduleService.enableStatusByJobId(jobId);

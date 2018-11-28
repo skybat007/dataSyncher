@@ -52,6 +52,8 @@ public class DbOperateService {
     @Qualifier("primaryJdbcTemplate")
     private JdbcTemplate primaryJdbcTemplate;
 
+    @Autowired
+    AlarmMsgService alarmMsgService;
 
     @Autowired
     com.cetc.cloud.datasynch.provider.service.impl.ColumnMappingService columnMappingService;
@@ -180,6 +182,25 @@ public class DbOperateService {
         return data;
     }
 
+    /**
+     * 注意：只能指定返回一个字段
+     *
+     * @param sql
+     * @return
+     * @throws SQLException
+     */
+    public List<String> oracleQueryList(String sql) throws SQLException {
+        List<String> data = new ArrayList<String>();
+        SqlRowSet rs = primaryJdbcTemplate.queryForRowSet(sql);
+        while (rs.next()) {
+            String value = rs.getString(1);
+            data.add(value);
+        }
+        logger.debug("sql: " + sql);
+
+        return data;
+    }
+
     public List<HashMap> oracleQuerySql(String sql, String urlOracle, String orclUsername, String orclPassword) throws SQLException {
         List<HashMap> data = new ArrayList<HashMap>();
         SqlRowSet rs = null;
@@ -201,10 +222,15 @@ public class DbOperateService {
 
     public Boolean oracleSql(String sql) throws SQLException {
 //     execute 方法返回一个 boolean 值，以指示第一个结果的形式。
-// 必须调用 getResultSet 或 getUpdateCount 方法来检索结果，并且必须调用 getMoreResults 移动到任何后面的结果。
         primaryJdbcTemplate.execute(sql);
         logger.debug("sql: " + sql);
         return true;
+    }
+
+    public int oracleUpdateSql(String sql) throws SQLException {
+        int update = primaryJdbcTemplate.update(sql);
+        logger.debug("sql: " + sql);
+        return update;
     }
 
 
@@ -287,6 +313,7 @@ public class DbOperateService {
             logger.debug("sql: " + sql);
             int count = primaryJdbcTemplate.update(sql);
             if (count > 0) {
+                alarmMsgService.pushAlaramInfo(targetTableName, valueObj);
                 logger.debug("insert successful！");
                 successCounter++;
             } else {
@@ -446,15 +473,96 @@ public class DbOperateService {
         }
     }
 
-    public boolean clearTableByTbName(String targetTbName) {
+    public String backUpTable(String tableName) {
+        //todo 执行备份
+        int count = 0;
+        String newCopyName = tableName + "_copy" + count;
+        boolean ifExistsTable = false;
+        while (true) {
+            ifExistsTable = checkIfExistsTable(newCopyName);
+            if (ifExistsTable == true) {
+                newCopyName = tableName + "_copy" + count;
+                count++;
+
+            } else {
+                logger.info("success! Table copy doesn't exists, will do backup by TableName:"+tableName + "_copy" + count);
+                break;
+            }
+        }
+        backUpTable(tableName, newCopyName);
+
+        return newCopyName;
+    }
+
+    public boolean truncateTableByTbName(String targetTbName) {
         boolean ifExistsTable = checkIfExistsTable(targetTbName);
         if (ifExistsTable) {
-            String sql = "truncate TABLE \""+orclUsername+"\".\"" + targetTbName + "\"";
+            String sql = "truncate TABLE \"" + orclUsername + "\".\"" + targetTbName + "\"";
             primaryJdbcTemplate.execute(sql);
             return true;
-        }else {
-            logger.error("\n >>> Table does not exists! tableName:"+targetTbName);
+        } else {
+            logger.error("\n >>> Table does not exists! tableName:" + targetTbName);
             return false;
         }
+    }
+
+    public boolean dropTable(String tableName) {
+        boolean ifExistsTable = checkIfExistsTable(tableName);
+        if (ifExistsTable) {
+            String sql = "DROP TABLE \"" + orclUsername + "\".\"" + tableName + "\"";
+            primaryJdbcTemplate.execute(sql);
+            return true;
+        } else {
+            logger.error("\n >>> Table does not exists! tableName:" + tableName);
+            return false;
+        }
+    }
+
+    /**
+     * 校准序列值
+     */
+    public boolean correctSequence(String tableName) {
+        //todo 1.获取最大ObjectId
+        int maxObjectId = getMaxObjectId(tableName);
+        //todo 2.获取nextVal
+        int nextSeqVal = getNextSeqVal(tableName);
+        //todo 3.获取差值 objectID：215  nextVal：315 目标值：215   215-315= -100
+        int differNum = maxObjectId - nextSeqVal;
+        String SQL1 = "alter sequence \"" + orclUsername + "\".\"SEQ_" + tableName + "\" increment by " + differNum;
+        primaryJdbcTemplate.execute(SQL1);
+        int nextSeqVal2 = getNextSeqVal(tableName);
+        if (maxObjectId == nextSeqVal2) {
+            String SQL2 = "alter sequence SEQ_" + tableName + " increment by 1";
+            primaryJdbcTemplate.execute(SQL2);
+            return true;
+        }
+
+        return false;
+
+    }
+
+    public int getMaxObjectId(String tableName) {
+        String sql = "select max(OBJECT_ID) FROM \"" + orclUsername + "\".\"" + tableName + "\"";
+        SqlRowSet rowSet = primaryJdbcTemplate.queryForRowSet(sql);
+        rowSet.next();
+        return rowSet.getInt(1);
+    }
+
+    public int getNextSeqVal(String tableName) {
+        String sql = "select \"" + tableName + "\".nextval from dual";
+        SqlRowSet rowSet = primaryJdbcTemplate.queryForRowSet(sql);
+        rowSet.next();
+        return rowSet.getInt(1);
+    }
+
+    /**
+     * 执行copy至新表
+     *
+     * @param srcTableName
+     * @param bkTableName
+     */
+    public void backUpTable(String srcTableName, String bkTableName) {
+        String SQL = "create TABLE \"" + orclUsername + "\".\"" + bkTableName + "\" as  SELECT * FROM " + srcTableName;
+        primaryJdbcTemplate.execute(SQL);
     }
 }

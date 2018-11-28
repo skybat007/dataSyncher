@@ -60,9 +60,9 @@ public class JobManageService {
     /**
      * 根据传入的jobId和run方法的执行体创建内容
      */
-    public int startJob(int jobID, ScheduleModel scheduleModel) {
+    public int startScheduledJob(ScheduleModel scheduleModel) {
         //创建定时任务
-        MyScheduleRunnable runnableInstance = new MyScheduleRunnable(scheduleModel, synchJobLogInfoService,scheduleService, dbQueryService, dbOperateService, httpOperateService);
+        MyScheduleRunnable runnableInstance = new MyScheduleRunnable(scheduleModel, synchJobLogInfoService, scheduleService, dbQueryService, dbOperateService, httpOperateService);
         String cron = scheduleModel.getCronExpression();
 
         if (null == cron) {
@@ -74,14 +74,38 @@ public class JobManageService {
             ScheduledFuture<?> future = threadPoolTaskScheduler.schedule(runnableInstance, new CronTrigger(cron));
 //            ScheduledFuture<?> future = threadPoolTaskScheduler.schedule(runnableInstance, new Date());
             /**将定时任务记录在内存中，供其他功能查询*/
-            futures.put(String.valueOf(jobID)+"-"+scheduleModel.getTargetTableName(), future);
-            logger.info("job:" + jobID + "--started!");
+            futures.put(scheduleModel.getId() + "-" + scheduleModel.getTargetTableName(), future);
+            logger.info("job:" + scheduleModel.getId() + "--started!");
             logger.info("cron:" + scheduleModel.getCronExpression());
             logger.info("source:" + scheduleModel.getSource());
             logger.info("target:" + scheduleModel.getTargetTableName());
-            return jobID;
+            return scheduleModel.getId();
         } catch (Exception e) {
-            logger.info("job:" + jobID + "--started error! please check your cron expression!");
+            logger.info("job:" + scheduleModel.getId() + "--started error! please check your cron expression!");
+            return -1;
+        }
+    }
+
+    /**
+     *  启动一次性任务
+     */
+    public int startOnceJob(ScheduleModel scheduleModel) {
+        //创建定时任务
+        MyScheduleRunnable runnableInstance = new MyScheduleRunnable(scheduleModel, synchJobLogInfoService, scheduleService, dbQueryService, dbOperateService, httpOperateService);
+        String cron = scheduleModel.getCronExpression();
+
+        try {
+            //创建定时任务并启动
+            ScheduledFuture<?> future = threadPoolTaskScheduler.schedule(runnableInstance, new Date());
+            /**将定时任务记录在内存中，供其他功能查询*/
+            futures.put(scheduleModel.getId() + "-" + scheduleModel.getTargetTableName(), future);
+            logger.info("job:" + scheduleModel.getId() + "--started!");
+            logger.info("cron:" + scheduleModel.getCronExpression());
+            logger.info("source:" + scheduleModel.getSource());
+            logger.info("target:" + scheduleModel.getTargetTableName());
+            return scheduleModel.getId();
+        } catch (Exception e) {
+            logger.info("job:" + scheduleModel.getId() + "--started error! please check your cron expression!");
             return -1;
         }
     }

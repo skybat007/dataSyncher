@@ -5,6 +5,7 @@ import com.cetc.cloud.datasynch.api.model.ScheduleModel;
 import com.cetc.cloud.datasynch.api.service.RePullTableRemoteService;
 import com.cetc.cloud.datasynch.provider.common.CommonInstance;
 import com.cetc.cloud.datasynch.provider.service.impl.DbOperateService;
+import com.cetc.cloud.datasynch.provider.service.impl.JobManageService;
 import com.cetc.cloud.datasynch.provider.service.impl.ScheduleService;
 import com.cetc.cloud.datasynch.provider.service.impl.SynchJobLogInfoService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +30,8 @@ public class RePullTableController implements RePullTableRemoteService {
     SynchJobLogInfoService synchJobLogInfoService;
     @Autowired
     DbOperateService dbOperateService;
+    @Autowired
+    JobManageService jobManageService;
 
     @Override
     public String clearAndPullAgainTableByJobId(String tableName) {
@@ -37,16 +40,22 @@ public class RePullTableController implements RePullTableRemoteService {
 
         //1.根据表名查询JobId
         ScheduleModel scheduleModel = scheduleService.queryModelByTableName(tableName);
+        //disable任务
         scheduleService.alterJobStatusByJobId(scheduleModel.getId(), CommonInstance.DISABLED);
 
         //2.清空表
-        boolean clearRes = dbOperateService.clearTableByTbName(scheduleModel.getTargetTableName());
+        boolean clearRes = dbOperateService.truncateTableByTbName(scheduleModel.getTargetTableName());
 
         //3.通过jobId清空日志
         if (clearRes) {
             int i = synchJobLogInfoService.deleteByJobId(scheduleModel.getId());
-            int i1 = scheduleService.enableStatusByJobId(scheduleModel.getId());
-            if (i > 0 && i1 > 0) {
+            int i1 =0;
+            try {
+                jobManageService.startOnceJob(scheduleModel);
+            }finally {
+                i1 = scheduleService.enableStatusByJobId(scheduleModel.getId());
+            }
+            if (i > 0 && i1 >0) {
                 res.put("res", "success");
                 res.put("msg", "successfully executed clearAndPullAgainTableByJobId, targetTable:" + scheduleModel.getTargetTableName());
                 return res.toJSONString();
@@ -57,8 +66,10 @@ public class RePullTableController implements RePullTableRemoteService {
             }
         } else {
             res.put("res", "fail");
-            res.put("msg", "failed executed clearTableByTbName, targetTable:" + scheduleModel.getTargetTableName());
+            res.put("msg", "failed executed truncateTableByTbName, targetTable:" + scheduleModel.getTargetTableName());
             return res.toJSONString();
         }
+
+
     }
 }
