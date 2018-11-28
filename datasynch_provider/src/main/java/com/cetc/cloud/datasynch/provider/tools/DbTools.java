@@ -44,7 +44,7 @@ public class DbTools {
             if (value.contains("'")){
                 value = value.replaceAll("'","''");
             }
-            return "'" + value + "'";
+            return "'" + value.trim() + "'";
         } else if (Type_DATE.equals(columnType)) {
             return "TO_DATE('" + value + "', 'YYYY-MM-DD HH24:MI:SS')";
         } else if (columnType.contains(Type_TIMESTAMP)) {
