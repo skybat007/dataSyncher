@@ -46,6 +46,9 @@ public class DbTools {
             }
             return "'" + value.trim() + "'";
         } else if (Type_DATE.equals(columnType)) {
+            if (value.contains(".")){
+                value = value.substring(0,value.indexOf("."));
+            }
             return "TO_DATE('" + value + "', 'YYYY-MM-DD HH24:MI:SS')";
         } else if (columnType.contains(Type_TIMESTAMP)) {
             return "TO_TIMESTAMP('" + value + "', 'YYYY-MM-DD HH24:MI:SS')";
