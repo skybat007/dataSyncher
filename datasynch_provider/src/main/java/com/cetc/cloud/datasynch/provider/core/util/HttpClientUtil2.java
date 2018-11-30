@@ -67,6 +67,7 @@ public class HttpClientUtil2 {
     }
     /**
      * Get方法：不带Token认证
+     *      注：不能使用url+params集成到params
      * @param url
      * @param params
      * @return
@@ -97,27 +98,33 @@ public class HttpClientUtil2 {
             HttpResponse response = httpClient.execute(httpGet);
             status = response.getStatusLine();                          //获取返回的状态码
             HttpEntity entity = response.getEntity();                   //获取响应内容
-            result.put("success", true);
-            result.put("data", EntityUtils.toString(entity, "UTF-8"));
-            result.put("code", 200);
-            result.put("msg", "请求成功");
+            if (status.getStatusCode()==200) {
+                result.put("success", true);
+                result.put("data", EntityUtils.toString(entity, "UTF-8"));
+                result.put("code", 200);
+                result.put("msg", "请求成功");
+            }else {
+                result.put("success", false);
+                result.put("code", status.getStatusCode());
+                result.put("msg", "请求异常，异常信息:"+status.getReasonPhrase());
+            }
         } catch (Exception e) {
             result.put("success", false);
-            result.put("code", 500);
+            result.put("code", status.getStatusCode());
             result.put("msg", "请求异常，异常信息：" + e.getClass() + "->" + e.getMessage());
         } finally {
             httpGet.abort();//中止请求，连接被释放回连接池
         }
         return result;
     }
-    public static JSONObject doGetWithBody(String url, JSONObject params,JSONObject bodys) {
+    public static JSONObject doPostWithBody(String url, JSONObject params,String bodyContent) {
         CloseableHttpClient httpClient = getHttpClient(url);
         JSONObject result = new JSONObject();
         result.put("success", true);
         result.put("data", null);
         result.put("code", 200);
         result.put("msg", null);
-        HttpGet httpGet = null;
+        HttpPost httpPost = null;
         StatusLine status = null;
         try {
             URIBuilder builder = new URIBuilder(url);
@@ -126,33 +133,36 @@ public class HttpClientUtil2 {
                     builder.setParameter(key, params.getString(key));
                 }
             }
-            httpGet = new HttpGet(builder.build());
+            httpPost = new HttpPost(url);
             RequestConfig config = RequestConfig.custom()
                     .setSocketTimeout(6000)
                     .setConnectTimeout(6000)
                     .setConnectionRequestTimeout(6000).build();
-            httpGet.setConfig(config);
-            if (null!=bodys && "".equals(bodys)) {
-                Iterator<String> iterator = bodys.keySet().iterator();
-                while (iterator.hasNext()) {
-                    String key = iterator.next();
-                    httpGet.setHeader(key, bodys.getString(key));
-                }
+            httpPost.setConfig(config);
+            if (null!=bodyContent && !"".equals(bodyContent)) {
+                HttpEntity entity = new StringEntity(bodyContent);
+                httpPost.setEntity(entity);
             }
 
-            HttpResponse response = httpClient.execute(httpGet);
+            HttpResponse response = httpClient.execute(httpPost);
             status = response.getStatusLine();                          //获取返回的状态码
             HttpEntity entity = response.getEntity();                   //获取响应内容
-            result.put("success", true);
-            result.put("data", EntityUtils.toString(entity, "UTF-8"));
-            result.put("code", 200);
-            result.put("msg", "请求成功");
+            if (status.getStatusCode()==200) {
+                result.put("success", true);
+                result.put("data", EntityUtils.toString(entity, "UTF-8"));
+                result.put("code", 200);
+                result.put("msg", "请求成功");
+            }else {
+                result.put("success", false);
+                result.put("code", status.getStatusCode());
+                result.put("msg", "请求异常，异常信息:"+status.getReasonPhrase());
+            }
         } catch (Exception e) {
             result.put("success", false);
-            result.put("code", 500);
+            result.put("code", status.getStatusCode());
             result.put("msg", "请求异常，异常信息：" + e.getClass() + "->" + e.getMessage());
         } finally {
-            httpGet.abort();//中止请求，连接被释放回连接池
+            httpPost.abort();//中止请求，连接被释放回连接池
         }
         return result;
     }
@@ -191,13 +201,19 @@ public class HttpClientUtil2 {
             HttpResponse response = httpClient.execute(httpGet);
             status = response.getStatusLine();                          //获取返回的状态码
             HttpEntity entity = response.getEntity();                   //获取响应内容
-            result.put("success", true);
-            result.put("data", EntityUtils.toString(entity, "UTF-8"));
-            result.put("code", 200);
-            result.put("msg", "请求成功");
+            if (status.getStatusCode()==200) {
+                result.put("success", true);
+                result.put("data", EntityUtils.toString(entity, "UTF-8"));
+                result.put("code", 200);
+                result.put("msg", "请求成功");
+            }else {
+                result.put("success", false);
+                result.put("code", status.getStatusCode());
+                result.put("msg", "请求异常，异常信息:"+status.getReasonPhrase());
+            }
         } catch (Exception e) {
             result.put("success", false);
-            result.put("code", 500);
+            result.put("code", status.getStatusCode());
             result.put("msg", "请求异常，异常信息：" + e.getClass() + "->" + e.getMessage());
         } finally {
             httpGet.abort();//中止请求，连接被释放回连接池
