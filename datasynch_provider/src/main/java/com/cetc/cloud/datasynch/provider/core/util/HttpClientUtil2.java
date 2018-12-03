@@ -19,6 +19,7 @@ import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import springfox.documentation.spring.web.json.Json;
 
 import java.io.IOException;
 import java.net.*;
@@ -159,7 +160,7 @@ public class HttpClientUtil2 {
             }
         } catch (Exception e) {
             result.put("success", false);
-            result.put("code", status.getStatusCode());
+            result.put("code", 500);
             result.put("msg", "请求异常，异常信息：" + e.getClass() + "->" + e.getMessage());
         } finally {
             httpPost.abort();//中止请求，连接被释放回连接池
@@ -213,7 +214,7 @@ public class HttpClientUtil2 {
             }
         } catch (Exception e) {
             result.put("success", false);
-            result.put("code", status.getStatusCode());
+            result.put("code", 500);
             result.put("msg", "请求异常，异常信息：" + e.getClass() + "->" + e.getMessage());
         } finally {
             httpGet.abort();//中止请求，连接被释放回连接池
@@ -222,6 +223,24 @@ public class HttpClientUtil2 {
 
     }
 
+    public static JSONObject getParamObject(String httpParamExpression){
+        JSONObject params = new JSONObject();
+        if (null != httpParamExpression) {
+            String[] paramKeyValues = httpParamExpression.split("&");
+
+            for (int i = 0; i < paramKeyValues.length; i++) {
+                String[] split = paramKeyValues[i].split("=");
+                if (split.length == 2) {
+                    String key = split[0];
+                    String value = split[1];
+                    params.put(key,value);
+                } else {
+                    continue;
+                }
+            }
+        }
+        return params;
+    }
 
 
     private static String[] getIpAndPortFromUrl(String URL) {

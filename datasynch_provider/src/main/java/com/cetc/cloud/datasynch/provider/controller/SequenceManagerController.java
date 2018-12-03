@@ -10,5 +10,11 @@ package com.cetc.cloud.datasynch.provider.controller;
  * Update_Date: 2018/11/27
  * Update_Description: luolinjie 补充
  **/
-public class TokenUpdaterController {
+public class SequenceManagerController {
+    //todo：一键获取所有的Sequence
+
+
+    //todo: 校准有异常的ObjectId
+
+
 }
