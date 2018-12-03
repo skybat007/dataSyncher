@@ -64,7 +64,7 @@ public class SingleJobController implements SingleJobRemoteService {
 //        jobManageService.startOnceJob(scheduleModel);
     }
 
-    //    @Scheduled(cron = "00 15 23 * * ?")
+    @Scheduled(cron = "00 15 23 * * ?")
     @Override
     public void calculateHasTroubleSanXiao() throws SQLException {
 
