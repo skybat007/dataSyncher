@@ -8,6 +8,7 @@ import com.cetc.cloud.datasynch.api.model.XinFangPeopleModel;
 import com.cetc.cloud.datasynch.provider.core.util.HttpClientUtil2;
 import com.cetc.cloud.datasynch.provider.mapper.input.XinfangEventMapper;
 import com.cetc.cloud.datasynch.provider.service.impl.*;
+import com.sun.org.apache.bcel.internal.generic.IF_ACMPEQ;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,10 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 /**
  * PackageName:   com.cetc.cloud.datasynch.provider.controller
@@ -107,6 +105,7 @@ public class SingleJobController implements SingleJobRemoteService {
     @Scheduled(cron = "00 40 17 * * ?")
     @Override
     public void insertXinfangDataToday() throws SQLException {
+        logger.info("Started Scheduled Job:insertXinfangDataToday()");
         String SQL = "select URL,BODY from DS_OUTER_URLS where table_name='WEEKLY_XINFANG_TOKEN'";
         List<HashMap> SQLRes = dbOperateService.oracleQuerySql(SQL);
         String url = (String) SQLRes.get(0).get("URL");
@@ -138,7 +137,17 @@ public class SingleJobController implements SingleJobRemoteService {
             if (200 == httpQueryRes.getIntValue("code")) {
                 String dataString = httpQueryRes.getString("data");
                 JSONArray jsonRes = JSON.parseArray(dataString);
-                insertXinfangJSONData(jsonRes);
+                JSONArray jsonRes1 = new JSONArray();
+                Set<String> visitCodeSet = xinfangEventMapper.getVisitCodeList();
+                Iterator<Object> iterator = jsonRes.iterator();
+                while (iterator.hasNext()){
+                    JSONObject next = (JSONObject) iterator.next();
+                    String VISITNO = next.getString("VISITNO");
+                    if(!visitCodeSet.contains(VISITNO)){
+                        jsonRes1.add(next);
+                    }
+                }
+                insertXinfangJSONData(jsonRes1);
             }
         }
     }
@@ -193,7 +202,7 @@ public class SingleJobController implements SingleJobRemoteService {
     private void insertXinfangJSONData(JSONArray jsonRes) {
 //        int count = jsonRes.getIntValue("count");
         //todo 获取信访visitCode集合，用于比对重复值
-//        HashSet<String> visitCodeSet = xinfangEventMapper.getVisitCodeSet();
+
 
         JSONArray dataArr = jsonRes;
         for (int i = 0; i < dataArr.size(); i++) {

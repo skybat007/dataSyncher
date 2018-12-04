@@ -5,7 +5,10 @@ import com.cetc.cloud.datasynch.api.model.XinFangPeopleModel;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * PackageName:   com.cetc.cloud.datasynch.provider.mapper.input
@@ -24,5 +27,5 @@ public interface XinfangEventMapper {
 
     int addPerson(@Param("personModel") XinFangPeopleModel personModel);
 
-    HashSet<String> getVisitCodeSet();
+    Set<String> getVisitCodeList();
 }

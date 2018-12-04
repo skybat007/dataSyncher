@@ -125,7 +125,7 @@
         #{objId,jdbcType=INTEGER}
         )
     </insert>
-    <select id="getVisitCodeSet" resultType="java.util.HashSet" parameterType="java.lang.Long">
+    <select id="getVisitCodeList" resultType="java.lang.String">
         SELECT VISITNO
         FROM <include refid="BaseTable_Event"/>
     </select>
