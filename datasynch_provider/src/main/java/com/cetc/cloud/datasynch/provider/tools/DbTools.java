@@ -1,6 +1,9 @@
 package com.cetc.cloud.datasynch.provider.tools;
 
 
+import java.io.UnsupportedEncodingException;
+import java.util.Arrays;
+
 /**
  * Description：数据库相关工具
  * Created by luolinjie on 2018/10/18.
@@ -28,7 +31,7 @@ public class DbTools {
     /**
      * 获取组装后的字段内容
      */
-    public static String getDecoratedColumn(String columnType, String value) {
+    public static String getDecoratedColumn(String columnType, String value) throws UnsupportedEncodingException {
 
         if (null == value || Type_BLOB.equals(columnType)) {
             return "null";
@@ -38,16 +41,18 @@ public class DbTools {
                 || Type_VARCHAR2.equals(columnType) || Type_NVARCHAR2.equals(columnType) || Type_VARCHAR2.equals(columnType)
                 || Type_CHAR.equals(columnType) || Type_NCHAR.equals(columnType) || Type_VARCHAR.equals(columnType)
                 || Type_CLOB.equals(columnType) || Type_NCLOB.equals(columnType)) {
-            if (value.length()>3999){
-                value = value.substring(0,4000);
+            byte[] bytes = value.getBytes();
+            if (bytes.length > 3999) {
+                byte[] bytes1 = Arrays.copyOfRange(bytes, 0, 3999);
+                value = new String(bytes1,"UTF-8");
             }
-            if (value.contains("'")){
-                value = value.replaceAll("'","''");
+            if (value.contains("'")) {
+                value = value.replaceAll("'", "''");
             }
             return "'" + value.trim() + "'";
         } else if (Type_DATE.equals(columnType)) {
-            if (value.contains(".")){
-                value = value.substring(0,value.indexOf("."));
+            if (value.contains(".")) {
+                value = value.substring(0, value.indexOf("."));
             }
             return "TO_DATE('" + value + "', 'YYYY-MM-DD HH24:MI:SS')";
         } else if (columnType.contains(Type_TIMESTAMP)) {
