@@ -22,6 +22,6 @@ public class MyApplicationRunner implements ApplicationRunner {
     @Override
     public void run(ApplicationArguments var1) throws Exception{
         /*启动所有的schedule任务*/
-        scheduleController.startAllEnabledScheduleJobs();
+//        scheduleController.startAllEnabledScheduleJobs();
     }
 }
