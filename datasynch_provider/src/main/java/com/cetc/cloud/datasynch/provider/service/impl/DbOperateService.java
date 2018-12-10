@@ -18,6 +18,7 @@ import com.cetc.cloud.datasynch.provider.core.util.ListUtil;
 import com.cetc.cloud.datasynch.provider.tools.DbTools;
 import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.jdbc.ScriptRunner;
+import org.bouncycastle.cms.PasswordRecipientId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -548,8 +549,8 @@ public class DbOperateService {
         return rowSet.getInt(1);
     }
 
-    public int getNextSeqVal(String tableName) {
-        String sql = "select \"" + tableName + "\".nextval from dual";
+    public int getNextSeqVal(String sequenceName) {
+        String sql = "select \"" + sequenceName + "\".nextval from dual";
         SqlRowSet rowSet = primaryJdbcTemplate.queryForRowSet(sql);
         rowSet.next();
         return rowSet.getInt(1);
@@ -564,5 +565,28 @@ public class DbOperateService {
     public void backUpTable(String srcTableName, String bkTableName) {
         String SQL = "create TABLE \"" + orclUsername + "\".\"" + bkTableName + "\" as  SELECT * FROM " + srcTableName;
         primaryJdbcTemplate.execute(SQL);
+    }
+
+    public List getAllSequenceNameList() {
+        List<String> list = new ArrayList<String>();
+        String SQL = "SELECT sequence_name from user_sequences";
+        SqlRowSet rowSet = primaryJdbcTemplate.queryForRowSet(SQL);
+        while (rowSet.next()){
+            String seq_name = rowSet.getString(1);
+            list.add(seq_name);
+        }
+        return list;
+    }
+
+    public List getAllTableList() {
+        List list = new ArrayList();
+        String sql = "SELECT TABLE_NAME FROM USER_TABLES";
+        SqlRowSet rowSet = primaryJdbcTemplate.queryForRowSet(sql);
+        while (rowSet.next()){
+            String table_name = rowSet.getString(1);
+            list.add(table_name);
+        }
+
+        return list;
     }
 }

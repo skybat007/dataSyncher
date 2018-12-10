@@ -1,4 +1,4 @@
-package com.cetc.cloud.datasynch.provider.controller;
+package com.cetc.cloud.datasynch.api.service;
 
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
