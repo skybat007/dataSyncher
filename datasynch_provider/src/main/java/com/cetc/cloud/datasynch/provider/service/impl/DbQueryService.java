@@ -114,7 +114,7 @@ public class DbQueryService {
     }
 
     public boolean checkIfTableExists(String tbName) {
-        String sql = "SELECT COUNT(*) FROM \"" + tbName + "\"";
+        String sql = "SELECT COUNT(*) FROM " + tbName;
         logger.debug("sql: " + sql);
         SqlRowSet resultSet = null;
         try {
@@ -134,7 +134,7 @@ public class DbQueryService {
         return false;
     }
     public int getTableRowCounts(String tbName) {
-        String sql = "SELECT COUNT(*) FROM \"" + tbName + "\"";
+        String sql = "SELECT COUNT(*) FROM " + tbName;
         logger.debug("sql: " + sql);
 
         SqlRowSet resultSet = readOnlyJdbcTemplate.queryForRowSet(sql);

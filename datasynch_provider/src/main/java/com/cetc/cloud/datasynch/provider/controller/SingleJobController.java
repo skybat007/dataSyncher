@@ -224,7 +224,7 @@ public class SingleJobController implements SingleJobRemoteService {
             xinFangEventModel.setSource(obj.getString("Source"));
             xinFangEventModel.setVisitType(obj.getString("VisitType"));
             int i1 = xinfangEventMapper.addEvent(xinFangEventModel);
-            if (i1 > 1) {
+            if (i1 > 0) {
                 logger.info("added XinfangEvent:" + xinFangEventModel.toString());
             }
             JSONArray idCardInfos = obj.getJSONArray("IDCardInfos");
@@ -246,7 +246,7 @@ public class SingleJobController implements SingleJobRemoteService {
                 personModel.setCertAddress(personObj.getString("CertAddress"));
                 personModel.setIsMain(personObj.getIntValue("IsMain"));
                 int i2 = xinfangEventMapper.addPerson(personModel);
-                if (i2 > 1) {
+                if (i2 > 0) {
                     logger.info("added XinfangPeople:" + personModel.toString());
                 }
             }

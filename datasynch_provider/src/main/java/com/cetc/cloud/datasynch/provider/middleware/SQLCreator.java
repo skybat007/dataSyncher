@@ -19,7 +19,7 @@ public class SQLCreator {
         String sql = "select *\n" +
                 " from (select row_.*, rownum rownum_\n" +
                 "       from (select *\n" +
-                "             from \""+tableName+"\"\n" +
+                "             from "+tableName+"\n" +
                 "             order by " + orderByColumn + " asc) row_\n" +
                 "       where rownum <= " + endRow + ")\n" +
                 "where rownum_ >= " + startRow;
