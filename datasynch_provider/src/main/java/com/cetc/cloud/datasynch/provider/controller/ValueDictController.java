@@ -16,6 +16,9 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -40,6 +43,10 @@ public class ValueDictController implements ValueDictRemoteService {
 
     @Autowired
     ValueDictService valueDictService;
+    @Autowired
+    @Qualifier("primaryJdbcTemplate")
+    private JdbcTemplate primaryJdbcTemplate;
+
 
     @Override
     public String importExcel(MultipartFile file, String sheetName) {
@@ -140,7 +147,21 @@ public class ValueDictController implements ValueDictRemoteService {
     //todo 2.在futian项目中提供一个工具，在这里先做测试
     @Override
     public String getDictValue(String tableName, String columnName, String code) {
-        return null;
+
+        String SQL = "select CODE_IN_CHINESE from DS_VALUE_DICT " +
+                "where TABLE_NAME='" + tableName.toUpperCase() + "' " +
+                "and COLUMN_NAME='" + columnName.toUpperCase() + "' " +
+                "and CODE='" + code + "'";
+        SqlRowSet rowSet = primaryJdbcTemplate.queryForRowSet(SQL);
+        String codeInChinese = "";
+        while (rowSet.next()){
+            codeInChinese = rowSet.getString(1);
+        }
+        if (!"".equals(codeInChinese )) {
+            return codeInChinese;
+        } else {
+            return null;
+        }
     }
 
 }

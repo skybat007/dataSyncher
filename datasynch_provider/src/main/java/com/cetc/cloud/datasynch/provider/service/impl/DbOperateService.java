@@ -19,6 +19,7 @@ import com.cetc.cloud.datasynch.provider.tools.DbTools;
 import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.jdbc.ScriptRunner;
 import org.bouncycastle.cms.PasswordRecipientId;
+import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -221,7 +222,7 @@ public class DbOperateService {
         return data;
     }
 
-    public Boolean oracleSql(String sql) throws SQLException {
+    public boolean oracleExecuteSql(String sql) throws SQLException {
 //     execute 方法返回一个 boolean 值，以指示第一个结果的形式。
         primaryJdbcTemplate.execute(sql);
         logger.debug("sql: " + sql);
@@ -391,6 +392,23 @@ public class DbOperateService {
         return Integer.parseInt(count);
     }
 
+    public boolean checkIfSequenceExists_pure(String targetTableName) {
+        String SQL = "select count(1) COUNT \n" +
+                "from dba_sequences \n" +
+                "where sequence_owner='" + orclUsername + "' and SEQUENCE_NAME='" + targetTableName + "'";
+        SqlRowSet sqlRowSet = primaryJdbcTemplate.queryForRowSet(SQL);
+        int count = 0;
+        logger.info("\nsql:" + SQL);
+        while (sqlRowSet.next()) {
+            count = sqlRowSet.getInt("COUNT");
+            logger.info("\nCOUNT:" + count);
+        }
+        if (count > 0) {
+            return true;
+        }
+        return false;
+    }
+
     public boolean checkIfSequenceExists(String targetTableName) {
         String SQL = "select count(1) COUNT \n" +
                 "from dba_sequences \n" +
@@ -415,7 +433,7 @@ public class DbOperateService {
                 "start with 1\n" +
                 "increment by 1\n" +
                 "cache 50";
-        primaryJdbcTemplate.update(sql);
+        primaryJdbcTemplate.execute(sql);
         return true;
     }
 
@@ -486,7 +504,7 @@ public class DbOperateService {
                 count++;
 
             } else {
-                logger.info("success! Table copy doesn't exists, will do backup by TableName:"+tableName + "_copy" + count);
+                logger.info("success! Table copy doesn't exists, will do backup by TableName:" + tableName + "_copy" + count);
                 break;
             }
         }
@@ -543,17 +561,25 @@ public class DbOperateService {
     }
 
     public int getMaxObjectId(String tableName) {
+        int maxObjId = -1;
         String sql = "select max(OBJECT_ID) FROM \"" + orclUsername + "\".\"" + tableName + "\"";
         SqlRowSet rowSet = primaryJdbcTemplate.queryForRowSet(sql);
-        rowSet.next();
-        return rowSet.getInt(1);
+        if (!rowSet.wasNull()) {
+            rowSet.next();
+            maxObjId = rowSet.getInt(1);
+        }
+        return maxObjId;
     }
-
     public int getNextSeqVal(String sequenceName) {
-        String sql = "select \"" + sequenceName + "\".nextval from dual";
+        int nextVal = -1;
+        String sql = "select " + sequenceName + ".nextval from dual";
         SqlRowSet rowSet = primaryJdbcTemplate.queryForRowSet(sql);
-        rowSet.next();
-        return rowSet.getInt(1);
+        try {
+            rowSet.next();
+            return rowSet.getInt(1);
+        }catch (Exception e) {
+            return nextVal;
+        }
     }
 
     /**
@@ -571,7 +597,7 @@ public class DbOperateService {
         List<String> list = new ArrayList<String>();
         String SQL = "SELECT sequence_name from user_sequences";
         SqlRowSet rowSet = primaryJdbcTemplate.queryForRowSet(SQL);
-        while (rowSet.next()){
+        while (rowSet.next()) {
             String seq_name = rowSet.getString(1);
             list.add(seq_name);
         }
@@ -582,11 +608,12 @@ public class DbOperateService {
         List list = new ArrayList();
         String sql = "SELECT TABLE_NAME FROM USER_TABLES";
         SqlRowSet rowSet = primaryJdbcTemplate.queryForRowSet(sql);
-        while (rowSet.next()){
+        while (rowSet.next()) {
             String table_name = rowSet.getString(1);
             list.add(table_name);
         }
 
         return list;
     }
+
 }
