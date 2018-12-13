@@ -44,11 +44,6 @@ public class SpringbootTest {
     }
 
     @Test
-    public void testApplicationMethod2() throws SQLException {
-        singleJobController.calculateHasTroubleSanXiao();
-        System.out.println("\nFinished! calculateHasTroubleSanXiao \n");
-    }
-    @Test
     public void testApplicationMethod3() throws SQLException {
         singleJobController.calculateRealSanXiaoCount();
         System.out.println("\nFinished! calculateRealSanXiaoCount \n");

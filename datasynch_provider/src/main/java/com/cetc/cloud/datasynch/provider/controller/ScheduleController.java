@@ -4,7 +4,12 @@ import com.cetc.cloud.datasynch.api.model.ScheduleModel;
 import com.cetc.cloud.datasynch.api.service.ScheduleRemoteService;
 import com.cetc.cloud.datasynch.provider.service.impl.*;
 import com.cetc.cloud.datasynch.provider.common.CommonInstance;
+import com.cetc.cloud.datasynch.provider.template.SanxiaoCalcRunnable;
+import com.cetc.cloud.datasynch.provider.template.XinfangGetRunnable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.support.CronTrigger;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.sql.SQLException;
@@ -20,6 +25,7 @@ import java.util.concurrent.Future;
  */
 @RestController
 public class ScheduleController implements ScheduleRemoteService {
+    Logger logger = LoggerFactory.getLogger(ScheduleController.class);
 
     @Autowired
     DbOperateService dbOperateService;
@@ -35,6 +41,8 @@ public class ScheduleController implements ScheduleRemoteService {
 
     @Autowired
     DbQueryService dbQueryService;
+    @Autowired
+    HttpOperateService httpOperateService;
 
     @Override
     public List<ScheduleModel> queryScheduleJobList() {
@@ -166,6 +174,51 @@ public class ScheduleController implements ScheduleRemoteService {
     }
 
     @Override
+    public HashMap<String, String> startOuterScheduleJob(String jobName, String cronExpression) {
+        HashMap res = new HashMap();
+        String uuid = null;
+        if ("calc_trouble_sanxiao".equals(jobName)) {
+
+            SanxiaoCalcRunnable myCalculateRunnable = new SanxiaoCalcRunnable(dbQueryService, dbOperateService, httpOperateService);
+            CronTrigger trigger = null;
+            try {
+                trigger = new CronTrigger(cronExpression);
+            } catch (Exception e) {
+                logger.error("Error cron Expression:" + cronExpression);
+            }
+
+            if (trigger != null) {
+                uuid = jobManageService.startOuterScheduledJob(jobName, myCalculateRunnable, trigger);
+            }
+            logger.info("\n\n>>>>\n\n  >>>> scheduling job:" + jobName + " started!");
+        }
+        if ("get_today_xinfang".equals(jobName)) {
+
+            XinfangGetRunnable myCalculateRunnable = new XinfangGetRunnable(dbQueryService, dbOperateService, httpOperateService);
+            CronTrigger trigger = null;
+            try {
+                trigger = new CronTrigger(cronExpression);
+            } catch (Exception e) {
+                logger.error("Error cron Expression:" + cronExpression);
+            }
+            if (trigger != null) {
+                uuid = jobManageService.startOuterScheduledJob(jobName, myCalculateRunnable, trigger);
+            }
+        }
+
+        logger.info("\n\n>>>>\n\n  >>>> scheduling job:" + jobName + " started!");
+        if (uuid != null) {
+            res.put("result", "success");
+            res.put("msg", "start Outer job:" + jobName + " success! job ID:" + uuid);
+        } else {
+            res.put("result", "failed");
+            res.put("msg", "start Outer job:" + jobName + " faild!");
+        }
+
+        return res;
+    }
+
+    @Override
     public HashMap<String, String> startScheduleJobArrayByJobId(String jobs) {
         HashMap res = new HashMap();
         if (null == jobs && "".equals(jobs)) {
@@ -211,7 +264,7 @@ public class ScheduleController implements ScheduleRemoteService {
     public HashMap<String, String> disableJobStatusByJobId(int jobId) {
         HashMap res = new HashMap();
         //更新当前任务状态
-        int updateRes = scheduleService.alterJobStatusByJobId(jobId,CommonInstance.DISABLED);
+        int updateRes = scheduleService.alterJobStatusByJobId(jobId, CommonInstance.DISABLED);
         if (updateRes > 0) {
             res.put("result", "success");
             res.put("msg", "disable JobStatus By JobId:" + jobId + " success!");
@@ -226,7 +279,7 @@ public class ScheduleController implements ScheduleRemoteService {
     public HashMap<String, String> enableJobStatusByJobId(int jobId) {
         HashMap res = new HashMap();
         //更新当前任务状态
-        int updateRes = scheduleService.alterJobStatusByJobId(jobId,CommonInstance.ENABLED);
+        int updateRes = scheduleService.alterJobStatusByJobId(jobId, CommonInstance.ENABLED);
         if (updateRes > 0) {
             res.put("result", "success");
             res.put("msg", "enable JobStatus By JobId:" + jobId + " success!");
@@ -278,7 +331,7 @@ public class ScheduleController implements ScheduleRemoteService {
         HashMap<String, String> restartRes = startScheduleJobByJobId(jobId);
         if ("success".equals(restartRes.get("result"))) {
             //更改当前任务状态为Disabled
-            scheduleService.alterJobStatusByJobId(jobId,CommonInstance.DISABLED);
+            scheduleService.alterJobStatusByJobId(jobId, CommonInstance.DISABLED);
             result.put("result" + jobId, "success");
             result.put("msg", "alterScheduleJobCron:" + jobId + ", success!");
             return result;

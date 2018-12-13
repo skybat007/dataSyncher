@@ -39,12 +39,20 @@ public class SequenceManagerControllerTest extends TestCase {
     @Test
     public void testExactSequenceByTbName() throws Exception {
 
+        String[] tables = {
+                "WEEKLY_WEIWEN",
+                "DS_SCHEDULE_JOB_INFO",
+                "DS_SYNCH_JOB_LOG_INFO",
+                "WEEKLY_XINFANG_EVENT",
+                "WEEKLY_XINFANG_PEOPLE",
+                "BLK_CHENGGUAN_EVENT"
+        };
+        for (String table: tables) {
+            boolean b = sequenceManagerController.exactSequenceByTbName(table);
+            System.out.println(table+"--"+b+"\n");
+        }
 
-        String tableName = "BJ2113";
-        boolean b = sequenceManagerController.exactSequenceByTbName(tableName);
 
-
-        System.out.println(b);
     }
     @Test
     public void testSort() throws IOException {
