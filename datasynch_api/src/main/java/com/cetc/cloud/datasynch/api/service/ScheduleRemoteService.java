@@ -53,7 +53,7 @@ public interface ScheduleRemoteService {
     @RequestMapping(value = "/schedule/job/start/outerJob/byJobName", produces = "application/json", method = RequestMethod.POST)
     @ApiOperation(value = "根据jobName和cronExpression启动任务", notes = "根据jobName和cronExpression启动任务", produces = "application/json")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "jobName", value = "只能在这些集合中选取：[sanxiao_count]", required = true, dataType = "int", paramType = "query"),
+            @ApiImplicitParam(name = "jobName", value = "只能在这些集合中选取：[calc_trouble_sanxiao,get_today_xinfang]", required = true, dataType = "int", paramType = "query"),
             @ApiImplicitParam(name = "cronExpression", value = "cron表达式(例：每30秒请求一次：0/30 \\* \\* \\* \\* ? |每1分钟请求一次 0 0/1 \\* \\* \\* ?)", required = false, dataType = "String", paramType = "query")
     })
     HashMap<String,String> startOuterScheduleJob(String jobName, String cronExpression);

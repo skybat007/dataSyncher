@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.ThreadPoolExecutor;
 
 /**
  * PackageName:   com.cetc.cloud.datasynch.provider.controller
@@ -62,7 +63,6 @@ public class SingleJobController implements SingleJobRemoteService {
 //        jobManageService.startOnceJob(scheduleModel);
     }
 
-    @Scheduled(cron = "00 15 23 * * ?")
     @Override
     public void calculateHasTroubleSanXiao() throws SQLException {
 
@@ -83,8 +83,9 @@ public class SingleJobController implements SingleJobRemoteService {
         logger.info("\nCalculateHasTroubleSanXiao:success: " + totalSuccessCount + "\n");
     }
 
-    @Scheduled(cron = "00 16 23 * * ?")
+    @Scheduled(cron = "00 40 08 * * ?")
     public void calculateRealSanXiaoCount() throws SQLException {
+        Thread.currentThread().setName("calcSanXiaoCount");
         String SQL = "select count(1) from BLK_SANXIAO_PLACE where status='0'";
         List<String> list = dbOperateService.oracleQueryList(SQL);
         String countNum = null;
@@ -102,7 +103,6 @@ public class SingleJobController implements SingleJobRemoteService {
 
     }
 
-    @Scheduled(cron = "00 40 17 * * ?")
     @Override
     public void insertXinfangDataToday() throws SQLException {
         logger.info("Started Scheduled Job:insertXinfangDataToday()");
@@ -254,8 +254,4 @@ public class SingleJobController implements SingleJobRemoteService {
 
     }
 
-    @Scheduled(cron = "0/30 * * * * ?")
-    public void test() {
-        System.out.println("\n>>>>> test Spring cron\n");
-    }
 }
