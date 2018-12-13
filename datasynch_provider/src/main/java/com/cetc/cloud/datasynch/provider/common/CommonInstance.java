@@ -48,7 +48,6 @@ public interface CommonInstance {
     String PAGE_SIZE_NAME = "$PAR_pageNum$";
 
 
-
     /**
      * Excel默认数据起始行 --Excel中从0行开始记录
      */
@@ -86,4 +85,10 @@ public interface CommonInstance {
 
     String HTTP_PAGING_TYPE_COUNT = "3";    //城管案件：STARTPOSITION=0&MAXCOUNT=1000
     String HTTP_PAGING_TYPE_COUNT_key_chengguan = "STARTPOSITION";    //城管案件：STARTPOSITION=0&MAXCOUNT=1000
+
+    /**
+     * Outer job Names
+     */
+    String JOB_calc_trouble_sanxiao = "calc_trouble_sanxiao";
+    String JOB_get_today_xinfang = "get_today_xinfang";
 }

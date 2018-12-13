@@ -177,7 +177,7 @@ public class ScheduleController implements ScheduleRemoteService {
     public HashMap<String, String> startOuterScheduleJob(String jobName, String cronExpression) {
         HashMap res = new HashMap();
         String uuid = null;
-        if ("calc_trouble_sanxiao".equals(jobName)) {
+        if (CommonInstance.JOB_calc_trouble_sanxiao.equals(jobName)) {
 
             SanxiaoCalcRunnable myCalculateRunnable = new SanxiaoCalcRunnable(dbQueryService, dbOperateService, httpOperateService);
             CronTrigger trigger = null;
@@ -192,7 +192,7 @@ public class ScheduleController implements ScheduleRemoteService {
             }
             logger.info("\n\n>>>>\n\n  >>>> scheduling job:" + jobName + " started!");
         }
-        if ("get_today_xinfang".equals(jobName)) {
+        if (CommonInstance.JOB_get_today_xinfang.equals(jobName)) {
 
             XinfangGetRunnable myCalculateRunnable = new XinfangGetRunnable(dbQueryService, dbOperateService, httpOperateService);
             CronTrigger trigger = null;

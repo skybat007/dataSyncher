@@ -14,6 +14,11 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.apache.directory.studio</groupId>
+            <artifactId>org.apache.logging.log4j</artifactId>
+            <version>1.2.17</version>
+        </dependency>
+        <dependency>
             <groupId>com.cetc.cloud.datasynch</groupId>
             <artifactId>datasynch_api</artifactId>
             <version>${project.version}</version>
