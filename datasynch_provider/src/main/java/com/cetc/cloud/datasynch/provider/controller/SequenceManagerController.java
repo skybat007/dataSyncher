@@ -190,7 +190,7 @@ public class SequenceManagerController implements SequenceManagerRemoteService {
         }
     }
 
-    private Properties loadMappingExcel() throws IOException {
+    public Properties loadMappingExcel() throws IOException {
         Properties properties = new Properties();
         InputStream resourceAsStream = SequenceManagerController.class.getClassLoader().getResourceAsStream("TableSeqNameMapping.properties");
         properties.load(resourceAsStream);

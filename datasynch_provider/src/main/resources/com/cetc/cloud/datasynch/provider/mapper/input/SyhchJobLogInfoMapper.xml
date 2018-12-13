@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.cetc.cloud.datasynch.provider.mapper.input.SyhchJobLogInfoMapper">
     <resultMap id="BaseResultMap" type="com.cetc.cloud.datasynch.api.model.SynchJobLogInfoModel">
-        <result column="ID" jdbcType="INTEGER" property="id"/>
+        <result column="OBJECT_ID" jdbcType="INTEGER" property="id"/>
         <result column="JOBID" jdbcType="INTEGER" property="jobId"/>
         <result column="IS_SUCCESS" jdbcType="INTEGER" property="isSuccess"/>
         <result column="QUERY_RESULT_SIZE" jdbcType="INTEGER" property="queryResultSize"/>
@@ -24,11 +24,11 @@
     </sql>
 
     <sql id="BaseColumns">
-        ID,JOBID,IS_SUCCESS,QUERY_RESULT_SIZE,CURRENT_PAGE_NUM,CURRENT_PAGE_SIZE,START_ROW,END_ROW,CONN_TYPE,SUCCESS_COUNT,
+        OBJECT_ID,JOBID,IS_SUCCESS,QUERY_RESULT_SIZE,CURRENT_PAGE_NUM,CURRENT_PAGE_SIZE,START_ROW,END_ROW,CONN_TYPE,SUCCESS_COUNT,
         FAIL_COUNT,TOTAL_SUCCESS_COUNT,TOTAL_FAIL_COUNT,CREATE_TIME,UPDATE_TIME
     </sql>
     <sql id="BaseColumns_Insert">
-       ID,JOBID,IS_SUCCESS,QUERY_RESULT_SIZE,CURRENT_PAGE_NUM,CURRENT_PAGE_SIZE,START_ROW,END_ROW,CONN_TYPE,SUCCESS_COUNT,
+       OBJECT_ID,JOBID,IS_SUCCESS,QUERY_RESULT_SIZE,CURRENT_PAGE_NUM,CURRENT_PAGE_SIZE,START_ROW,END_ROW,CONN_TYPE,SUCCESS_COUNT,
        FAIL_COUNT,TOTAL_SUCCESS_COUNT,TOTAL_FAIL_COUNT
     </sql>
 
@@ -66,8 +66,8 @@
     <select id="queryLatestLogInfoByJobId" parameterType="java.lang.Integer" resultMap="BaseResultMap">
         SELECT *
         FROM <include refid="BaseTable"/>
-        WHERE id = (
-          SELECT max(id)
+        WHERE OBJECT_ID = (
+          SELECT max(OBJECT_ID)
           FROM DS_SYNCH_JOB_LOG_INFO
           WHERE JOBID = #{jobId}
         )
@@ -75,8 +75,8 @@
     <select id="queryLatestPageParamsByJobId" parameterType="java.lang.Integer" resultMap="BaseResultMap">
         SELECT <include refid="BaseColumns"/>
         FROM <include refid="BaseTable"/>
-        WHERE ID  = (
-            SELECT max(id)
+        WHERE OBJECT_ID  = (
+            SELECT max(OBJECT_ID)
             FROM DS_SYNCH_JOB_LOG_INFO
             WHERE JOBID = #{jobId}
         )

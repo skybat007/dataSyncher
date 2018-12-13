@@ -14,12 +14,11 @@ package com.cetc.cloud.datasynch.provider.service.impl;
 
 import com.cetc.cloud.datasynch.api.model.ScheduleModel;
 import com.cetc.cloud.datasynch.provider.common.CommonInstance;
+import com.cetc.cloud.datasynch.provider.controller.SequenceManagerController;
 import com.cetc.cloud.datasynch.provider.core.util.ListUtil;
 import com.cetc.cloud.datasynch.provider.tools.DbTools;
 import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.jdbc.ScriptRunner;
-import org.bouncycastle.cms.PasswordRecipientId;
-import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,6 +62,10 @@ public class DbOperateService {
     @Value("${spring.primary-datasource.username}")
     private String orclUsername;
 
+    @Autowired
+    SequenceManagerController sequenceManagerController;
+
+    private Properties tbSeqMappingProp;
 
     /**
      * 获取 <表名,List<HashMap></><字段名,数据类型 > >组成的Map
@@ -249,6 +252,14 @@ public class DbOperateService {
 
 
     public List<Integer> insertIntoTargetTable(List<HashMap> queryResult, ScheduleModel scheduleModel) throws SQLException {
+
+        if (tbSeqMappingProp ==null){
+            try {
+                tbSeqMappingProp = sequenceManagerController.loadMappingExcel();
+            }catch (Exception e){
+                logger.error("");
+            }
+        }
         List<Integer> resList = new ArrayList<Integer>();
         //获取 "字段-字段类型" 映射map
         HashMap<String, HashMap> tbStructureMap = queryTableStructureByTableName(scheduleModel.getTargetTableName());
@@ -299,7 +310,7 @@ public class DbOperateService {
             }
 
             //获取序列nextval值
-            SqlRowSet sqlRowSet = primaryJdbcTemplate.queryForRowSet("SELECT SEQ_" + targetTableName + ".NEXTVAL FROM DUAL");
+            SqlRowSet sqlRowSet = primaryJdbcTemplate.queryForRowSet("SELECT " + tbSeqMappingProp.getProperty(targetTableName)+ ".NEXTVAL FROM DUAL");
             int nextValue = 0;
             while (sqlRowSet.next()) {
                 nextValue = sqlRowSet.getInt(1);

@@ -74,7 +74,7 @@ public class SingleJobController implements SingleJobRemoteService {
         List<String> troublePlaceIdList = dbOperateService.oracleQueryList(getTroublePlaceIds);
         int totalSuccessCount = 0;
         for (int i = 0; i < troublePlaceIdList.size(); i++) {
-            String sql = "update BLK_SANXIAO_PLACE set HAS_TROUBLE=1 where id='" + troublePlaceIdList.get(i) + "'";
+            String sql = "update BLK_SANXIAO_PLACE set HAS_TROUBLE=1 where ID='" + troublePlaceIdList.get(i) + "'";
             int count = dbOperateService.oracleUpdateSql(sql);
             if (count > 0) {
                 totalSuccessCount++;

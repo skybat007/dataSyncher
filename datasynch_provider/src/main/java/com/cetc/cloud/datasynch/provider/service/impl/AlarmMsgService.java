@@ -61,6 +61,6 @@ public class AlarmMsgService {
         }else if ("QAJJ_INSRECORD_V".equals(targetTableName)){
 
         }
-        return null;
+        return SQL;
     }
 }

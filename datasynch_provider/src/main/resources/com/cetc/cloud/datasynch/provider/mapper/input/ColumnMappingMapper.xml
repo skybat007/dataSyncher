@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.cetc.cloud.datasynch.provider.mapper.input.ColumnMappingMapper">
     <resultMap id="BaseResultMap" type="com.cetc.cloud.datasynch.api.model.ColumnMappingModel">
-        <id column="ID" jdbcType="INTEGER" property="id"/>
+        <id column="OBJECT_ID" jdbcType="INTEGER" property="id"/>
         <result column="TARGET_TABLE" jdbcType="VARCHAR" property="targetTable"/>
         <result column="SOURCE" jdbcType="VARCHAR" property="source"/>
         <result column="SRC_COLUMN_NAME" jdbcType="VARCHAR" property="sourceColumnName"/>
@@ -19,11 +19,11 @@
     </sql>
 
     <sql id="Base_Column_List">
-    ID,TARGET_TABLE,SOURCE,SRC_COLUMN_NAME,TARGET_COLUMN_NAME,CREATE_TIME,UPDATE_TIME
+    OBJECT_ID,TARGET_TABLE,SOURCE,SRC_COLUMN_NAME,TARGET_COLUMN_NAME,CREATE_TIME,UPDATE_TIME
     </sql>
 
     <sql id="Base_Column_List_Insert">
-    ID,TARGET_TABLE,SOURCE,SRC_COLUMN_NAME,TARGET_COLUMN_NAME
+    OBJECT_ID,TARGET_TABLE,SOURCE,SRC_COLUMN_NAME,TARGET_COLUMN_NAME
     </sql>
     <sql id="Base_Column_List_Insert_List">
     TARGET_TABLE,SOURCE,SRC_COLUMN_NAME,TARGET_COLUMN_NAME
@@ -110,7 +110,7 @@
         <if test="targetColumnName != null">
             TARGET_COLUMN_NAME = #{targetColumnName}
         </if>
-        WHERE ID = #{id}
+        WHERE OBJECT_ID = #{id}
     </update>
 
     <delete id="deleteByTargetTbName" parameterType="java.lang.String">
@@ -124,7 +124,7 @@
         DELETE FROM
         <include refid="Base_Table"/>
         WHERE
-        ID =#{id}
+        OBJECT_ID =#{id}
     </delete>
 
 </mapper>
