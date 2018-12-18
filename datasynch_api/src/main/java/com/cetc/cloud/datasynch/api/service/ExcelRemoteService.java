@@ -1,5 +1,6 @@
 package com.cetc.cloud.datasynch.api.service;
 
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
@@ -18,6 +19,7 @@ import java.util.HashMap;
  * Update_Date: 2018/11/14
  * Update_Description: luolinjie 补充
  **/
+@Api(description = "Excel导出工具")
 public interface ExcelRemoteService {
     @RequestMapping(value = "/excel/export/byTableName", produces = "application/json", method = RequestMethod.POST)
     @ApiOperation(value = "根据表名和列名导出Excel", notes = "", produces = "application/json")

@@ -1,5 +1,6 @@
 package com.cetc.cloud.datasynch.api.service;
 
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
  * Update_Date: 2018/11/20
  * Update_Description: luolinjie 补充
  **/
+@Api(description = "reset")
 public interface RePullTableRemoteService {
 
     @RequestMapping(value = "/table/clearAndPullAgain", produces = "application/json", method = RequestMethod.POST)

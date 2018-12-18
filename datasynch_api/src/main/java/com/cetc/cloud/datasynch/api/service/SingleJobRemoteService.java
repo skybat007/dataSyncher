@@ -1,5 +1,6 @@
 package com.cetc.cloud.datasynch.api.service;
 
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -16,6 +17,7 @@ import java.sql.SQLException;
  * Update_Date: 2018/11/28
  * Update_Description: luolinjie 补充
  **/
+@Api(description = "单任务管理")
 public interface SingleJobRemoteService {
 
     @RequestMapping(value = "/singleJob/backupTable", produces = "application/json", method = RequestMethod.POST)

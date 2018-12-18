@@ -22,7 +22,7 @@ import java.util.List;
  * Update_Date: 2018/10/25
  * Update_Description: luolinjie 补充
  **/
-@Api(value = "业务表注释管理")
+@Api(description = "业务表注释管理")
 public interface CommentManageRemoteService {
     @RequestMapping(value = "/commentmanage/import/tableComment", produces = "application/json", method = RequestMethod.POST)
     @ApiOperation(value = "批量导入带有注释的Excel文档-表注释", notes = "", produces = "application/json")

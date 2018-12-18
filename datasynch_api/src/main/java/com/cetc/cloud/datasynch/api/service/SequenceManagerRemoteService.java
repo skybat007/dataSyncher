@@ -1,5 +1,6 @@
 package com.cetc.cloud.datasynch.api.service;
 
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -18,6 +19,7 @@ import java.util.List;
  * Update_Date: 2018/12/5
  * Update_Description: luolinjie 补充
  **/
+@Api(description = "序列管理")
 public interface SequenceManagerRemoteService {
 
     @RequestMapping(value = "/sequences/getList", produces = "application/json", method = RequestMethod.GET)

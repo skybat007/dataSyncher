@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
  * Update_Date: 2018/10/25
  * Update_Description: luolinjie 补充
  **/
-@Api(value = "同步日志管理")
+@Api(description = "同步日志管理")
 public interface SynchJobLogInfoRemoteService {
     @RequestMapping(value = "/jobLog/get", produces = "application/json", method = RequestMethod.GET)
     @ApiOperation(value = "通过jobId获取最近一次历史执行日志", notes = "通过jobId获取最近一次历史执行日志", produces = "application/json")

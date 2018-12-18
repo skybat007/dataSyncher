@@ -1,5 +1,6 @@
 package com.cetc.cloud.datasynch.api.service;
 
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -15,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
  * Update_Date: 2018/12/5
  * Update_Description: luolinjie 补充
  **/
+@Api(description = "数据字典管理")
 public interface ValueDictRemoteService {
 
     @RequestMapping(value = "/valueDict/importExcel", produces = "application/json", method = RequestMethod.POST)
