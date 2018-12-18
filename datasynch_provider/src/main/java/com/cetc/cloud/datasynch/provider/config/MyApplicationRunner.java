@@ -3,8 +3,7 @@ package com.cetc.cloud.datasynch.provider.config;
 
 import com.cetc.cloud.datasynch.provider.common.CommonInstance;
 import com.cetc.cloud.datasynch.provider.controller.ScheduleController;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -14,8 +13,8 @@ import org.springframework.stereotype.Component;
  * Created by llj on 2018/7/18.
  */
 @Component
+@Slf4j
 public class MyApplicationRunner implements ApplicationRunner {
-    private static final Logger logger = LoggerFactory.getLogger(MyApplicationRunner.class);
 
     @Autowired
     ScheduleController scheduleController;

@@ -4,8 +4,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.cetc.cloud.datasynch.api.service.SequenceManagerRemoteService;
 import com.cetc.cloud.datasynch.provider.service.impl.DbOperateService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -25,8 +24,8 @@ import java.util.*;
  * Update_Description: luolinjie 补充
  **/
 @RestController
+@Slf4j
 public class SequenceManagerController implements SequenceManagerRemoteService {
-    Logger logger = LoggerFactory.getLogger(SequenceManagerController.class);
     @Autowired
     DbOperateService dbOperateService;
 
@@ -89,7 +88,7 @@ public class SequenceManagerController implements SequenceManagerRemoteService {
         for (String sequencName : sequencNameList) {
             String sql = "alter sequence " + sequencName + " increment by 1";
             int i = dbOperateService.oracleUpdateSql(sql);
-            logger.info("successfully executed sql:" + sql);
+            log.info("successfully executed sql:" + sql);
         }
     }
 
@@ -98,7 +97,7 @@ public class SequenceManagerController implements SequenceManagerRemoteService {
         //1.check:表是否存在
         boolean existsTable = dbOperateService.checkIfExistsTable(tableName);
         if (existsTable == false) {
-            logger.error("table does not exists!" + tableName);
+            log.error("table does not exists!" + tableName);
         }
         //2.获取表名对应序列名的 对照名单
         if (tableSeqMapping == null) {
@@ -109,13 +108,13 @@ public class SequenceManagerController implements SequenceManagerRemoteService {
 
         if (sequenceExists == false) {
             String SEQName = (String) tableSeqMapping.get(tableName);
-            logger.error("sequence :" + SEQName + " does not exists! target tableName: " + tableName);
-            logger.info("creating SEQ:" + SEQName);
+            log.error("sequence :" + SEQName + " does not exists! target tableName: " + tableName);
+            log.info("creating SEQ:" + SEQName);
             if (null != SEQName && !"".equals(SEQName)) {
                 boolean sequence = dbOperateService.createSequence(SEQName);
                 Thread.sleep(50);
             } else {
-                logger.error("sequence name is null :" + SEQName + " target tableName:" + tableName);
+                log.error("sequence name is null :" + SEQName + " target tableName:" + tableName);
                 return false;
             }
         }
@@ -126,7 +125,7 @@ public class SequenceManagerController implements SequenceManagerRemoteService {
 //            System.out.println(tableName);
 //        }
         if (exists == false) {
-            logger.error("cannot find Column: OBJECT_ID");
+            log.error("cannot find Column: OBJECT_ID");
             return false;
         } else {
             // 1.获取Max（ObjectId）
@@ -139,7 +138,7 @@ public class SequenceManagerController implements SequenceManagerRemoteService {
                 String updateSQL = "UPDATE " + tableName + " SET OBJECT_ID=rownum";
                 int i = dbOperateService.oracleUpdateSql(updateSQL);
                 if (i > 0) {
-                    logger.info("Successfully executed SQL:" + updateSQL);
+                    log.info("Successfully executed SQL:" + updateSQL);
                 }
                 maxObjectId = dbOperateService.getMaxObjectId(tableName);
             }
@@ -152,12 +151,12 @@ public class SequenceManagerController implements SequenceManagerRemoteService {
             if (-1 != nextSeqVal) {
                 int subResult = maxObjectId - nextSeqVal;
                 if (subResult == 0) {
-                    logger.info("no need to exact sequence :" + sequenceName);
+                    log.info("no need to exact sequence :" + sequenceName);
                     return false;
                 }
                 //todo 纠正后的数据不能小于0
                 if (nextSeqVal + subResult < 0) {
-                    logger.error("error nextSeqValue :" + nextSeqVal);
+                    log.error("error nextSeqValue :" + nextSeqVal);
                     return false;
                 }
 
@@ -179,11 +178,11 @@ public class SequenceManagerController implements SequenceManagerRemoteService {
                 }
                 int nextSeqVal2 = dbOperateService.getNextSeqVal(sequenceName);
                 if (nextSeqVal2 == -1) {
-                    logger.error("cannot get nextVal from " + sequenceName);
+                    log.error("cannot get nextVal from " + sequenceName);
                     return false;
                 }
                 int i2 = dbOperateService.oracleUpdateSql("alter sequence " + sequenceName + " increment by 1");
-                logger.info("\r\nfinished exact sequence value!\nsequenceName:" + sequenceName
+                log.info("\r\nfinished exact sequence value!\nsequenceName:" + sequenceName
                         + "\r\n current sequence value:" + nextSeqVal2);
             }
             return true;

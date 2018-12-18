@@ -1,16 +1,12 @@
 package com.cetc.cloud.datasynch.provider.service.impl;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 /**
  * PackageName:   com.cetc.cloud.datasynch.provider.service.impl
@@ -23,33 +19,14 @@ import java.util.concurrent.TimeUnit;
  * Update_Description: luolinjie 补充
  **/
 @Service
+@Slf4j
 public class AlarmMsgService {
-
-    Logger logger = LoggerFactory.getLogger(AlarmMsgService.class);
 
     @Autowired
     @Qualifier("primaryJdbcTemplate")
     private JdbcTemplate primaryJdbcTemplate;
 
     public void pushAlaramInfo(final String targetTableName, final HashMap valueObj) {
-        class AlarmThread implements Runnable{
-            @Override
-            public void run() {
-                //1.判断属于哪张表,获取预警信息组成规则，并组成SQL语句
-                String sql = getSQLByTableName(targetTableName,valueObj);
-                //2.执行SQL语句
-                if (!"".equals(sql)) {
-                    int insertRes = primaryJdbcTemplate.update(sql);
-                    if (insertRes > 0) {
-                        logger.info("AlramInfo:" + sql);
-                    }
-                }
-            }
-        }
-
-        //通过多线程实现数据插入，避免阻塞队列
-//        ThreadPoolExecutor executor = new ThreadPoolExecutor(8,8,100, TimeUnit.MILLISECONDS,new ArrayBlockingQueue(8));
-//        executor.execute(new Thread(new AlarmThread()));
     }
 
     private String getSQLByTableName(String targetTableName, HashMap valueObj) {

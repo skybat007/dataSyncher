@@ -1,8 +1,7 @@
 package com.cetc.cloud.datasynch.provider.template;
 
 import com.cetc.cloud.datasynch.provider.service.impl.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -11,9 +10,9 @@ import java.util.List;
  * Description：创建定时 执行计算 实例
  * Created by luolinjie on 2018/10/10.
  */
+@Slf4j
 public class SanxiaoCalcRunnable implements OuterJobRunnableTemplate {
 
-    private Logger logger = LoggerFactory.getLogger(SanxiaoCalcRunnable.class);
     private DbQueryService dbQueryService;
     private DbOperateService dbOperateService;
     private HttpOperateService httpOperateService;
@@ -55,7 +54,7 @@ public class SanxiaoCalcRunnable implements OuterJobRunnableTemplate {
                 totalSuccessCount++;
             }
         }
-        logger.info("\nCalculateHasTroubleSanXiao:success: " + totalSuccessCount + "\n");
+        log.info("\nCalculateHasTroubleSanXiao:success: " + totalSuccessCount + "\n");
     }
 
 }

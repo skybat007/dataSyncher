@@ -3,8 +3,7 @@ package com.cetc.cloud.test;
 import com.alibaba.fastjson.JSONObject;
 import com.cetc.cloud.datasynch.api.model.Token;
 import com.cetc.cloud.datasynch.provider.core.util.HttpClientUtil2;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * PackageName:   com.cetc.cloud.test
@@ -16,8 +15,8 @@ import org.slf4j.LoggerFactory;
  * Update_Date: 2018/11/21
  * Update_Description: luolinjie 补充
  **/
+@Slf4j
 public class HttpClientUtil2Test {
-    Logger logger = LoggerFactory.getLogger(HttpClientUtil2Test.class);
     public void testDoGet() throws Exception {
         for(int i=0;i<1000;i++) {
             String url = "http://10.190.62.57/geostar/440304_DPS0515/dps";

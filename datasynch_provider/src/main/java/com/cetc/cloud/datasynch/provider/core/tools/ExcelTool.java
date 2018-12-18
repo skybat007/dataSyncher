@@ -1,13 +1,12 @@
 package com.cetc.cloud.datasynch.provider.core.tools;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.hssf.usermodel.HSSFCellStyle;
 import org.apache.poi.hssf.usermodel.HSSFFont;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -26,9 +25,9 @@ import java.util.List;
  * Update_Date: 2018/11/14
  * Update_Description: luolinjie 补充
  **/
+@Slf4j
 public class ExcelTool {
 
-    private static Logger logger = LoggerFactory.getLogger(ExcelTool.class);
     private static String exportFilePath = "C:\\Users\\Administrator\\Desktop\\31project_tableStructure\\";
 
     public static HashMap<String, String> exportExcel(List<List<String>> data, List<String> excelHead, String sheetName) throws Exception {
@@ -40,7 +39,7 @@ public class ExcelTool {
         File folder = new File(exportFilePath);
         if (!folder.exists()) {
             if (folder.mkdirs()) {
-                logger.info("create folder ： " + exportFilePath + " success!");
+                log.info("create folder ： " + exportFilePath + " success!");
             }
         }
 
@@ -48,10 +47,10 @@ public class ExcelTool {
         File file = new File(exportFilePath + "/" + sheetName + formatTimeStr + ".xls");
         if (!file.exists()) {
             if (file.createNewFile()){
-                logger.info("created file:"+file.getAbsolutePath());
+                log.info("created file:"+file.getAbsolutePath());
             }
         } else {
-            logger.error("file already exists!");
+            log.error("file already exists!");
             res.put("code", "-1");
             res.put("msg", "file already exists!");
             return res;

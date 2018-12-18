@@ -2,8 +2,7 @@ package com.cetc.cloud.datasynch.provider.service.impl;
 
 import com.cetc.cloud.datasynch.api.model.DddColumnCommentModel;
 import com.cetc.cloud.datasynch.api.model.DddTableCommentModel;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -11,7 +10,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -25,8 +23,8 @@ import java.util.List;
  * Update_Description: luolinjie 补充
  **/
 @Service
+@Slf4j
 public class CommentManageService {
-    Logger logger = LoggerFactory.getLogger(CommentManageService.class);
     @Autowired
     @Qualifier("readOnlyJdbcTemplate")
     private JdbcTemplate primaryJdbcTemplate;
@@ -44,13 +42,13 @@ public class CommentManageService {
             try {
                 primaryJdbcTemplate.update(SQL);
             } catch (Exception e) {
-                logger.error(model.toString());
+                log.error(model.toString());
                 resList.add(model);
                 failCount++;
             }
             successCount++;
         }
-        logger.info("\nFinished! \nsuccessCount:" + successCount + "\nfailCount:" + failCount);
+        log.info("\nFinished! \nsuccessCount:" + successCount + "\nfailCount:" + failCount);
         return resList;
     }
 
@@ -67,7 +65,7 @@ public class CommentManageService {
             try {
                 primaryJdbcTemplate.update(SQL);
             } catch (Exception e) {
-                logger.error(model.toString());
+                log.error(model.toString());
                 e.printStackTrace();
                 resList.add(model);
                 failCount++;

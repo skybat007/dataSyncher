@@ -5,8 +5,7 @@ import com.cetc.cloud.datasynch.api.model.SynchJobLogInfoModel;
 import com.cetc.cloud.datasynch.provider.common.CommonInstance;
 import com.cetc.cloud.datasynch.provider.middleware.SQLCreator;
 import com.cetc.cloud.datasynch.provider.service.impl.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -16,10 +15,10 @@ import java.util.List;
  * Description：创建自定义执行实例定时同步任务实例
  * Created by luolinjie on 2018/10/10.
  */
+@Slf4j
 public class MyScheduleRunnable implements Runnable {
     private ScheduleModel scheduleModel;
 
-    private Logger logger = LoggerFactory.getLogger(MyScheduleRunnable.class);
     private SynchJobLogInfoService synchJobLogInfoService;
     private ScheduleService scheduleService;
     private DbQueryService dbQueryService;
@@ -43,13 +42,13 @@ public class MyScheduleRunnable implements Runnable {
             return;
         }
         Thread.currentThread().setName(scheduleModel.getTargetTableName());
-        logger.info("\n\n----->>>> executing run() method,\nThread.currentThread().Name:"
+        log.info("\n\n----->>>> executing run() method,\nThread.currentThread().Name:"
                 + Thread.currentThread().getName()
                 + "\nThread.currentThread().getId():" + Thread.currentThread().getId());
         try {
             boolean ifExistsTable = checkIfTableExists(scheduleModel.getTargetTableName());
             if (ifExistsTable==false){
-                logger.error("table doesn't exists:"+scheduleModel.getTargetTableName()+" ,please create table first!");
+                log.error("table doesn't exists:"+scheduleModel.getTargetTableName()+" ,please create table first!");
                 return;
             }
             //检查是否存在TargetTable对应的序列，如果不存在，则提前创建
@@ -64,18 +63,18 @@ public class MyScheduleRunnable implements Runnable {
                 //数据库接入方式
                 boolean b = doSQLPulling(synchJobLogInfoService, dbQueryService, dbOperateService);
                 if (b) {
-                    logger.info("\n\n----->>>>MyScheduleRunnable.doSQLPulling：finished!!!");
+                    log.info("\n\n----->>>>MyScheduleRunnable.doSQLPulling：finished!!!");
                 } else {
-                    logger.error("\n\n----->>>>MyScheduleRunnable.doSQLPulling：finished with error!!!");
+                    log.error("\n\n----->>>>MyScheduleRunnable.doSQLPulling：finished with error!!!");
                     throw new RuntimeException();
                 }
             } else if (scheduleModel.getConnType() == CommonInstance.TYPE_INTERFACE) {
                 //接口接入方式
                 boolean b = doHttpPulling(synchJobLogInfoService, httpOperateService, dbOperateService);
                 if (b) {
-                    logger.info("\n\n----->>>>MyScheduleRunnable.doHttpPulling：finished!!!");
+                    log.info("\n\n----->>>>MyScheduleRunnable.doHttpPulling：finished!!!");
                 } else {
-                    logger.error("\n\n----->>>>MyScheduleRunnable.doHttpPulling：finished with error!!!");
+                    log.error("\n\n----->>>>MyScheduleRunnable.doHttpPulling：finished with error!!!");
                     return;
                 }
             } else return;
@@ -109,12 +108,12 @@ public class MyScheduleRunnable implements Runnable {
     private void checkAndCreateSequence(String targetTableName) {
         boolean exists = dbOperateService.checkIfSequenceExists_prefix_seq(targetTableName);
         if (exists) {
-            logger.info("\nSequence has already exists!");
+            log.info("\nSequence has already exists!");
         } else {
-            logger.info("\nSequence doesn't exists!");
+            log.info("\nSequence doesn't exists!");
             boolean sequence = dbOperateService.createSequence("SEQ_" + targetTableName);
             if (sequence) {
-                logger.info("\ncreate sequence success! \nSequence Name:SEQ_" + targetTableName);
+                log.info("\ncreate sequence success! \nSequence Name:SEQ_" + targetTableName);
             }
         }
     }
@@ -149,16 +148,16 @@ public class MyScheduleRunnable implements Runnable {
             tableRowCounts_trgt = dbOperateService.getTableRowCounts(scheduleModel.getTargetTableName());
             boolean compareRes = tableRowCounts_src > tableRowCounts_trgt ? true : false;
             boolean reachedLastRow = false;
-            logger.info("\n\n----->>>> SourceTable.total > TargetTable.total? " + compareRes);
+            log.info("\n\n----->>>> SourceTable.total > TargetTable.total? " + compareRes);
             /**初次执行；未到达最后一页；两表大小不一致 --- 继续请求**/
             while (null == logModel || !reachedLastRow) {
                 //1.根据tableName查询最近一条执行成功的数据同步日志对应的分页参数
                 try {
                     logModel = synchJobLogInfoService.queryLatestInfoByJobId(scheduleModel.getId());
                 } catch (Exception e) {
-                    logger.info("获取最近一次日志的分页参数为NULL！");
+                    log.info("获取最近一次日志的分页参数为NULL！");
                 }
-                logger.info("\n\n----->>>> current job is running! query doesn't reach the end ");
+                log.info("\n\n----->>>> current job is running! query doesn't reach the end ");
 
                 //重新计算分页参数
                 if (null == logModel) {
@@ -181,7 +180,7 @@ public class MyScheduleRunnable implements Runnable {
                 if (queryResult.size() != scheduleModel.getPageSize()) {
                     endRow = startRow + queryResult.size() - 1;
                 }
-                logger.info("\n\n----->>>>Received queryResult:Size:--" + queryResult.size());
+                log.info("\n\n----->>>>Received queryResult:Size:--" + queryResult.size());
                 /**数据入库**/
                 List<Integer> insertResList = dbOperateService.insertIntoTargetTable(queryResult, scheduleModel);
 
@@ -207,7 +206,7 @@ public class MyScheduleRunnable implements Runnable {
             String SQL = SQLCreator.createSQLByTbNameAndRowParam(scheduleModel.getSource(), startRow, endRow, scheduleModel.getOrderByColumnName());
             //获取结果数据
             List<HashMap> queryResult = dbQueryService.oracleQuerySql(SQL);
-            logger.info("\n\n----->>>>Received queryResult:Size:--" + queryResult.size());
+            log.info("\n\n----->>>>Received queryResult:Size:--" + queryResult.size());
             /**数据入库**/
             List<Integer> insertResList = dbOperateService.insertIntoTargetTable(queryResult, scheduleModel);
             //记录在请求日志表中
@@ -241,7 +240,7 @@ public class MyScheduleRunnable implements Runnable {
         int count = synchJobLogInfoService.add(synchJobLogInfoModel);
 
         if (count >= 1) {
-            logger.info("\n\n----->>>>successfuly done a SQL query: " +
+            log.info("\n\n----->>>>successfuly done a SQL query: " +
                             "\n" + SQL + "," +
                             "\ncurrent tableName: " + scheduleModel.getTargetTableName() +
                             "\ncurrent page: " + synchJobLogInfoModel.getLastQueryPageNum() +
@@ -278,13 +277,13 @@ public class MyScheduleRunnable implements Runnable {
                 singleJobTotalSuccessCount = logModel.getTotalSuccessCount();
                 singleJobTotalFailCount = logModel.getTotalFailCount();
             } catch (Exception e) {
-                logger.info("recent paging param is null!");
+                log.info("recent paging param is null!");
             }
 
             // 如果当前请求结果集大小大于上次结果集大小，则进行入库
             boolean doInsertQueryResult = queryDetect(scheduleModel, logModel);
 
-            logger.info("\n\n----->>>> current page has new data? -- " + doInsertQueryResult);
+            log.info("\n\n----->>>> current page has new data? -- " + doInsertQueryResult);
 
             if (doInsertQueryResult == true) {
 
@@ -293,7 +292,7 @@ public class MyScheduleRunnable implements Runnable {
                 // null==model表示还未发起过请求)
                 boolean reachedLastRow = false;
                 while (null == logModel || !reachedLastRow) {
-                    logger.info("\n\n----->>>> current job is running! query doesn't reach the end ");
+                    log.info("\n\n----->>>> current job is running! query doesn't reach the end ");
                     //重新计算分页参数toDoPageNum
                     if (null == logModel) {
                         toDoPageNum = CommonInstance.DEFAULT_START_PAGE_NUM;
@@ -310,7 +309,7 @@ public class MyScheduleRunnable implements Runnable {
                     List<HashMap> queryResult = httpOperateService.doHttpQueryList(scheduleModel, toDoPageNum);
                     //当前请求为null,则中断当前请求，并输出在log日志中
                     if (null == queryResult) {
-                        logger.error("\n\nqueryResult is null:" +
+                        log.error("\n\nqueryResult is null:" +
                                 "\n\nscheduleModel:" + scheduleModel.toString() +
                                 "\n\n toDoPageNum:" + toDoPageNum);
                         SynchJobLogInfoModel synchJobLogInfoModel = new SynchJobLogInfoModel();
@@ -352,7 +351,7 @@ public class MyScheduleRunnable implements Runnable {
                     }
 
 
-                    logger.info("\n\n----->>>>Received queryResult:Size:--" + queryResult.size());
+                    log.info("\n\n----->>>>Received queryResult:Size:--" + queryResult.size());
 
                     //记录在请求日志表中
                     SynchJobLogInfoModel synchJobLogInfoModel = new SynchJobLogInfoModel();
@@ -386,7 +385,7 @@ public class MyScheduleRunnable implements Runnable {
                     int count = synchJobLogInfoService.add(synchJobLogInfoModel);
 
                     if (count >= 1) {
-                        logger.info("\n\n----->>>>successfuly done a HTTP query: " +
+                        log.info("\n\n----->>>>successfuly done a HTTP query: " +
                                         "\n" + scheduleModel.getSource() + "," +
                                         "\ncurrent tableName: " + scheduleModel.getTargetTableName() +
                                         "\ncurrent page: " + synchJobLogInfoModel.getLastQueryPageNum() +
@@ -397,7 +396,7 @@ public class MyScheduleRunnable implements Runnable {
                                         "\ntotal fail:" + synchJobLogInfoModel.getTotalFailCount()
                         );
                     } else {
-                        logger.error("failed done a Http query: " + scheduleModel.getSource() + ",\ncurrent tableName: " + scheduleModel.getTargetTableName() + ",current page: " + toDoPageNum);
+                        log.error("failed done a Http query: " + scheduleModel.getSource() + ",\ncurrent tableName: " + scheduleModel.getTargetTableName() + ",current page: " + toDoPageNum);
                         return false;
                     }
 
@@ -405,7 +404,7 @@ public class MyScheduleRunnable implements Runnable {
                     try {
                         logModel = synchJobLogInfoService.queryLatestInfoByJobId(scheduleModel.getId());
                     } catch (Exception e) {
-                        logger.info("获取最近一次日志的分页参数为NULL！");
+                        log.info("获取最近一次日志的分页参数为NULL！");
                     }
                 }
                 return true;
@@ -416,7 +415,7 @@ public class MyScheduleRunnable implements Runnable {
             List<HashMap> queryResult = httpOperateService.doHttpQueryList(scheduleModel, toDoPageNum);
 
             if (null == queryResult) {
-                logger.info("queryResult is: null");
+                log.info("queryResult is: null");
                 SynchJobLogInfoModel synchJobLogInfoModel = new SynchJobLogInfoModel();
                 synchJobLogInfoModel.setJobId(scheduleModel.getId());
                 synchJobLogInfoModel.setIsSuccess(0);
@@ -429,7 +428,7 @@ public class MyScheduleRunnable implements Runnable {
                 int count = synchJobLogInfoService.add(synchJobLogInfoModel);
                 return false;
             }
-            logger.info("\n" +
+            log.info("\n" +
                     "\n" +
                     "----->>>>Received queryResult:Size:--" + queryResult.size());
             /**数据入库**/
@@ -453,7 +452,7 @@ public class MyScheduleRunnable implements Runnable {
             int count = synchJobLogInfoService.add(synchJobLogInfoModel);
 
             if (count >= 1) {
-                logger.info("\n\n----->>>>successfuly done a SQL query: " +
+                log.info("\n\n----->>>>successfuly done a SQL query: " +
                                 "\n" + scheduleModel.getSource() + "," +
                                 "\ncurrent tableName: " + scheduleModel.getTargetTableName() +
                                 "\ncurrent page: " + synchJobLogInfoModel.getLastQueryPageNum() +
@@ -465,7 +464,7 @@ public class MyScheduleRunnable implements Runnable {
                 );
 
             } else {
-                logger.error("failed done a Http query: " + scheduleModel.getSource() + ",\ncurrent tableName: " + scheduleModel.getTargetTableName() + ",current page: " + toDoPageNum);
+                log.error("failed done a Http query: " + scheduleModel.getSource() + ",\ncurrent tableName: " + scheduleModel.getTargetTableName() + ",current page: " + toDoPageNum);
                 return false;
             }
             return true;

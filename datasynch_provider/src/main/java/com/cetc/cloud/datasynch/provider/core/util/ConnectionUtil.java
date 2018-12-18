@@ -1,7 +1,6 @@
 package com.cetc.cloud.datasynch.provider.core.util;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -15,9 +14,9 @@ import java.util.Scanner;
  * Description：
  * Created by luolinjie on 2017/11/14.
  */
+@Slf4j
 public class ConnectionUtil {
 
-    private static final Logger logger = LoggerFactory.getLogger(ConnectionUtil.class);
     public static String getNetworkRawData(String urlStr) {
         StringBuilder document = new StringBuilder();
         InputStream is = null;
@@ -42,19 +41,19 @@ public class ConnectionUtil {
                 document.append(sc.nextLine());
             }
         } catch (Exception e) {
-            logger.error("connection error! URL:" + urlStr);
+            log.error("connection error! URL:" + urlStr);
             e.printStackTrace();
         }finally {
             try {
                 sc.close();
             }catch (Exception e1){
-                logger.error("close scanner error! URL:" + urlStr);
+                log.error("close scanner error! URL:" + urlStr);
                 e1.printStackTrace();
             }
             try {
                 is.close();
             }catch (IOException e) {
-                logger.error("close inputStream error! URL:" + urlStr);
+                log.error("close inputStream error! URL:" + urlStr);
                 e.printStackTrace();
             }
         }
@@ -83,19 +82,19 @@ public class ConnectionUtil {
                 document.append(sc.nextLine());
             }
         } catch (Exception e) {
-            logger.error("connection error! URL:" + urlStr);
+            log.error("connection error! URL:" + urlStr);
             e.printStackTrace();
         }finally {
             try {
                 sc.close();
             }catch (Exception e1){
-                logger.error("close scanner error! URL:" + urlStr);
+                log.error("close scanner error! URL:" + urlStr);
                 e1.printStackTrace();
             }
             try {
                 is.close();
             }catch (IOException e) {
-                logger.error("close inputStream error! URL:" + urlStr);
+                log.error("close inputStream error! URL:" + urlStr);
                 e.printStackTrace();
             }
         }

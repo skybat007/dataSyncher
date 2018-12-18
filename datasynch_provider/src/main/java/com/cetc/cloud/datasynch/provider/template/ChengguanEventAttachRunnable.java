@@ -9,8 +9,7 @@ import com.cetc.cloud.datasynch.provider.service.impl.DbOperateService;
 import com.cetc.cloud.datasynch.provider.service.impl.DbQueryService;
 import com.cetc.cloud.datasynch.provider.service.impl.HttpOperateService;
 import com.cetc.cloud.datasynch.provider.service.impl.OuterUrlsService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -26,8 +25,8 @@ import java.util.List;
  * Update_Date: 2018/12/14
  * Update_Description: luolinjie 补充
  **/
+@Slf4j
 public class ChengguanEventAttachRunnable implements OuterJobRunnableTemplate {
-    private Logger logger = LoggerFactory.getLogger(SanxiaoCalcRunnable.class);
     private DbQueryService dbQueryService;
     private DbOperateService dbOperateService;
     private HttpOperateService httpOperateService;
@@ -93,7 +92,7 @@ public class ChengguanEventAttachRunnable implements OuterJobRunnableTemplate {
                     try {
                         blk_cg_evt_atts = dbOperateService.insertIntoTargetTableByTableName(attachList, "BLK_CG_EVT_ATTS");
                     }catch (Exception e){
-                        logger.error("Error while executing  dbOperateService.insertIntoTargetTableByTableName(),data:"+attachList);
+                        log.error("Error while executing  dbOperateService.insertIntoTargetTableByTableName(),data:"+attachList);
                     }
                     if (blk_cg_evt_atts.get(0) == CommonInstance.SUCCESS) {
                         //todo 5.更新chengguan_event表中的HAS_ATTACHMENT，如果步骤3中解析结果为空，则插入0，不为空则插入1
@@ -105,10 +104,10 @@ public class ChengguanEventAttachRunnable implements OuterJobRunnableTemplate {
                         try {
                             int i = dbOperateService.oracleUpdateSql(updateHasTagSQL);
                             if (i > 0) {
-                                logger.info("added chengguan attach success! SYSTEMID:" + systemId);
+                                log.info("added chengguan attach success! SYSTEMID:" + systemId);
                             }
                         } catch (Exception e) {
-                            logger.error("Error while execute:insertChengguanEventAttach(),relative SQL:"+updateHasTagSQL);
+                            log.error("Error while execute:insertChengguanEventAttach(),relative SQL:"+updateHasTagSQL);
                         }
                     }
 

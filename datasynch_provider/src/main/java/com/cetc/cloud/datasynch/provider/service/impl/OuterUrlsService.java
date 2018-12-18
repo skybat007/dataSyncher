@@ -1,13 +1,8 @@
 package com.cetc.cloud.datasynch.provider.service.impl;
 
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
 import com.cetc.cloud.datasynch.api.model.DddOuterURLsModel;
-import com.cetc.cloud.datasynch.provider.common.CommonInstance;
-import com.cetc.cloud.datasynch.provider.core.util.JsonExtractor;
 import com.cetc.cloud.datasynch.provider.mapper.input.OuterUrlsMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,13 +17,13 @@ import org.springframework.stereotype.Service;
  * Update_Description: luolinjie 补充
  **/
 @Service
+@Slf4j
 public class OuterUrlsService {
     @Autowired
     OuterUrlsMapper outerUrlsMapper;
     @Autowired
     HttpOperateService httpOperateService;
 
-    Logger logger = LoggerFactory.getLogger(OuterUrlsService.class);
 
     public DddOuterURLsModel getModelByTableName(String tableName) {
         return outerUrlsMapper.getModelByTableName(tableName);

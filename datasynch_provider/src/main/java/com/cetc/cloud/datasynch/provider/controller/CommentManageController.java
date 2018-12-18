@@ -5,13 +5,12 @@ import com.cetc.cloud.datasynch.api.model.DddTableCommentModel;
 import com.cetc.cloud.datasynch.api.service.CommentManageRemoteService;
 import com.cetc.cloud.datasynch.provider.common.CommonInstance;
 import com.cetc.cloud.datasynch.provider.service.impl.CommentManageService;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -31,8 +30,8 @@ import java.util.List;
  * Update_Description: luolinjie 补充
  **/
 @RestController
+@Slf4j
 public class CommentManageController implements CommentManageRemoteService {
-    Logger logger = LoggerFactory.getLogger(CommentManageController.class);
 
     @Autowired
     CommentManageService commentManageService;
@@ -54,13 +53,13 @@ public class CommentManageController implements CommentManageRemoteService {
             }
         } catch (IOException e) {
             e.printStackTrace();
-            logger.error("error when analyzing File:" + originalFilename);
+            log.error("error when analyzing File:" + originalFilename);
         }
 
         // 根据sheet名称获取sheet
         Sheet sheet = workbook.getSheet(sheetName);
         // getLastRowNum，获取最后一行的行标
-        logger.debug(String.valueOf(sheet.getLastRowNum()));
+        log.debug(String.valueOf(sheet.getLastRowNum()));
         for (int j = startRow; j < sheet.getLastRowNum(); j++) {
             Row row = sheet.getRow(j);
             String col1 = "";
@@ -99,13 +98,13 @@ public class CommentManageController implements CommentManageRemoteService {
             }
         } catch (IOException e) {
             e.printStackTrace();
-            logger.error("error when analyzing File:" + originalFilename);
+            log.error("error when analyzing File:" + originalFilename);
         }
 
         // 根据sheet名称获取sheet
         Sheet sheet = workbook.getSheet(sheetName);
         // getLastRowNum，获取最后一行的行标
-        logger.debug(String.valueOf(sheet.getLastRowNum()));
+        log.debug(String.valueOf(sheet.getLastRowNum()));
         for (int j = startRow; j < sheet.getLastRowNum(); j++) {
             Row row = sheet.getRow(j);
             String tableName = "";

@@ -1,7 +1,6 @@
 package com.cetc.cloud.datasynch.provider.core.util;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -13,9 +12,9 @@ import java.sql.Statement;
  *
  * @author llj
  */
+@Slf4j
 public class JdbcUtil {
 
-    private static Logger logger = LoggerFactory.getLogger(JdbcUtil.class);
     private static String url = "jdbc:mysql://10.192.19.108:3306/db_31project_alpha?tinyInt1isBit=false&useUnicode=true&characterEncoding=utf-8&autoReconnect=true&failOverReadOnly=false&zeroDateTimeBehavior=convertToNull";
     private static String user = "root";
     private static String password = "123456";
@@ -51,7 +50,7 @@ public class JdbcUtil {
                 conn = DriverManager.getConnection(url, user, password);
             }
         } catch (Exception e) {
-            logger.error("\r\nurl:"+url+"\r\n user:"+user+"\r\n password:"+password);
+            log.error("\r\nurl:"+url+"\r\n user:"+user+"\r\n password:"+password);
             e.printStackTrace();
         }
         return conn;

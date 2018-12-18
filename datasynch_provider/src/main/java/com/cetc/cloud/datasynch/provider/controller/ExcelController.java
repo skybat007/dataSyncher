@@ -3,8 +3,7 @@ package com.cetc.cloud.datasynch.provider.controller;
 import com.cetc.cloud.datasynch.api.service.ExcelRemoteService;
 import com.cetc.cloud.datasynch.provider.core.tools.ExcelTool;
 import com.cetc.cloud.datasynch.provider.core.util.ListUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -26,10 +25,10 @@ import java.util.List;
  * Update_Date: 2018/11/14
  * Update_Description: luolinjie 补充
  **/
+@Slf4j
 @RestController
 public class ExcelController implements ExcelRemoteService {
 
-    private Logger logger = LoggerFactory.getLogger(ExcelController.class);
     @Autowired
     @Qualifier("primaryJdbcTemplate")
     private JdbcTemplate primaryJdbcTemplate;
@@ -64,7 +63,7 @@ public class ExcelController implements ExcelRemoteService {
         try {
             res = ExcelTool.exportExcel(colValueList, colNameList, tableName);
         } catch (Exception e) {
-            logger.error("error while export excel");
+            log.error("error while export excel");
             e.printStackTrace();
             return res;
         }

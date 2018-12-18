@@ -1,10 +1,9 @@
 package com.cetc.cloud.test;
 
 import com.cetc.cloud.datasynch.provider.core.util.FileDownloadUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -18,9 +17,9 @@ import java.util.ArrayList;
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @WebAppConfiguration
+@Slf4j
 public class ImageDownLoader {
 
-    Logger logger = LoggerFactory.getLogger(ImageDownLoader.class);
     @Autowired
     @Qualifier("readOnlyJdbcTemplate")
     JdbcTemplate readOnlyJdbcTemplate;
@@ -62,7 +61,7 @@ public class ImageDownLoader {
         try {
             FileDownloadUtil.download(url, fileName, fileSavePath);
         }catch (Exception e){
-            logger.error("\r\nURL:"+url+"\r\nrootpath:"+rootpath);
+            log.error("\r\nURL:"+url+"\r\nrootpath:"+rootpath);
         }
     }
 }

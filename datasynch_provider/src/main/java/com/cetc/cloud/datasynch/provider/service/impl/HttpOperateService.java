@@ -10,8 +10,7 @@ import com.cetc.cloud.datasynch.api.model.Token;
 import com.cetc.cloud.datasynch.provider.core.util.HttpClientUtil2;
 import com.cetc.cloud.datasynch.provider.core.util.JsonExtractor;
 import com.cetc.cloud.datasynch.provider.common.CommonInstance;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -22,9 +21,9 @@ import java.util.List;
  * Created by llj on 2018/10/11.
  */
 @Service("httpOperateService")
+@Slf4j
 public class HttpOperateService {
 
-    private Logger logger = LoggerFactory.getLogger(HttpOperateService.class);
 
     /**
      * 通过HTTP协议请求对应的URL获取数据

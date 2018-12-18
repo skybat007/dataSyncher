@@ -17,10 +17,9 @@ import com.cetc.cloud.datasynch.provider.common.CommonInstance;
 import com.cetc.cloud.datasynch.provider.controller.SequenceManagerController;
 import com.cetc.cloud.datasynch.provider.core.util.ListUtil;
 import com.cetc.cloud.datasynch.provider.tools.DbTools;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.jdbc.ScriptRunner;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -46,15 +45,12 @@ import java.util.*;
  * Update_Description: huangzezhou 补充
  **/
 @Service("dbOperateService")
+@Slf4j
 public class DbOperateService {
-    private final Logger logger = LoggerFactory.getLogger(DbOperateService.class);
 
     @Autowired
     @Qualifier("primaryJdbcTemplate")
     private JdbcTemplate primaryJdbcTemplate;
-
-    @Autowired
-    AlarmMsgService alarmMsgService;
 
     @Autowired
     ColumnMappingService columnMappingService;
@@ -147,7 +143,7 @@ public class DbOperateService {
 
         try {
             String sql = "select * from \"" + tbName + "\"";
-            logger.debug("sql: " + sql);
+            log.debug("sql: " + sql);
             resultSet = primaryJdbcTemplate.queryForRowSet(sql);
             while (resultSet.next()) {
                 ResultSetMetaData resultSetMetaData = (ResultSetMetaData) resultSet.getMetaData();
@@ -163,7 +159,7 @@ public class DbOperateService {
                 list.add(hashMap);
             }
         } catch (SQLException e) {
-            logger.error("database connection error!\n", e);
+            log.error("database connection error!\n", e);
         }
         return list;
     }
@@ -182,7 +178,7 @@ public class DbOperateService {
             }
             data.add(row);
         }
-        logger.debug("sql: " + sql);
+        log.debug("sql: " + sql);
 
         return data;
     }
@@ -201,7 +197,7 @@ public class DbOperateService {
             String value = rs.getString(1);
             data.add(value);
         }
-        logger.debug("sql: " + sql);
+        log.debug("sql: " + sql);
 
         return data;
     }
@@ -220,7 +216,7 @@ public class DbOperateService {
             }
             data.add(row);
         }
-        logger.debug("sql: " + sql);
+        log.debug("sql: " + sql);
 
         return data;
     }
@@ -228,13 +224,13 @@ public class DbOperateService {
     public boolean oracleExecuteSql(String sql) throws SQLException {
 //     execute 方法返回一个 boolean 值，以指示第一个结果的形式。
         primaryJdbcTemplate.execute(sql);
-        logger.debug("sql: " + sql);
+        log.debug("sql: " + sql);
         return true;
     }
 
     public int oracleUpdateSql(String sql) throws SQLException {
         int update = primaryJdbcTemplate.update(sql);
-        logger.debug("sql: " + sql);
+        log.debug("sql: " + sql);
         return update;
     }
 
@@ -257,7 +253,7 @@ public class DbOperateService {
             try {
                 tbSeqMappingProp = sequenceManagerController.loadMappingExcel();
             }catch (Exception e){
-                logger.error("");
+                log.error("");
             }
         }
         List<Integer> resList = new ArrayList<Integer>();
@@ -302,7 +298,7 @@ public class DbOperateService {
             String tableValues = getTableValuesSQLString(targetTableName, keyList_SQL, valueList_SQL, tbStructureMap);
             //异常情况处理：如果不能在业务库中找到这张目标表对应的表结构,则放弃执行该任务
             if (null == tableValues || "".equals(tableValues)) {
-                logger.error("cannot find target table:\"" + targetTableName + "\" in targetDB");
+                log.error("cannot find target table:\"" + targetTableName + "\" in targetDB");
                 resList.add(CommonInstance.ERROR);
                 resList.add(0);
                 resList.add(0);
@@ -323,14 +319,13 @@ public class DbOperateService {
                     //组装value列表
                     " VALUES (" + nextValue + "," + tableValues + ")";
 
-            logger.debug("sql: " + sql);
+            log.debug("sql: " + sql);
             int count = primaryJdbcTemplate.update(sql);
             if (count > 0) {
-                alarmMsgService.pushAlaramInfo(targetTableName, valueObj);
-                logger.debug("insert successful！");
+                log.debug("insert successful！");
                 successCounter++;
             } else {
-                logger.debug("insert failed！");
+                log.debug("insert failed！");
                 failCounter++;
             }
         }
@@ -347,7 +342,7 @@ public class DbOperateService {
             try {
                 tbSeqMappingProp = sequenceManagerController.loadMappingExcel();
             }catch (Exception e){
-                logger.error("");
+                log.error("");
             }
         }
         List<Integer> resList = new ArrayList<Integer>();
@@ -392,7 +387,7 @@ public class DbOperateService {
             String tableValues = getTableValuesSQLString(targetTableName, keyList_SQL, valueList_SQL, tbStructureMap);
             //异常情况处理：如果不能在业务库中找到这张目标表对应的表结构,则放弃执行该任务
             if (null == tableValues || "".equals(tableValues)) {
-                logger.error("cannot find target table:\"" + targetTableName + "\" in targetDB");
+                log.error("cannot find target table:\"" + targetTableName + "\" in targetDB");
                 resList.add(CommonInstance.ERROR);
                 resList.add(0);
                 resList.add(0);
@@ -413,14 +408,14 @@ public class DbOperateService {
                     //组装value列表
                     " VALUES (" + nextValue + "," + tableValues + ")";
 
-            logger.debug("sql: " + sql);
+            log.debug("sql: " + sql);
             int count = primaryJdbcTemplate.update(sql);
             if (count > 0) {
 //                alarmMsgService.pushAlaramInfo(targetTableName, valueObj);
-                logger.debug("insert successful！");
+                log.debug("insert successful！");
                 successCounter++;
             } else {
-                logger.debug("insert failed！");
+                log.debug("insert failed！");
                 failCounter++;
             }
         }
@@ -451,13 +446,13 @@ public class DbOperateService {
                 //根据字段类型判断输出值的形式（加""或者to_date()）, 拼接至值列表中
                 String decoratedColumn = DbTools.getDecoratedColumn(column_type, valueList_sql.get(i));
                 if (null == decoratedColumn) {
-                    logger.error("DbOperateService.getTableValuesSQLString():\"tbStructureMap\" cannot find :\"" + tableName + "\"对应字段\"" + keyList_SQL.get(i) + "\"对应的字段类型，请在对应的表中补全后重试！！！");
+                    log.error("DbOperateService.getTableValuesSQLString():\"tbStructureMap\" cannot find :\"" + tableName + "\"对应字段\"" + keyList_SQL.get(i) + "\"对应的字段类型，请在对应的表中补全后重试！！！");
                     return null;
                 } else {
                     valueList.add(decoratedColumn);
                 }
             } catch (Exception e) {
-                logger.error("DbOperateService.getTableValuesSQLString()方法中的\"tbStructureMap\"没有找到表\"" + tableName + "\"对应字段\"" + keyList_SQL.get(i) + "\"对应的字段类型，请在对应的表中补全后重试！！！");
+                log.error("DbOperateService.getTableValuesSQLString()方法中的\"tbStructureMap\"没有找到表\"" + tableName + "\"对应字段\"" + keyList_SQL.get(i) + "\"对应的字段类型，请在对应的表中补全后重试！！！");
                 return null;
             }
         }
@@ -473,7 +468,7 @@ public class DbOperateService {
                 return true;
             }
         } catch (Exception e) {
-            logger.error("DbOperateService.checkIfTableExists(),SQL:" + sql);
+            log.error("DbOperateService.checkIfTableExists(),SQL:" + sql);
 //            e.printStackTrace();
             return false;
         }
@@ -483,7 +478,7 @@ public class DbOperateService {
 
     public int getTableRowCounts(String tbName) throws SQLException {
         String sql = "SELECT COUNT(*) FROM \"" + tbName + "\"";
-        logger.debug("sql: " + sql);
+        log.debug("sql: " + sql);
 
         SqlRowSet resultSet = primaryJdbcTemplate.queryForRowSet(sql);
         String count = null;
@@ -498,10 +493,10 @@ public class DbOperateService {
                 "where sequence_owner='" + orclUsername + "' and SEQUENCE_NAME='" + sequenceName + "'";
         SqlRowSet sqlRowSet = primaryJdbcTemplate.queryForRowSet(SQL);
         int count = 0;
-        logger.info("\nsql:" + SQL);
+        log.info("\nsql:" + SQL);
         while (sqlRowSet.next()) {
             count = sqlRowSet.getInt("COUNT");
-            logger.info("\nCOUNT:" + count);
+            log.info("\nCOUNT:" + count);
         }
         if (count > 0) {
             return true;
@@ -514,10 +509,10 @@ public class DbOperateService {
                 "where sequence_owner='" + orclUsername + "' and SEQUENCE_NAME='" + targetTableName + "'";
         SqlRowSet sqlRowSet = primaryJdbcTemplate.queryForRowSet(SQL);
         int count = 0;
-        logger.info("\nsql:" + SQL);
+        log.info("\nsql:" + SQL);
         while (sqlRowSet.next()) {
             count = sqlRowSet.getInt("COUNT");
-            logger.info("\nCOUNT:" + count);
+            log.info("\nCOUNT:" + count);
         }
         if (count > 0) {
             return true;
@@ -531,10 +526,10 @@ public class DbOperateService {
                 "where sequence_owner='" + orclUsername + "' and SEQUENCE_NAME='SEQ_" + targetTableName + "'";
         SqlRowSet sqlRowSet = primaryJdbcTemplate.queryForRowSet(SQL);
         int count = 0;
-        logger.info("\nsql:" + SQL);
+        log.info("\nsql:" + SQL);
         while (sqlRowSet.next()) {
             count = sqlRowSet.getInt("COUNT");
-            logger.info("\nCOUNT:" + count);
+            log.info("\nCOUNT:" + count);
         }
         if (count > 0) {
             return true;
@@ -625,7 +620,7 @@ public class DbOperateService {
                 count++;
 
             } else {
-                logger.info("success! Table copy doesn't exists, will do backup by TableName:" + tableName + "_copy" + count);
+                log.info("success! Table copy doesn't exists, will do backup by TableName:" + tableName + "_copy" + count);
                 break;
             }
         }
@@ -641,7 +636,7 @@ public class DbOperateService {
             primaryJdbcTemplate.execute(sql);
             return true;
         } else {
-            logger.error("\n >>> Table does not exists! tableName:" + targetTbName);
+            log.error("\n >>> Table does not exists! tableName:" + targetTbName);
             return false;
         }
     }
@@ -653,7 +648,7 @@ public class DbOperateService {
             primaryJdbcTemplate.execute(sql);
             return true;
         } else {
-            logger.error("\n >>> Table does not exists! tableName:" + tableName);
+            log.error("\n >>> Table does not exists! tableName:" + tableName);
             return false;
         }
     }

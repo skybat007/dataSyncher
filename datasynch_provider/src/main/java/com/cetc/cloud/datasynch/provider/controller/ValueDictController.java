@@ -5,6 +5,7 @@ import com.cetc.cloud.datasynch.api.model.ValueDictModel;
 import com.cetc.cloud.datasynch.api.service.ValueDictRemoteService;
 import com.cetc.cloud.datasynch.provider.common.CommonInstance;
 import com.cetc.cloud.datasynch.provider.service.impl.ValueDictService;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.format.CellFormatType;
@@ -13,8 +14,6 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -37,9 +36,8 @@ import java.util.List;
  * Update_Description: luolinjie 补充
  **/
 @RestController
+@Slf4j
 public class ValueDictController implements ValueDictRemoteService {
-
-    Logger logger = LoggerFactory.getLogger(ValueDictController.class);
 
     @Autowired
     ValueDictService valueDictService;
@@ -66,13 +64,13 @@ public class ValueDictController implements ValueDictRemoteService {
             }
         } catch (IOException e) {
             e.printStackTrace();
-            logger.error("error when analyzing File:" + originalFilename);
+            log.error("error when analyzing File:" + originalFilename);
         }
 
         // 获取第一个sheet
         Sheet sheet = workbook.getSheet(sheetName);
         // getLastRowNum，获取最后一行的行标
-        logger.debug(String.valueOf(sheet.getLastRowNum()));
+        log.debug(String.valueOf(sheet.getLastRowNum()));
         for (int j = startRow; j < sheet.getLastRowNum() + 1; j++) {
             Row row = sheet.getRow(j);
             String col1 = "";
@@ -126,7 +124,7 @@ public class ValueDictController implements ValueDictRemoteService {
             modelList.add(model);
         }
         if (modelList.size() == 0) {
-            logger.error("data content is null!");
+            log.error("data content is null!");
             res.put("faild", "faild imported file" + originalFilename + ":data content is null!");
             return res.toJSONString();
         }

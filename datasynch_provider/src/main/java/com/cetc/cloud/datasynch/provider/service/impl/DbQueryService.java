@@ -12,8 +12,7 @@ package com.cetc.cloud.datasynch.provider.service.impl;
  * 使用本资料必须获得相应的书面授权，承担保密责任和接受相应的法律约束。
  *************************************************************************/
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -38,14 +37,12 @@ import java.util.List;
  * Update_Description: huangzezhou 补充
  **/
 @Service("dbQueryService")
+@Slf4j
 public class DbQueryService {
 
     @Autowired
     @Qualifier("readOnlyJdbcTemplate")
     JdbcTemplate readOnlyJdbcTemplate;
-
-    private final Logger logger = LoggerFactory.getLogger(DbQueryService.class);
-
     /**
      * 获取 <表名,<字段名,数据类型 > >组成的Map
      * 输出keyList：table_name,column_name,data_type
@@ -71,7 +68,7 @@ public class DbQueryService {
     public List<HashMap> oracleQueryTable(String tbName) throws SQLException {
         List<HashMap> list = new ArrayList<HashMap>();
         String sql = "select * from \"" + tbName + "\"";
-        logger.debug("sql: " + sql);
+        log.debug("sql: " + sql);
 
         SqlRowSet resultSet = readOnlyJdbcTemplate.queryForRowSet(sql);
 
@@ -95,7 +92,7 @@ public class DbQueryService {
 
     public List<HashMap> oracleQuerySql(String sql) {
         List<HashMap> data = new ArrayList<HashMap>();
-        logger.debug("\r\n-------->------------------->--------------------------->\r\n"+
+        log.debug("\r\n-------->------------------->--------------------------->\r\n"+
                 readOnlyJdbcTemplate.getDataSource().toString());
         SqlRowSet rs = readOnlyJdbcTemplate.queryForRowSet(sql);
         while (rs.next()) {
@@ -108,19 +105,19 @@ public class DbQueryService {
             }
             data.add(row);
         }
-        logger.debug("sql: " + sql);
+        log.debug("sql: " + sql);
 
         return data;
     }
 
     public boolean checkIfTableExists(String tbName) {
         String sql = "SELECT COUNT(*) FROM " + tbName;
-        logger.debug("sql: " + sql);
+        log.debug("sql: " + sql);
         SqlRowSet resultSet = null;
         try {
             resultSet = readOnlyJdbcTemplate.queryForRowSet(sql);
         }catch (Exception e){
-            logger.error("SQLSyntaxErrorException: ORA-00942: 表或视图 "+tbName+" 不存在");
+            log.error("SQLSyntaxErrorException: ORA-00942: 表或视图 "+tbName+" 不存在");
             return false;
         }
 
@@ -135,7 +132,7 @@ public class DbQueryService {
     }
     public int getTableRowCounts(String tbName) {
         String sql = "SELECT COUNT(*) FROM " + tbName;
-        logger.debug("sql: " + sql);
+        log.debug("sql: " + sql);
 
         SqlRowSet resultSet = readOnlyJdbcTemplate.queryForRowSet(sql);
         String count = null;

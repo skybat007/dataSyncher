@@ -1,15 +1,13 @@
 package com.cetc.cloud.datasynch.provider.core.util;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
-
+@Slf4j
 public class MyURLConnection {
-    private static final Logger logger = LoggerFactory.getLogger(MyURLConnection.class);
     String url;
     String type;
     String body;
@@ -30,7 +28,7 @@ public class MyURLConnection {
         URLConnection urlConnection = null;
         HttpURLConnection httpURLConnection=null;
         try {
-            logger.debug("[ur: " + url + " ,type: " + type + " ,body: ]\n" + body);
+            log.debug("[ur: " + url + " ,type: " + type + " ,body: ]\n" + body);
 //            URL url = new URL(url);
             this.url = url;
             this.type = type;
@@ -68,7 +66,7 @@ public class MyURLConnection {
                 builder.append(line).append("\n");
             }
             result = builder.toString();
-            logger.debug(result);
+            log.debug(result);
 
         }finally{
             assert httpURLConnection != null;

@@ -7,8 +7,7 @@ import com.cetc.cloud.datasynch.provider.common.CommonInstance;
 import com.cetc.cloud.datasynch.provider.template.ChengguanEventAttachRunnable;
 import com.cetc.cloud.datasynch.provider.template.SanxiaoCalcRunnable;
 import com.cetc.cloud.datasynch.provider.template.XinfangGetRunnable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.support.CronTrigger;
 import org.springframework.web.bind.annotation.RestController;
@@ -25,9 +24,8 @@ import java.util.concurrent.Future;
  * Created by luolinjie on 2018/10/9.
  */
 @RestController
+@Slf4j
 public class ScheduleController implements ScheduleRemoteService {
-    Logger logger = LoggerFactory.getLogger(ScheduleController.class);
-
     @Autowired
     DbOperateService dbOperateService;
     @Autowired
@@ -183,13 +181,13 @@ public class ScheduleController implements ScheduleRemoteService {
             try {
                 trigger = new CronTrigger(cronExpression);
             } catch (Exception e) {
-                logger.error("Error cron Expression:" + cronExpression);
+                log.error("Error cron Expression:" + cronExpression);
             }
 
             if (trigger != null) {
                 uuid = jobManageService.startOuterScheduledJob(jobName, myCalculateRunnable, trigger);
             }
-            logger.info("\n\n>>>>\n\n  >>>> scheduling job:" + jobName + " started!");
+            log.info("\n\n>>>>\n\n  >>>> scheduling job:" + jobName + " started!");
         }
         if (CommonInstance.JOB_get_today_xinfang.equals(jobName)) {
 
@@ -198,7 +196,7 @@ public class ScheduleController implements ScheduleRemoteService {
             try {
                 trigger = new CronTrigger(cronExpression);
             } catch (Exception e) {
-                logger.error("Error cron Expression:" + cronExpression);
+                log.error("Error cron Expression:" + cronExpression);
             }
             if (trigger != null) {
                 uuid = jobManageService.startOuterScheduledJob(jobName, myCalculateRunnable, trigger);
@@ -211,14 +209,14 @@ public class ScheduleController implements ScheduleRemoteService {
             try {
                 trigger = new CronTrigger(cronExpression);
             } catch (Exception e) {
-                logger.error("Error cron Expression:" + cronExpression);
+                log.error("Error cron Expression:" + cronExpression);
             }
             if (trigger != null) {
                 uuid = jobManageService.startOuterScheduledJob(jobName, myCalculateRunnable, trigger);
             }
         }
 
-        logger.info("\n\n>>>>\n\n  >>>> scheduling job:" + jobName + " started!");
+        log.info("\n\n>>>>\n\n  >>>> scheduling job:" + jobName + " started!");
         if (uuid != null) {
             res.put("result", "success");
             res.put("msg", "start Outer job:" + jobName + " success! job ID:" + uuid);

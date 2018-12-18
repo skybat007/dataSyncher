@@ -3,17 +3,15 @@ package com.cetc.cloud.datasynch.provider.core.util;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.*;
 
 /**
  * Created by llj on 2018/10/14.
  */
+@Slf4j
 public class JsonExtractor {
-
-    static Logger logger = LoggerFactory.getLogger(JsonExtractor.class);
 
     /**
      * 函数功能：根据传入json解析规则 获取"JsonObject"中的"JsonArray"形式的Data主体，并以List\<HashMap\>形式返回
@@ -43,7 +41,7 @@ public class JsonExtractor {
                 }
             }
             if (count > 1) {
-                logger.error("number of \'*\' cannot more than 1!");
+                log.error("number of \'*\' cannot more than 1!");
                 return null;
             }
         }
@@ -56,7 +54,7 @@ public class JsonExtractor {
                 String[] split = jsonExtractRule.split("\\.");
                 List<String> rule2list = Arrays.asList(split);
                 if (rule2list.size() == 0) {
-                    logger.error("rule2list.size()==0, please check your jsonExtractRule!");
+                    log.error("rule2list.size()==0, please check your jsonExtractRule!");
                     return null;
                 }
                 List<String> subExtractRule1 = rule2list.subList(1, rule2list.size());
@@ -84,7 +82,7 @@ public class JsonExtractor {
                 String[] split = jsonExtractRule.split("\\.");
                 List<String> rule2list = Arrays.asList(split);
                 if (rule2list.size() == 0) {
-                    logger.error("rule2list.size()==0, please check your jsonExtractRule!");
+                    log.error("rule2list.size()==0, please check your jsonExtractRule!");
                     return null;
                 }
                 List<String> subExtractRule1 = rule2list.subList(0, rule2list.size() - 1);

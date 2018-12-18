@@ -10,8 +10,7 @@ import com.cetc.cloud.datasynch.provider.mapper.input.XinfangEventMapper;
 import com.cetc.cloud.datasynch.provider.service.impl.DbOperateService;
 import com.cetc.cloud.datasynch.provider.service.impl.DbQueryService;
 import com.cetc.cloud.datasynch.provider.service.impl.HttpOperateService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.sql.SQLException;
@@ -22,9 +21,9 @@ import java.util.*;
  * Description：创建定时 执行计算 实例
  * Created by luolinjie on 2018/10/10.
  */
+@Slf4j
 public class XinfangGetRunnable implements OuterJobRunnableTemplate  {
 
-    private Logger logger = LoggerFactory.getLogger(XinfangGetRunnable.class);
     private DbQueryService dbQueryService;
     private DbOperateService dbOperateService;
     private HttpOperateService httpOperateService;
@@ -49,7 +48,7 @@ public class XinfangGetRunnable implements OuterJobRunnableTemplate  {
     }
 
     public void insertXinfangDataToday() throws SQLException {
-        logger.info("Started Scheduled Job:insertXinfangDataToday()");
+        log.info("Started Scheduled Job:insertXinfangDataToday()");
         String SQL = "select URL,BODY from DS_OUTER_URLS where table_name='WEEKLY_XINFANG_TOKEN'";
         List<HashMap> SQLRes = dbOperateService.oracleQuerySql(SQL);
         String url = (String) SQLRes.get(0).get("URL");
@@ -122,7 +121,7 @@ public class XinfangGetRunnable implements OuterJobRunnableTemplate  {
             xinFangEventModel.setVisitType(obj.getString("VisitType"));
             int i1 = xinfangEventMapper.addEvent(xinFangEventModel);
             if (i1 > 0) {
-                logger.info("added XinfangEvent:" + xinFangEventModel.toString());
+                log.info("added XinfangEvent:" + xinFangEventModel.toString());
             }
             JSONArray idCardInfos = obj.getJSONArray("IDCardInfos");
             for (int j = 0; j < idCardInfos.size(); j++) {
@@ -144,7 +143,7 @@ public class XinfangGetRunnable implements OuterJobRunnableTemplate  {
                 personModel.setIsMain(personObj.getIntValue("IsMain"));
                 int i2 = xinfangEventMapper.addPerson(personModel);
                 if (i2 > 0) {
-                    logger.info("added XinfangPeople:" + personModel.toString());
+                    log.info("added XinfangPeople:" + personModel.toString());
                 }
             }
         }

@@ -2,6 +2,7 @@ package com.cetc.cloud.datasynch.provider.core.util;
 
 import com.alibaba.fastjson.JSONObject;
 import com.cetc.cloud.datasynch.api.model.Token;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.http.*;
 import org.apache.http.client.config.RequestConfig;
@@ -16,8 +17,6 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.util.EntityUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.*;
@@ -36,9 +35,8 @@ import java.util.concurrent.ConcurrentHashMap;
  * Update_Date: 2018/11/19
  * Update_Description: luolinjie 补充
  **/
+@Slf4j
 public class HttpClientUtil2 {
-    private static final Logger logger = LoggerFactory.getLogger(HttpClientUtil2.class);
-
     static ConcurrentHashMap<String, PoolingHttpClientConnectionManager> cmHashMap =
             new ConcurrentHashMap<String, PoolingHttpClientConnectionManager>();
     static ConcurrentHashMap<String, CloseableHttpClient> clientHashMap =
@@ -76,7 +74,7 @@ public class HttpClientUtil2 {
      * @throws URISyntaxException
      */
     public static JSONObject doGet(String url, JSONObject params) {
-        logger.info("\n>>Http getMethod:URL:" + toHttpParamStr(url, params) + "\n");
+        log.info("\n>>Http getMethod:URL:" + toHttpParamStr(url, params) + "\n");
         CloseableHttpClient httpClient = getHttpClient(url);
         JSONObject result = new JSONObject();
         result.put("success", true);
@@ -142,7 +140,7 @@ public class HttpClientUtil2 {
     }
 
     public static JSONObject doPostWithBody(String url, JSONObject params, String bodyContent) {
-        logger.info("\n>>Http getMethod:URL:" + toHttpParamStr(url, params) + "\n");
+        log.info("\n>>Http getMethod:URL:" + toHttpParamStr(url, params) + "\n");
         CloseableHttpClient httpClient = getHttpClient(url);
         JSONObject result = new JSONObject();
         result.put("success", true);
@@ -201,7 +199,7 @@ public class HttpClientUtil2 {
      * @return
      */
     public static JSONObject doGetWithAuthoration(String url, JSONObject params, Token token) {
-        logger.info("\n>>Http getMethod:URL:" + toHttpParamStr(url, params) + "\n");
+        log.info("\n>>Http getMethod:URL:" + toHttpParamStr(url, params) + "\n");
         CloseableHttpClient httpClient = getHttpClient(url);
         JSONObject result = new JSONObject();
         result.put("success", true);
@@ -306,7 +304,7 @@ public class HttpClientUtil2 {
         HttpEntity entity = response.getEntity();                       //获取响应内容
         result = EntityUtils.toString(entity, "UTF-8");
         if (!(status.getStatusCode() == HttpStatus.SC_OK)) {
-            logger.error("put request error:\n" + result);
+            log.error("put request error:\n" + result);
         }
         httpGet.abort();//中止请求，连接被释放回连接池
         return result;
@@ -324,7 +322,7 @@ public class HttpClientUtil2 {
         HttpEntity entity = response.getEntity();                       //获取响应内容
         result = EntityUtils.toString(entity, "UTF-8");
         if (!(status.getStatusCode() == HttpStatus.SC_OK)) {
-            logger.error("put request error:\n" + result);
+            log.error("put request error:\n" + result);
         }
         httpPut.abort();//中止请求，连接被释放回连接池
         return result;
@@ -342,7 +340,7 @@ public class HttpClientUtil2 {
         HttpEntity entity = response.getEntity();                       //获取响应内容
         result = EntityUtils.toString(entity, "UTF-8");
         if (!(status.getStatusCode() == HttpStatus.SC_OK)) {
-            logger.error("post request error:\n" + result);
+            log.error("post request error:\n" + result);
         }
         httpPost.abort();//中止请求，连接被释放回连接池
         return result;
@@ -369,7 +367,7 @@ public class HttpClientUtil2 {
         HttpEntity entity = response.getEntity();                       //获取响应内容
         result = EntityUtils.toString(entity, "UTF-8");
         if (!(status.getStatusCode() == HttpStatus.SC_OK)) {
-            logger.error("put request error:\n" + result);
+            log.error("put request error:\n" + result);
         }
         httpGet.abort();//中止请求，连接被释放回连接池
         return result;
@@ -387,7 +385,7 @@ public class HttpClientUtil2 {
         HttpEntity entity = response.getEntity();                       //获取响应内容
         result = EntityUtils.toString(entity, "UTF-8");
         if (!(status.getStatusCode() == HttpStatus.SC_OK)) {
-            logger.error("delete request error:\n" + result);
+            log.error("delete request error:\n" + result);
         }
         httpDelete.abort();//中止请求，连接被释放回连接池
         return result;

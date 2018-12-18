@@ -11,8 +11,7 @@ import com.cetc.cloud.datasynch.provider.core.util.HttpClientUtil2;
 import com.cetc.cloud.datasynch.provider.mapper.input.XinfangEventMapper;
 import com.cetc.cloud.datasynch.provider.service.impl.*;
 import com.cetc.cloud.datasynch.provider.template.SanxiaoCalcRunnable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.RestController;
@@ -20,7 +19,6 @@ import org.springframework.web.bind.annotation.RestController;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.concurrent.ThreadPoolExecutor;
 
 /**
  * PackageName:   com.cetc.cloud.datasynch.provider.controller
@@ -32,9 +30,10 @@ import java.util.concurrent.ThreadPoolExecutor;
  * Update_Date: 2018/11/28
  * Update_Description: luolinjie 补充
  **/
+
 @RestController
+@Slf4j
 public class SingleJobController implements SingleJobRemoteService {
-    private Logger logger = LoggerFactory.getLogger(SingleJobController.class);
 
     @Autowired
     private DbOperateService dbOperateService;
@@ -64,7 +63,7 @@ public class SingleJobController implements SingleJobRemoteService {
         dbOperateService.backUpTable(tableName);
         //执行Truncate操作
         dbOperateService.truncateTableByTbName(tableName);
-        logger.info("DAYLY_REPEATE_JOB: truncated table:" + tableName);
+        log.info("DAYLY_REPEATE_JOB: truncated table:" + tableName);
 
         //重新拉取全表
         ScheduleModel scheduleModel = scheduleService.queryModelByTableName(tableName);
@@ -92,14 +91,14 @@ public class SingleJobController implements SingleJobRemoteService {
         String SQL2 = "update BLK_SANXIAO_PLACE_COUNT set COUNT='" + countNum + "'";
         int i = dbOperateService.oracleUpdateSql(SQL2);
         if (i > 0) {
-            logger.info("\n Finished! calculateRealSanXiaoCount" + countNum + "\n");
+            log.info("\n Finished! calculateRealSanXiaoCount" + countNum + "\n");
         }
 
     }
 
     @Override
     public void insertXinfangDataToday() throws SQLException {
-        logger.info("Started Scheduled Job:insertXinfangDataToday()");
+        log.info("Started Scheduled Job:insertXinfangDataToday()");
         String SQL = "select URL,BODY from DS_OUTER_URLS where table_name='WEEKLY_XINFANG_TOKEN'";
         List<HashMap> SQLRes = dbOperateService.oracleQuerySql(SQL);
         String url = (String) SQLRes.get(0).get("URL");
@@ -219,7 +218,7 @@ public class SingleJobController implements SingleJobRemoteService {
             xinFangEventModel.setVisitType(obj.getString("VisitType"));
             int i1 = xinfangEventMapper.addEvent(xinFangEventModel);
             if (i1 > 0) {
-                logger.info("added XinfangEvent:" + xinFangEventModel.toString());
+                log.info("added XinfangEvent:" + xinFangEventModel.toString());
             }
             JSONArray idCardInfos = obj.getJSONArray("IDCardInfos");
             for (int j = 0; j < idCardInfos.size(); j++) {
@@ -241,7 +240,7 @@ public class SingleJobController implements SingleJobRemoteService {
                 personModel.setIsMain(personObj.getIntValue("IsMain"));
                 int i2 = xinfangEventMapper.addPerson(personModel);
                 if (i2 > 0) {
-                    logger.info("added XinfangPeople:" + personModel.toString());
+                    log.info("added XinfangPeople:" + personModel.toString());
                 }
             }
         }
