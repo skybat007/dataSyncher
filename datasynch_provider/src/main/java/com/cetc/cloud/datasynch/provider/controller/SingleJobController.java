@@ -3,12 +3,14 @@ package com.cetc.cloud.datasynch.provider.controller;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.cetc.cloud.datasynch.api.model.ScheduleModel;
 import com.cetc.cloud.datasynch.api.model.XinFangEventModel;
 import com.cetc.cloud.datasynch.api.model.XinFangPeopleModel;
 import com.cetc.cloud.datasynch.api.service.SingleJobRemoteService;
 import com.cetc.cloud.datasynch.provider.core.util.HttpClientUtil2;
 import com.cetc.cloud.datasynch.provider.mapper.input.XinfangEventMapper;
 import com.cetc.cloud.datasynch.provider.service.impl.*;
+import com.cetc.cloud.datasynch.provider.template.SanxiaoCalcRunnable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +25,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 /**
  * PackageName:   com.cetc.cloud.datasynch.provider.controller
  * projectName:   dataSyncher
- * Description:   luolinjie 补充
+ * Description:   提供手动运行单次任务的功能
  * Creator:     by luolinjie
  * Create_Date: 2018/11/28 11:09
  * Updater:     by luolinjie
@@ -50,37 +52,29 @@ public class SingleJobController implements SingleJobRemoteService {
     @Autowired
     private XinfangEventMapper xinfangEventMapper;
 
-    //    @Scheduled(cron = "00 00 23 * * ?")
     @Override
-    public void truncateTable() {
-        //todo 执行备份
-        dbOperateService.backUpTable("BLK_SANXIAO_PLACE");
-//        //todo 执行Truncate操作
-//        dbOperateService.truncateTableByTbName("BLK_SANXIAO_PLACE");
-//        logger.info("DAYLY_REPEATE_JOB: truncated table: BLK_SANXIAO_PLACE");
-//        //todo 重新拉取全表
-//        ScheduleModel scheduleModel = scheduleService.queryModelByJobId(157);
-//        jobManageService.startOnceJob(scheduleModel);
+    public void backupTable(String tableName) {
+        //执行备份
+        dbOperateService.backUpTable(tableName);
+    }
+
+    @Override
+    public void truncateAndReSynchTable(String tableName) {
+        // 执行备份
+        dbOperateService.backUpTable(tableName);
+        //执行Truncate操作
+        dbOperateService.truncateTableByTbName(tableName);
+        logger.info("DAYLY_REPEATE_JOB: truncated table:" + tableName);
+
+        //重新拉取全表
+        ScheduleModel scheduleModel = scheduleService.queryModelByTableName(tableName);
+        jobManageService.startOnceJob(scheduleModel);
     }
 
     @Override
     public void calculateHasTroubleSanXiao() throws SQLException {
-
-        //获取有未处理事件的三小场所ID的list
-        String getTroublePlaceIds = "SELECT  a.\"ID\"\n" +
-                "from BLK_SANXIAO_PLACE a,BLK_CHENGGUAN_EVENT b\n" +
-                "WHERE a.name=b.EVENT_NAME\n" +
-                "and a.ADDRESS=b.ADDRESS";
-        List<String> troublePlaceIdList = dbOperateService.oracleQueryList(getTroublePlaceIds);
-        int totalSuccessCount = 0;
-        for (int i = 0; i < troublePlaceIdList.size(); i++) {
-            String sql = "update BLK_SANXIAO_PLACE set HAS_TROUBLE=1 where ID='" + troublePlaceIdList.get(i) + "'";
-            int count = dbOperateService.oracleUpdateSql(sql);
-            if (count > 0) {
-                totalSuccessCount++;
-            }
-        }
-        logger.info("\nCalculateHasTroubleSanXiao:success: " + totalSuccessCount + "\n");
+        SanxiaoCalcRunnable sanxiaoCalcRunnable = new SanxiaoCalcRunnable(dbQueryService, dbOperateService, httpOperateService);
+        sanxiaoCalcRunnable.calculateHasTroubleSanXiao();
     }
 
     @Scheduled(cron = "00 40 08 * * ?")
@@ -140,10 +134,10 @@ public class SingleJobController implements SingleJobRemoteService {
                 JSONArray jsonRes1 = new JSONArray();
                 Set<String> visitCodeSet = xinfangEventMapper.getVisitCodeList();
                 Iterator<Object> iterator = jsonRes.iterator();
-                while (iterator.hasNext()){
+                while (iterator.hasNext()) {
                     JSONObject next = (JSONObject) iterator.next();
                     String VISITNO = next.getString("VISITNO");
-                    if(!visitCodeSet.contains(VISITNO)){
+                    if (!visitCodeSet.contains(VISITNO)) {
                         jsonRes1.add(next);
                     }
                 }

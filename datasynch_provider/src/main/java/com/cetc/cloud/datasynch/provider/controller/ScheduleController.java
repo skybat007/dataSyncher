@@ -4,6 +4,7 @@ import com.cetc.cloud.datasynch.api.model.ScheduleModel;
 import com.cetc.cloud.datasynch.api.service.ScheduleRemoteService;
 import com.cetc.cloud.datasynch.provider.service.impl.*;
 import com.cetc.cloud.datasynch.provider.common.CommonInstance;
+import com.cetc.cloud.datasynch.provider.template.ChengguanEventAttachRunnable;
 import com.cetc.cloud.datasynch.provider.template.SanxiaoCalcRunnable;
 import com.cetc.cloud.datasynch.provider.template.XinfangGetRunnable;
 import org.slf4j.Logger;
@@ -29,20 +30,18 @@ public class ScheduleController implements ScheduleRemoteService {
 
     @Autowired
     DbOperateService dbOperateService;
-
     @Autowired
     JobManageService jobManageService;
-
     @Autowired
     ScheduleService scheduleService;
-
     @Autowired
     SynchJobLogInfoService synchJobLogInfoService;
-
     @Autowired
     DbQueryService dbQueryService;
     @Autowired
     HttpOperateService httpOperateService;
+    @Autowired
+    OuterUrlsService outerUrlsService;
 
     @Override
     public List<ScheduleModel> queryScheduleJobList() {
@@ -195,6 +194,19 @@ public class ScheduleController implements ScheduleRemoteService {
         if (CommonInstance.JOB_get_today_xinfang.equals(jobName)) {
 
             XinfangGetRunnable myCalculateRunnable = new XinfangGetRunnable(dbQueryService, dbOperateService, httpOperateService);
+            CronTrigger trigger = null;
+            try {
+                trigger = new CronTrigger(cronExpression);
+            } catch (Exception e) {
+                logger.error("Error cron Expression:" + cronExpression);
+            }
+            if (trigger != null) {
+                uuid = jobManageService.startOuterScheduledJob(jobName, myCalculateRunnable, trigger);
+            }
+        }
+        if (CommonInstance.JOB_add_chengguanevent_attach.equals(jobName)) {
+
+            ChengguanEventAttachRunnable myCalculateRunnable = new ChengguanEventAttachRunnable(dbQueryService, dbOperateService, httpOperateService, outerUrlsService);
             CronTrigger trigger = null;
             try {
                 trigger = new CronTrigger(cronExpression);

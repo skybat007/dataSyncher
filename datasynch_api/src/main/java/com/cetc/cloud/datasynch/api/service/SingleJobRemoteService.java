@@ -18,9 +18,13 @@ import java.sql.SQLException;
  **/
 public interface SingleJobRemoteService {
 
+    @RequestMapping(value = "/singleJob/backupTable", produces = "application/json", method = RequestMethod.POST)
+    @ApiOperation(value = "备份表", notes = "备份的表会以后缀copy+数字延续", produces = "application/json")
+    void backupTable(String tableName);
+
     @RequestMapping(value = "/singleJob/truncateTable", produces = "application/json", method = RequestMethod.POST)
-    @ApiOperation(value = "清空三小场所表并重新拉取", notes = "备份+清空源表", produces = "application/json")
-    void truncateTable();
+    @ApiOperation(value = "清空表并重新拉取", notes = "备份+清空源表", produces = "application/json")
+    void truncateAndReSynchTable(String tableName);
 
     @RequestMapping(value = "/singleJob/calculateHasTroubleSanXiao", produces = "application/json", method = RequestMethod.POST)
     @ApiOperation(value = "计算有隐患的三小场所", notes = "HasTrouble字段，有记录的设置为1", produces = "application/json")

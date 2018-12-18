@@ -57,7 +57,7 @@ public class DbOperateService {
     AlarmMsgService alarmMsgService;
 
     @Autowired
-    com.cetc.cloud.datasynch.provider.service.impl.ColumnMappingService columnMappingService;
+    ColumnMappingService columnMappingService;
 
     @Value("${spring.primary-datasource.username}")
     private String orclUsername;
@@ -341,6 +341,96 @@ public class DbOperateService {
         resList.add(failCounter);
         return resList;
     }
+    public List<Integer> insertIntoTargetTableByTableName(List<HashMap> queryResult, String tableName) throws SQLException {
+
+        if (tbSeqMappingProp ==null){
+            try {
+                tbSeqMappingProp = sequenceManagerController.loadMappingExcel();
+            }catch (Exception e){
+                logger.error("");
+            }
+        }
+        List<Integer> resList = new ArrayList<Integer>();
+        //获取 "字段-字段类型" 映射map
+        HashMap<String, HashMap> tbStructureMap = queryTableStructureByTableName(tableName);
+
+        //根据targetTable获取对应的字段映射表(需要过滤掉为null的字段)
+        HashMap mapping = columnMappingService.getColumnMappingByTargetTableName(tableName);
+        int successCounter = 0;
+        int failCounter = 0;
+        List keyList_SQL = new ArrayList<String>();
+
+        if (mapping.size() == 0) {
+            resList.add(CommonInstance.FAIL);
+            resList.add(successCounter);
+            resList.add(failCounter);
+            return resList;
+        }
+
+        /**要让映射过程可控，就需要以定义的mapping表为参考标准拼接SQL*/
+        //遍历mapping，并根据mapping结果集中的key，将值通过映射表映射到数据库中
+        Set set = mapping.keySet();//这里以mapping的keyset作为参考表，即使源表中多余的字段，也不会因mapping中没有对应的字段映射而报错
+        Iterator iterator = set.iterator();
+        while (iterator.hasNext()) {
+            String k = (String) iterator.next();//mapping的keyName
+            keyList_SQL.add(mapping.get(k));
+        }
+
+        for (int i = 0; i < queryResult.size(); i++) {
+            List valueList_SQL = new ArrayList<String>();
+            HashMap valueObj = queryResult.get(i);
+            Set set1 = mapping.keySet();//这里以mapping的keyset作为参考表，即使源表中多余的字段，也不会因mapping中没有对应的字段映射而报错
+            Iterator iterator1 = set1.iterator();
+            while (iterator1.hasNext()) {
+                String k = (String) iterator1.next();//mapping的keyName
+                valueList_SQL.add(valueObj.get(k));
+            }
+
+
+            String targetTableName = tableName;
+            //根据表名、字段名称集合,与表结构 获取 组装后的SQL值String
+            String tableValues = getTableValuesSQLString(targetTableName, keyList_SQL, valueList_SQL, tbStructureMap);
+            //异常情况处理：如果不能在业务库中找到这张目标表对应的表结构,则放弃执行该任务
+            if (null == tableValues || "".equals(tableValues)) {
+                logger.error("cannot find target table:\"" + targetTableName + "\" in targetDB");
+                resList.add(CommonInstance.ERROR);
+                resList.add(0);
+                resList.add(0);
+                return resList;
+            }
+
+            //获取序列nextval值
+            SqlRowSet sqlRowSet = primaryJdbcTemplate.queryForRowSet("SELECT " + tbSeqMappingProp.getProperty(targetTableName)+ ".NEXTVAL FROM DUAL");
+            int nextValue = 0;
+            while (sqlRowSet.next()) {
+                nextValue = sqlRowSet.getInt(1);
+            }
+
+            String sql = "INSERT INTO \"" + targetTableName + "\"(" +
+                    CommonInstance.GLOBAL_COLNAME_INCRE_ID + "," +
+                    //组装key列表
+                    ListUtil.getSQLColumnsListWithQuotes(keyList_SQL) + ")" +
+                    //组装value列表
+                    " VALUES (" + nextValue + "," + tableValues + ")";
+
+            logger.debug("sql: " + sql);
+            int count = primaryJdbcTemplate.update(sql);
+            if (count > 0) {
+//                alarmMsgService.pushAlaramInfo(targetTableName, valueObj);
+                logger.debug("insert successful！");
+                successCounter++;
+            } else {
+                logger.debug("insert failed！");
+                failCounter++;
+            }
+        }
+
+
+        resList.add(CommonInstance.SUCCESS);
+        resList.add(successCounter);
+        resList.add(failCounter);
+        return resList;
+    }
 
     /**
      * 根据表名、字段名称、字段类型组装SQL插入值
@@ -402,7 +492,22 @@ public class DbOperateService {
         }
         return Integer.parseInt(count);
     }
-
+    public boolean checkIfSequenceExists(String sequenceName) {
+        String SQL = "select count(1) COUNT \n" +
+                "from dba_sequences \n" +
+                "where sequence_owner='" + orclUsername + "' and SEQUENCE_NAME='" + sequenceName + "'";
+        SqlRowSet sqlRowSet = primaryJdbcTemplate.queryForRowSet(SQL);
+        int count = 0;
+        logger.info("\nsql:" + SQL);
+        while (sqlRowSet.next()) {
+            count = sqlRowSet.getInt("COUNT");
+            logger.info("\nCOUNT:" + count);
+        }
+        if (count > 0) {
+            return true;
+        }
+        return false;
+    }
     public boolean checkIfSequenceExists_pure(String targetTableName) {
         String SQL = "select count(1) COUNT \n" +
                 "from dba_sequences \n" +
@@ -420,7 +525,7 @@ public class DbOperateService {
         return false;
     }
 
-    public boolean checkIfSequenceExists(String targetTableName) {
+    public boolean checkIfSequenceExists_prefix_seq(String targetTableName) {
         String SQL = "select count(1) COUNT \n" +
                 "from dba_sequences \n" +
                 "where sequence_owner='" + orclUsername + "' and SEQUENCE_NAME='SEQ_" + targetTableName + "'";
@@ -444,6 +549,11 @@ public class DbOperateService {
                 "start with 1\n" +
                 "increment by 1\n" +
                 "cache 50";
+        primaryJdbcTemplate.execute(sql);
+        return true;
+    }
+    public boolean dropSequence(String sequenceName) {
+        String sql = "drop sequence " + sequenceName ;
         primaryJdbcTemplate.execute(sql);
         return true;
     }

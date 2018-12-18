@@ -30,7 +30,10 @@ public interface SequenceManagerRemoteService {
 
     @RequestMapping(value = "/sequences/exactSequence/byTableName", produces = "application/json", method = RequestMethod.POST)
     @ApiOperation(value = "校准单个表名对应的序列值", notes = "", produces = "application/json")
-    boolean exactSequenceByTbName(String sqName) throws IOException, SQLException, InterruptedException;
+    boolean exactSequenceByTbName(String tableName) throws IOException, SQLException, InterruptedException;
 
 
+    @RequestMapping(value = "/sequences/reset/bySeqName", produces = "application/json", method = RequestMethod.POST)
+    @ApiOperation(value = "重置单个序列的值", notes = "", produces = "application/json")
+    boolean resetSequenceBySequenceName(String seqName) throws IOException, SQLException, InterruptedException;
 }

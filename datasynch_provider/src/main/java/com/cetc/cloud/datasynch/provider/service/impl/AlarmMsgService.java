@@ -1,6 +1,5 @@
 package com.cetc.cloud.datasynch.provider.service.impl;
 
-import org.apache.ibatis.jdbc.SQL;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,8 +48,8 @@ public class AlarmMsgService {
         }
 
         //通过多线程实现数据插入，避免阻塞队列
-        ThreadPoolExecutor executor = new ThreadPoolExecutor(8,8,100, TimeUnit.MILLISECONDS,new ArrayBlockingQueue(8));
-        executor.execute(new Thread(new AlarmThread()));
+//        ThreadPoolExecutor executor = new ThreadPoolExecutor(8,8,100, TimeUnit.MILLISECONDS,new ArrayBlockingQueue(8));
+//        executor.execute(new Thread(new AlarmThread()));
     }
 
     private String getSQLByTableName(String targetTableName, HashMap valueObj) {

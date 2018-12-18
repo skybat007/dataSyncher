@@ -81,4 +81,9 @@ public class SequenceManagerControllerTest extends TestCase {
         String s = sequenceManagerController.exactAllSequences();
         System.out.println(s);
     }
+    @Test
+    public void testResetSequenceBySequenceName() throws Exception {
+        boolean s = sequenceManagerController.resetSequenceBySequenceName("SEQ_BLK_CG_EVT_ATTS");
+        System.out.println("reset result:"+s);
+    }
 }

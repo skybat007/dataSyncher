@@ -108,11 +108,31 @@ public class JsonExtractor {
 
                 return parseArray2List(array1);
             }
-        }else if (jsonExtractRule.equals("*") && data.startsWith("[") && data.endsWith("]")) {//只有"*"
+        } else if (jsonExtractRule.equals("*") && data.startsWith("[") && data.endsWith("]")) {//只有"*"
             JSONArray array1 = JSON.parseArray(data);
             return parseArray2List(array1);
         }
         return null;
+    }
+
+    //提取token值
+    public static String extractTokenStr(String token, String extractRule) {
+        JSONObject tokenJson = JSON.parseObject(token);
+        String tokenStr = null;
+        JSONObject temp = null;
+        if (tokenJson != null) {
+            String[] splitRule = extractRule.split("\\.");
+            for (int i = 0; i < splitRule.length; i++) {
+                if (i == splitRule.length - 1 && splitRule.length >= 2) {
+                    tokenStr = temp.getString(splitRule[i]);
+                } else if (splitRule.length == 1 && i == splitRule.length - 1) {
+                    return tokenJson.getString(splitRule[i]);
+                } else {
+                    temp = tokenJson.getJSONObject(splitRule[i]);
+                }
+            }
+        }
+        return tokenStr;
     }
 
     private static JSONArray getArrayInJSONArray(JSONArray array, List<String> arrayExtractRule) {

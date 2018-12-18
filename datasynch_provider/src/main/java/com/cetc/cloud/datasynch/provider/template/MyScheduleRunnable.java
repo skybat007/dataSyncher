@@ -7,7 +7,6 @@ import com.cetc.cloud.datasynch.provider.middleware.SQLCreator;
 import com.cetc.cloud.datasynch.provider.service.impl.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -108,7 +107,7 @@ public class MyScheduleRunnable implements Runnable {
      * @param targetTableName
      */
     private void checkAndCreateSequence(String targetTableName) {
-        boolean exists = dbOperateService.checkIfSequenceExists(targetTableName);
+        boolean exists = dbOperateService.checkIfSequenceExists_prefix_seq(targetTableName);
         if (exists) {
             logger.info("\nSequence has already exists!");
         } else {

@@ -91,4 +91,11 @@ public interface CommonInstance {
      */
     String JOB_calc_trouble_sanxiao = "calc_trouble_sanxiao";
     String JOB_get_today_xinfang = "get_today_xinfang";
+    String JOB_add_chengguanevent_attach = "add_chengguanevent_attach";
+
+    /**
+     * param 统一组织形式
+     */
+    String GLOBAL_PARAM_KEYNAME = "PARAM_KEY";
+    String GLOBAL_PARAM_VALUENAME = "PARAM_VALUE";
 }

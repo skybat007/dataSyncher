@@ -3,6 +3,7 @@ package com.cetc.cloud.datasynch.provider.service.impl;
 import com.cetc.cloud.datasynch.api.model.ScheduleModel;
 import com.cetc.cloud.datasynch.provider.core.util.UuIdGeneratorUtil;
 import com.cetc.cloud.datasynch.provider.template.MyScheduleRunnable;
+import com.cetc.cloud.datasynch.provider.template.OuterJobRunnableTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -87,12 +88,12 @@ public class JobManageService {
         }
     }
 
-    public String startOuterScheduledJob(String jobName,Runnable runnableInstance, CronTrigger trigger) {
+    public String startOuterScheduledJob(String jobName, OuterJobRunnableTemplate runnableInstance, CronTrigger trigger) {
         try {
             //创建定时任务并启动
-            ScheduledFuture<?> future = threadPoolTaskScheduler.schedule(runnableInstance,trigger);
+            ScheduledFuture<?> future = threadPoolTaskScheduler.schedule(runnableInstance, trigger);
             String uuid = UuIdGeneratorUtil.getCetcCloudUuid(jobName);
-            futures.put( "jobName:"+jobName, future);
+            futures.put("jobName:" + jobName, future);
             /**将定时任务记录在内存中，供其他功能查询*/
             return uuid;
         } catch (Exception e) {

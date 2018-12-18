@@ -59,15 +59,15 @@ public class SequenceManagerController implements SequenceManagerRemoteService {
             boolean b = exactSequenceByTbName((String) table);
             if (b == true) {
                 successCount++;
-                successTables.add( table);
+                successTables.add(table);
             } else {
                 failCount++;
-                failedTables.add( table);
+                failedTables.add(table);
             }
         }
         result.put("successCount", successCount);
         result.put("failCount", failCount);
-        result.put("successTables",successTables);
+        result.put("successTables", successTables);
         result.put("failTables", failedTables);
         return result.toJSONString();
     }
@@ -75,7 +75,7 @@ public class SequenceManagerController implements SequenceManagerRemoteService {
     private Object[] parseSetToSortedList(Set<Object> keySet) {
         ArrayList<String> list1 = new ArrayList<String>();
         Iterator<Object> iterator = keySet.iterator();
-        while (iterator.hasNext()){
+        while (iterator.hasNext()) {
             Object next = iterator.next();
             list1.add((String) next);
         }
@@ -188,6 +188,31 @@ public class SequenceManagerController implements SequenceManagerRemoteService {
             }
             return true;
         }
+    }
+
+
+    @Override
+    public boolean resetSequenceBySequenceName(String seqName) throws IOException, SQLException, InterruptedException {
+        //1.check:表是否存在
+        //2.获取表名对应序列名的 对照名单
+        if (tableSeqMapping == null) {
+            tableSeqMapping = loadMappingExcel();
+        }
+        //3.check:序列是否存在
+        boolean sequenceExists = dbOperateService.checkIfSequenceExists(seqName);
+        if (sequenceExists == true) {
+            boolean b = dbOperateService.dropSequence(seqName);
+            if (b==true) {
+                boolean c = dbOperateService.createSequence(seqName);
+            }else{
+                return false;
+            }
+        }else {
+            return false;
+        }
+
+        return true;
+
     }
 
     public Properties loadMappingExcel() throws IOException {

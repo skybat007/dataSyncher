@@ -39,7 +39,7 @@ public class SpringbootTest {
 
     @Test
     public void testApplicationMethod() throws SQLException {
-        singleJobController.truncateTable();
+        singleJobController.backupTable("sanxiao");
         System.out.println("\nFinished! calculateHasTroubleSanXiao \n");
     }
 

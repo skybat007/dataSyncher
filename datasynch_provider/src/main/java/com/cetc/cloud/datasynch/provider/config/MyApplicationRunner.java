@@ -24,7 +24,8 @@ public class MyApplicationRunner implements ApplicationRunner {
     public void run(ApplicationArguments var1) throws Exception{
         /*启动所有的schedule任务*/
         scheduleController.startAllEnabledScheduleJobs();
-        scheduleController.startOuterScheduleJob(CommonInstance.JOB_calc_trouble_sanxiao, "00 30 08 * * ?");
+//        scheduleController.startOuterScheduleJob(CommonInstance.JOB_calc_trouble_sanxiao, "30 * * * * ?");
         scheduleController.startOuterScheduleJob(CommonInstance.JOB_get_today_xinfang,"00 40 17 * * ?");
+        scheduleController.startOuterScheduleJob(CommonInstance.JOB_add_chengguanevent_attach,"00 0/30 * * * ?");
     }
 }

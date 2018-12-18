@@ -57,6 +57,7 @@ spring:
     type: com.zaxxer.hikari.HikariDataSource
     driverClassName: oracle.jdbc.driver.OracleDriver
     url: jdbc:oracle:thin:@10.190.55.65:9205/ORCL
+#    jdbc: oracle:thin:@10.192.19.116:1521/ORCL
     username: ZHFTYJJCPT
     password: ToKreDi*nJ
     hikari:
@@ -158,10 +159,10 @@ spring.primary-datasource.time-between-eviction-runs-millis: 3000
 #        default-fetch-size: 100
 #        default-statement-timeout: 30
 #    mapperLocations: classpath*:com.cetc.cloud.datasynch.provider.mapper/**/**Mapper.xml
-#logging:
-#  level:
-#    root: DEBUG
-#    org.springframework.web: INFO
-## path: D://output/Intellij/11-Gaojiaohui/logs
-#  file: logs/dataSyncher.log
+logging:
+  level:
+    root: INFO
+    org.springframework.web: INFO
+# path: D://output/Intellij/11-Gaojiaohui/logs
+  file: logs/dataSyncher.log
 

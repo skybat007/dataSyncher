@@ -11,12 +11,15 @@ import java.util.List;
  * Description：创建定时 执行计算 实例
  * Created by luolinjie on 2018/10/10.
  */
-public class SanxiaoCalcRunnable implements Runnable {
+public class SanxiaoCalcRunnable implements OuterJobRunnableTemplate {
 
     private Logger logger = LoggerFactory.getLogger(SanxiaoCalcRunnable.class);
     private DbQueryService dbQueryService;
     private DbOperateService dbOperateService;
     private HttpOperateService httpOperateService;
+
+    public SanxiaoCalcRunnable() {
+    }
 
     public SanxiaoCalcRunnable(DbQueryService dbQueryService, DbOperateService dbOperateService, HttpOperateService httpOperateService) {
         this.dbQueryService = dbQueryService;

@@ -44,7 +44,6 @@ public class TestThread {
 //        System.out.println(info.getThreadState());
 
 
-        s.stop();
     }
 
 

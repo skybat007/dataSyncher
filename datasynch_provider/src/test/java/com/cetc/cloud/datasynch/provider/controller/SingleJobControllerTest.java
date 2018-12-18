@@ -40,4 +40,8 @@ public class SingleJobControllerTest extends TestCase {
     public void testInsertXinfangDataToday1() throws Exception {
         singleJobController.insertXinfangDataToday();
     }
+    @Test
+    public void testInsertXinfangHistoryData() throws Exception {
+        singleJobController.insertXinfangHistoryData("2018-12-12", "2018-12-13");
+    }
 }
