@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.cetc.cloud.datasynch.provider.mapper.input.ColumnMappingMapper">
+<mapper namespace="com.cetc.cloud.datasynch.provider.mapper.ColumnMappingMapper">
     <resultMap id="BaseResultMap" type="com.cetc.cloud.datasynch.api.model.ColumnMappingModel">
         <id column="OBJECT_ID" jdbcType="INTEGER" property="id"/>
         <result column="TARGET_TABLE" jdbcType="VARCHAR" property="targetTable"/>

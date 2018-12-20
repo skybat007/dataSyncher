@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.cetc.cloud.datasynch.provider.mapper.input.XinfangEventMapper">
+<mapper namespace="com.cetc.cloud.datasynch.provider.mapper.XinfangEventMapper">
     <resultMap id="BaseResultMap_Event" type="com.cetc.cloud.datasynch.api.model.XinFangEventModel">
         <result column="VISITTIME" jdbcType="VARCHAR" property="visitTime"/>
         <result column="VISITNO" jdbcType="VARCHAR" property="visitNo"/>

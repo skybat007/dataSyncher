@@ -8,7 +8,7 @@ import com.cetc.cloud.datasynch.api.model.XinFangEventModel;
 import com.cetc.cloud.datasynch.api.model.XinFangPeopleModel;
 import com.cetc.cloud.datasynch.api.service.SingleJobRemoteService;
 import com.cetc.cloud.datasynch.provider.core.util.HttpClientUtil2;
-import com.cetc.cloud.datasynch.provider.mapper.input.XinfangEventMapper;
+import com.cetc.cloud.datasynch.provider.mapper.XinfangEventMapper;
 import com.cetc.cloud.datasynch.provider.service.impl.*;
 import com.cetc.cloud.datasynch.provider.template.SanxiaoCalcRunnable;
 import lombok.extern.slf4j.Slf4j;

@@ -1,7 +1,7 @@
 package com.cetc.cloud.datasynch.provider.service.impl;
 
 import com.cetc.cloud.datasynch.api.model.ColumnMappingModel;
-import com.cetc.cloud.datasynch.provider.mapper.input.ColumnMappingMapper;
+import com.cetc.cloud.datasynch.provider.mapper.ColumnMappingMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

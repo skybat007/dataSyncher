@@ -29,7 +29,7 @@ public class CommentManageService {
     @Qualifier("readOnlyJdbcTemplate")
     private JdbcTemplate primaryJdbcTemplate;
 
-    @Value("${spring.read-only-datasource.username}")
+    @Value("${spring.datasource.dynamic.datasource.readonly.username}")
     private String userName;
 
     public List<DddTableCommentModel> addTableCommentList(List<DddTableCommentModel> modelList) {

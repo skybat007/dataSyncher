@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.cetc.cloud.datasynch.provider.mapper.input.SyhchJobLogInfoMapper">
+<mapper namespace="com.cetc.cloud.datasynch.provider.mapper.SyhchJobLogInfoMapper">
     <resultMap id="BaseResultMap" type="com.cetc.cloud.datasynch.api.model.SynchJobLogInfoModel">
         <result column="OBJECT_ID" jdbcType="INTEGER" property="id"/>
         <result column="JOBID" jdbcType="INTEGER" property="jobId"/>

@@ -1,11 +1,5 @@
 package com.cetc.cloud.test;
 
-import com.cetc.cloud.datasynch.provider.config.MyProps;
-import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.context.properties.ConfigurationProperties;
-
 /**
  * PackageName:   com.cetc.cloud.test
  * projectName:   dataSyncher

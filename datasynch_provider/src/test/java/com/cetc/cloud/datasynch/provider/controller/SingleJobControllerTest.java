@@ -1,6 +1,6 @@
 package com.cetc.cloud.datasynch.provider.controller;
 
-import com.cetc.cloud.datasynch.provider.mapper.input.XinfangEventMapper;
+import com.cetc.cloud.datasynch.provider.mapper.XinfangEventMapper;
 import junit.framework.TestCase;
 import org.junit.Test;
 import org.junit.runner.RunWith;

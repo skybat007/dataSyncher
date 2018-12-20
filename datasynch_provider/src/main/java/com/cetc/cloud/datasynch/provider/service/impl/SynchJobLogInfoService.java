@@ -1,6 +1,6 @@
 package com.cetc.cloud.datasynch.provider.service.impl;
 
-import com.cetc.cloud.datasynch.provider.mapper.input.SyhchJobLogInfoMapper;
+import com.cetc.cloud.datasynch.provider.mapper.SyhchJobLogInfoMapper;
 import com.cetc.cloud.datasynch.api.model.SynchJobLogInfoModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

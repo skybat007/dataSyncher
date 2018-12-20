@@ -1,4 +1,4 @@
-package com.cetc.cloud.datasynch.provider.mapper.input;
+package com.cetc.cloud.datasynch.provider.mapper;
 
 import com.cetc.cloud.datasynch.api.model.ValueDictModel;
 import org.apache.ibatis.annotations.Mapper;

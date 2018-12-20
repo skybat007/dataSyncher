@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.cetc.cloud.datasynch.provider.mapper.input.OuterUrlsMapper">
+<mapper namespace="com.cetc.cloud.datasynch.provider.mapper.OuterUrlsMapper">
     <resultMap id="BaseResultMap" type="com.cetc.cloud.datasynch.api.model.DddOuterURLsModel">
         <result column="URL" jdbcType="VARCHAR" property="url"/>
         <result column="BODY" jdbcType="VARCHAR" property="body"/>

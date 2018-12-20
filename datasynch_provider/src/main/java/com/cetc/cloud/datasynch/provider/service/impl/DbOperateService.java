@@ -12,6 +12,7 @@ package com.cetc.cloud.datasynch.provider.service.impl;
  * 使用本资料必须获得相应的书面授权，承担保密责任和接受相应的法律约束。
  *************************************************************************/
 
+import com.baomidou.dynamic.datasource.annotation.DS;
 import com.cetc.cloud.datasynch.api.model.ScheduleModel;
 import com.cetc.cloud.datasynch.provider.common.CommonInstance;
 import com.cetc.cloud.datasynch.provider.controller.SequenceManagerController;
@@ -46,16 +47,16 @@ import java.util.*;
  **/
 @Service("dbOperateService")
 @Slf4j
+@DS("master")
 public class DbOperateService {
-
-    @Autowired
     @Qualifier("primaryJdbcTemplate")
+    @Autowired
     private JdbcTemplate primaryJdbcTemplate;
 
     @Autowired
     ColumnMappingService columnMappingService;
 
-    @Value("${spring.primary-datasource.username}")
+    @Value("${spring.datasource.dynamic.datasource.master.username}")
     private String orclUsername;
 
     @Autowired
@@ -249,10 +250,10 @@ public class DbOperateService {
 
     public List<Integer> insertIntoTargetTable(List<HashMap> queryResult, ScheduleModel scheduleModel) throws SQLException {
 
-        if (tbSeqMappingProp ==null){
+        if (tbSeqMappingProp == null) {
             try {
                 tbSeqMappingProp = sequenceManagerController.loadMappingExcel();
-            }catch (Exception e){
+            } catch (Exception e) {
                 log.error("");
             }
         }
@@ -306,7 +307,7 @@ public class DbOperateService {
             }
 
             //获取序列nextval值
-            SqlRowSet sqlRowSet = primaryJdbcTemplate.queryForRowSet("SELECT " + tbSeqMappingProp.getProperty(targetTableName)+ ".NEXTVAL FROM DUAL");
+            SqlRowSet sqlRowSet = primaryJdbcTemplate.queryForRowSet("SELECT " + tbSeqMappingProp.getProperty(targetTableName) + ".NEXTVAL FROM DUAL");
             int nextValue = 0;
             while (sqlRowSet.next()) {
                 nextValue = sqlRowSet.getInt(1);
@@ -336,12 +337,13 @@ public class DbOperateService {
         resList.add(failCounter);
         return resList;
     }
+
     public List<Integer> insertIntoTargetTableByTableName(List<HashMap> queryResult, String tableName) throws SQLException {
 
-        if (tbSeqMappingProp ==null){
+        if (tbSeqMappingProp == null) {
             try {
                 tbSeqMappingProp = sequenceManagerController.loadMappingExcel();
-            }catch (Exception e){
+            } catch (Exception e) {
                 log.error("");
             }
         }
@@ -395,7 +397,7 @@ public class DbOperateService {
             }
 
             //获取序列nextval值
-            SqlRowSet sqlRowSet = primaryJdbcTemplate.queryForRowSet("SELECT " + tbSeqMappingProp.getProperty(targetTableName)+ ".NEXTVAL FROM DUAL");
+            SqlRowSet sqlRowSet = primaryJdbcTemplate.queryForRowSet("SELECT " + tbSeqMappingProp.getProperty(targetTableName) + ".NEXTVAL FROM DUAL");
             int nextValue = 0;
             while (sqlRowSet.next()) {
                 nextValue = sqlRowSet.getInt(1);
@@ -487,6 +489,7 @@ public class DbOperateService {
         }
         return Integer.parseInt(count);
     }
+
     public boolean checkIfSequenceExists(String sequenceName) {
         String SQL = "select count(1) COUNT \n" +
                 "from dba_sequences \n" +
@@ -503,6 +506,7 @@ public class DbOperateService {
         }
         return false;
     }
+
     public boolean checkIfSequenceExists_pure(String targetTableName) {
         String SQL = "select count(1) COUNT \n" +
                 "from dba_sequences \n" +
@@ -547,8 +551,9 @@ public class DbOperateService {
         primaryJdbcTemplate.execute(sql);
         return true;
     }
+
     public boolean dropSequence(String sequenceName) {
-        String sql = "drop sequence " + sequenceName ;
+        String sql = "drop sequence " + sequenceName;
         primaryJdbcTemplate.execute(sql);
         return true;
     }
@@ -686,6 +691,7 @@ public class DbOperateService {
         }
         return maxObjId;
     }
+
     public int getNextSeqVal(String sequenceName) {
         int nextVal = -1;
         String sql = "select " + sequenceName + ".nextval from dual";
@@ -693,7 +699,7 @@ public class DbOperateService {
         try {
             rowSet.next();
             return rowSet.getInt(1);
-        }catch (Exception e) {
+        } catch (Exception e) {
             return nextVal;
         }
     }

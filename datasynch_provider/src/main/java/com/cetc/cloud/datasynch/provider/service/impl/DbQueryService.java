@@ -12,6 +12,7 @@ package com.cetc.cloud.datasynch.provider.service.impl;
  * 使用本资料必须获得相应的书面授权，承担保密责任和接受相应的法律约束。
  *************************************************************************/
 
+import com.baomidou.dynamic.datasource.annotation.DS;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -38,10 +39,10 @@ import java.util.List;
  **/
 @Service("dbQueryService")
 @Slf4j
+@DS("slave")
 public class DbQueryService {
 
     @Autowired
-    @Qualifier("readOnlyJdbcTemplate")
     JdbcTemplate readOnlyJdbcTemplate;
     /**
      * 获取 <表名,<字段名,数据类型 > >组成的Map

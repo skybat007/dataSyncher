@@ -1,7 +1,7 @@
 package com.cetc.cloud.datasynch.provider.service.impl;
 
 import com.cetc.cloud.datasynch.api.model.DddOuterURLsModel;
-import com.cetc.cloud.datasynch.provider.mapper.input.OuterUrlsMapper;
+import com.cetc.cloud.datasynch.provider.mapper.OuterUrlsMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

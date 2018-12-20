@@ -1,7 +1,7 @@
 package com.cetc.cloud.datasynch.provider.service.impl;
 
 import com.cetc.cloud.datasynch.api.model.ValueDictModel;
-import com.cetc.cloud.datasynch.provider.mapper.input.ValueDictMapper;
+import com.cetc.cloud.datasynch.provider.mapper.ValueDictMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
