@@ -21,13 +21,13 @@ public class MyApplicationRunner implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments var1) throws Exception{
-//        /*启动所有的内部schedule任务*/
-//        scheduleController.startAllEnabledScheduleJobs();
-//        /*启动任务--计算隐患三小场所*/
-//        scheduleController.startOuterScheduleJob(CommonInstance.JOB_calc_trouble_sanxiao, "0 0/30 * * * ?");
-//        /*启动任务--获取今日信访数据*/
-//        scheduleController.startOuterScheduleJob(CommonInstance.JOB_get_today_xinfang,"00 40 17 * * ?");
-//        /*启动任务--获取时间附件信息*/
-//        scheduleController.startOuterScheduleJob(CommonInstance.JOB_add_chengguanevent_attach,"00 0/30 * * * ?");
+        /*启动所有的内部schedule任务*/
+        scheduleController.startAllEnabledScheduleJobs();
+        /*启动任务--计算隐患三小场所*/
+        scheduleController.startOuterScheduleJob(CommonInstance.JOB_calc_trouble_sanxiao, "0 0/30 * * * ?");
+        /*启动任务--获取今日信访数据*/
+        scheduleController.startOuterScheduleJob(CommonInstance.JOB_get_today_xinfang,"00 40 17 * * ?");
+        /*启动任务--获取时间附件信息*/
+        scheduleController.startOuterScheduleJob(CommonInstance.JOB_add_chengguanevent_attach,"00 0/30 * * * ?");
     }
 }
