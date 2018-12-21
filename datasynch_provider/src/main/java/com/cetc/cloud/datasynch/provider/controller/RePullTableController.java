@@ -8,6 +8,7 @@ import com.cetc.cloud.datasynch.provider.service.impl.DbOperateService;
 import com.cetc.cloud.datasynch.provider.service.impl.JobManageService;
 import com.cetc.cloud.datasynch.provider.service.impl.ScheduleService;
 import com.cetc.cloud.datasynch.provider.service.impl.SynchJobLogInfoService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
  * Update_Description: luolinjie 补充
  **/
 @RestController
+@Slf4j
 public class RePullTableController implements RePullTableRemoteService {
 
     @Autowired
@@ -34,7 +36,7 @@ public class RePullTableController implements RePullTableRemoteService {
     JobManageService jobManageService;
 
     @Override
-    public String clearAndPullAgainTableByJobId(String tableName) {
+    public String clearAndPullAgainTableByTableName(String tableName) {
 
         JSONObject res = new JSONObject();
 
@@ -44,6 +46,8 @@ public class RePullTableController implements RePullTableRemoteService {
         scheduleService.alterJobStatusByJobId(scheduleModel.getId(), CommonInstance.DISABLED);
 
         //2.清空表
+        String copyName = dbOperateService.backUpTable(scheduleModel.getTargetTableName());
+        log.info("\n>> BackUpTable:"+scheduleModel.getTargetTableName()+"\nbackup tableName："+copyName);
         boolean clearRes = dbOperateService.truncateTableByTbName(scheduleModel.getTargetTableName());
 
         //3.通过jobId清空日志
@@ -58,11 +62,11 @@ public class RePullTableController implements RePullTableRemoteService {
             }
             if (i > 0 && i1 >0) {
                 res.put("res", "success");
-                res.put("msg", "successfully executed clearAndPullAgainTableByJobId, targetTable:" + scheduleModel.getTargetTableName());
+                res.put("msg", "successfully executed clearAndPullAgainTableByTableName, targetTable:" + scheduleModel.getTargetTableName());
                 return res.toJSONString();
             } else {
                 res.put("res", "fail");
-                res.put("msg", "failed executed clearAndPullAgainTableByJobId, targetTable:" + scheduleModel.getTargetTableName());
+                res.put("msg", "failed executed clearAndPullAgainTableByTableName, targetTable:" + scheduleModel.getTargetTableName());
                 return res.toJSONString();
             }
         } else {

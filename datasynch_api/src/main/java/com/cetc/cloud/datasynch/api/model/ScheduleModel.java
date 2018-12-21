@@ -1,5 +1,9 @@
 package com.cetc.cloud.datasynch.api.model;
 
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
+
 import java.io.Serializable;
 import java.util.Date;
 
@@ -7,6 +11,9 @@ import java.util.Date;
  * 定时任务表: DS_SCHEDULE_JOB_INFO
  * Created by llj on 2018/10/8.
  */
+@Data
+@NoArgsConstructor
+@ToString
 public class ScheduleModel implements Serializable {
     private int id;                         //job唯一主键
     private int connType;                   //连接方式（0：前置机方式 1：接口方式）

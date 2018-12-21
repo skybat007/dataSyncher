@@ -50,6 +50,13 @@ public interface ScheduleRemoteService {
     @ApiOperation(value = "根据jobID启动任务", notes = "根据jobID启动任务", produces = "application/json")
     HashMap<String, String> startScheduleJobByJobId(int jobId);
 
+    @RequestMapping(value = "/schedule/job/trigger/byTableName", produces = "application/json", method = RequestMethod.POST)
+    @ApiOperation(value = "根据tableName触发执行单次任务", notes = "根据tableName触发执行单次任务", produces = "application/json")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "tableName", value = "目标表名称", required = true, dataType = "String", paramType = "query")
+    })
+    HashMap<String, String> triggerOnceJobByTargetTableName(String tableName);
+
     @RequestMapping(value = "/schedule/job/start/outerJob/byJobName", produces = "application/json", method = RequestMethod.POST)
     @ApiOperation(value = "根据jobName和cronExpression启动任务", notes = "根据jobName和cronExpression启动任务", produces = "application/json")
     @ApiImplicitParams({

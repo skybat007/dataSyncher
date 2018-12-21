@@ -1,6 +1,7 @@
 package com.cetc.cloud.datasynch.provider.template;
 
 import com.cetc.cloud.datasynch.provider.service.impl.*;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.sql.SQLException;
@@ -11,14 +12,13 @@ import java.util.List;
  * Created by luolinjie on 2018/10/10.
  */
 @Slf4j
+@NoArgsConstructor
 public class SanxiaoCalcRunnable implements OuterJobRunnableTemplate {
 
     private DbQueryService dbQueryService;
     private DbOperateService dbOperateService;
     private HttpOperateService httpOperateService;
 
-    public SanxiaoCalcRunnable() {
-    }
 
     public SanxiaoCalcRunnable(DbQueryService dbQueryService, DbOperateService dbOperateService, HttpOperateService httpOperateService) {
         this.dbQueryService = dbQueryService;

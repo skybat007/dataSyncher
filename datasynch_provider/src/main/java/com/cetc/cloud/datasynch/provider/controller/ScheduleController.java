@@ -169,6 +169,26 @@ public class ScheduleController implements ScheduleRemoteService {
         }
         return res;
     }
+    @Override
+    public HashMap<String, String> triggerOnceJobByTargetTableName(String tableName) {
+        HashMap res = new HashMap();
+        ScheduleModel scheduleModel = scheduleService.queryModelByTableName(tableName);
+
+        //启动任务
+        int jobid = jobManageService.startOnceJob(scheduleModel);
+        if (-1 != jobid) {
+            //修改状态
+            int i = scheduleService.enableStatusByJobId(scheduleModel.getId());
+            if (jobid == scheduleModel.getId() && i > 0) {
+                res.put("result", "success");
+                res.put("msg", "start job:" + jobid + " success!");
+            }
+        } else {
+            res.put("result", "fail");
+            res.put("msg", "start job:" + jobid + " failed!");
+        }
+        return res;
+    }
 
     @Override
     public HashMap<String, String> startOuterScheduleJob(String jobName, String cronExpression) {

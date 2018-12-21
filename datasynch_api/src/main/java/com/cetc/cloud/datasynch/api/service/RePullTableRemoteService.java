@@ -25,5 +25,5 @@ public interface RePullTableRemoteService {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "tableName", value = "目标表名", required = true, dataType = "String", paramType = "query"),
     })
-    String clearAndPullAgainTableByJobId(String tableName);
+    String clearAndPullAgainTableByTableName(String tableName);
 }
