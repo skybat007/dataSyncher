@@ -3,13 +3,17 @@ package com.cetc.cloud.datasynch.provider.template;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.cetc.cloud.datasynch.api.model.DddOuterURLsModel;
+import com.cetc.cloud.datasynch.api.model.Token;
 import com.cetc.cloud.datasynch.api.model.XinFangEventModel;
 import com.cetc.cloud.datasynch.api.model.XinFangPeopleModel;
 import com.cetc.cloud.datasynch.provider.core.util.HttpClientUtil2;
+import com.cetc.cloud.datasynch.provider.core.util.JsonExtractor;
 import com.cetc.cloud.datasynch.provider.mapper.XinfangEventMapper;
 import com.cetc.cloud.datasynch.provider.service.impl.DbOperateService;
 import com.cetc.cloud.datasynch.provider.service.impl.DbQueryService;
 import com.cetc.cloud.datasynch.provider.service.impl.HttpOperateService;
+import com.cetc.cloud.datasynch.provider.service.impl.OuterUrlsService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -27,11 +31,13 @@ public class XinfangGetRunnable implements OuterJobRunnableTemplate  {
     private DbQueryService dbQueryService;
     private DbOperateService dbOperateService;
     private HttpOperateService httpOperateService;
+    private OuterUrlsService outerUrlsService;
 
-    public XinfangGetRunnable(DbQueryService dbQueryService, DbOperateService dbOperateService, HttpOperateService httpOperateService) {
+    public XinfangGetRunnable(DbQueryService dbQueryService, DbOperateService dbOperateService, HttpOperateService httpOperateService,OuterUrlsService outerUrlsService) {
         this.dbQueryService = dbQueryService;
         this.dbOperateService = dbOperateService;
         this.httpOperateService = httpOperateService;
+        this.outerUrlsService = outerUrlsService;
     }
 
     @Autowired
@@ -49,34 +55,22 @@ public class XinfangGetRunnable implements OuterJobRunnableTemplate  {
 
     public void insertXinfangDataToday() throws SQLException {
         log.info("Started Scheduled Job:insertXinfangDataToday()");
-        String SQL = "select URL,BODY from DS_OUTER_URLS where table_name='WEEKLY_XINFANG_TOKEN'";
-        List<HashMap> SQLRes = dbOperateService.oracleQuerySql(SQL);
-        String url = (String) SQLRes.get(0).get("URL");
-        String body = (String) SQLRes.get(0).get("BODY");
-        String tokenString = null;
-        //todo 获取token
-        JSONObject jsonObject = HttpClientUtil2.doPostWithBody(url, null, body);
-        if (jsonObject.getInteger("code") == 200) {
-            String tokenJson = jsonObject.getString("data");
-            JSONObject tokenJsonObj = JSON.parseObject(tokenJson);
-            tokenString = tokenJsonObj.getString("access_token");
-            System.out.println("====>> get token:" + tokenString);
-        } else {
-            return;
-        }
+        //1.获取Http请求信息
+        DddOuterURLsModel xinfangModel = outerUrlsService.getModelByTableName("WEEKLY_XINFANG_TODAY");
+        //2.获取关联token请求信息
+        DddOuterURLsModel tokenModel = outerUrlsService.getModelByObjectId(xinfangModel.getToken_link_id());
+        //3.获取最新token值
+        String tokenString = getXinfangTokenStr(tokenModel);
         //todo 在线请求
+
         if (tokenString != null) {
             SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
             String formatedDate = format.format(new Date());
-            String SQL2 = "select URL from DS_OUTER_URLS where table_name='WEEKLY_XINFANG'";
-            List<HashMap> SQLRes2 = dbOperateService.oracleQuerySql(SQL2);
-            String url1 = (String) SQLRes2.get(0).get("URL");
-            String URL = url1;
             JSONObject params = new JSONObject();
             params.put("access_token", tokenString);
             params.put("date", formatedDate);
-
-            JSONObject httpQueryRes = HttpClientUtil2.doGet(URL, params);
+            Token token = HttpClientUtil2.parseTokenStr2Token(xinfangModel.getHeaders());
+            JSONObject httpQueryRes = HttpClientUtil2.doGetWithAuthoration(xinfangModel.getUrl(), params,token);
             if (200 == httpQueryRes.getIntValue("code")) {
                 String dataString = httpQueryRes.getString("data");
                 JSONArray jsonRes = JSON.parseArray(dataString);
@@ -92,6 +86,22 @@ public class XinfangGetRunnable implements OuterJobRunnableTemplate  {
                 }
                 insertXinfangJSONData(jsonRes1);
             }
+        }
+    }
+
+    public static String getXinfangTokenStr(DddOuterURLsModel tokenModel){
+
+        JSONObject jsonObject = HttpClientUtil2.doPostWithParam_Body_Token(tokenModel.getUrl(), HttpClientUtil2.getHttpParams(tokenModel.getParams()), tokenModel.getBody(), tokenModel.getHeaders());
+        if (jsonObject.getInteger("code") == 200) {
+            String tokenJson = jsonObject.getString("data");
+
+            JSONObject tokenJsonObj = JSON.parseObject(tokenJson);
+            JsonExtractor.extractTokenStr(tokenJsonObj, "access_token");
+            String tokenString = tokenJsonObj.getString("access_token");
+            System.out.println("====>> get token:" + tokenString);
+            return tokenString;
+        } else {
+            return null;
         }
     }
 

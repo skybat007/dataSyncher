@@ -132,6 +132,24 @@ public class JsonExtractor {
         }
         return tokenStr;
     }
+    //提取token值
+    public static String extractTokenStr(JSONObject tokenJson, String extractRule) {
+        String tokenStr = null;
+        JSONObject temp = null;
+        if (tokenJson != null) {
+            String[] splitRule = extractRule.split("\\.");
+            for (int i = 0; i < splitRule.length; i++) {
+                if (i == splitRule.length - 1 && splitRule.length >= 2) {
+                    tokenStr = temp.getString(splitRule[i]);
+                } else if (splitRule.length == 1 && i == splitRule.length - 1) {
+                    return tokenJson.getString(splitRule[i]);
+                } else {
+                    temp = tokenJson.getJSONObject(splitRule[i]);
+                }
+            }
+        }
+        return tokenStr;
+    }
 
     private static JSONArray getArrayInJSONArray(JSONArray array, List<String> arrayExtractRule) {
         if (null == array || null == arrayExtractRule || "".equals(arrayExtractRule)) {

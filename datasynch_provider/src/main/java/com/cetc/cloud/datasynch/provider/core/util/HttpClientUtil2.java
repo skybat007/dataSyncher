@@ -139,6 +139,59 @@ public class HttpClientUtil2 {
         }
     }
 
+    public static JSONObject doPostWithParam_Body_Token(String url, JSONObject params, String bodyContent, String tokenStr) {
+        log.info("\n>>Http getMethod:URL:" + toHttpParamStr(url, params) + "\n");
+        CloseableHttpClient httpClient = getHttpClient(url);
+        JSONObject result = new JSONObject();
+        result.put("success", true);
+        result.put("data", null);
+        result.put("code", 200);
+        result.put("msg", null);
+        HttpPost httpPost = null;
+        StatusLine status = null;
+        Token token = parseTokenStr2Token(tokenStr);
+        try {
+            URIBuilder builder = new URIBuilder(url);
+            if (!MapUtils.isEmpty(params)) {
+                for (String key : params.keySet()) {
+                    builder.setParameter(key, params.getString(key));
+                }
+            }
+            httpPost = new HttpPost(url);
+            RequestConfig config = RequestConfig.custom()
+                    .setSocketTimeout(6000)
+                    .setConnectTimeout(6000)
+                    .setConnectionRequestTimeout(6000).build();
+            httpPost.setHeader(token.getKey(), token.getValue());
+            httpPost.setConfig(config);
+            if (null != bodyContent && !"".equals(bodyContent)) {
+                HttpEntity entity = new StringEntity(bodyContent);
+                httpPost.setEntity(entity);
+            }
+            HttpResponse response = httpClient.execute(httpPost);
+            status = response.getStatusLine();                          //获取返回的状态码
+            HttpEntity entity = response.getEntity();                   //获取响应内容
+            if (status.getStatusCode() == 200) {
+                result.put("success", true);
+                result.put("data", EntityUtils.toString(entity, "UTF-8"));
+                result.put("code", 200);
+                result.put("msg", "请求成功");
+            } else {
+                result.put("success", false);
+                result.put("code", status.getStatusCode());
+                result.put("msg", "请求异常，异常信息:" + status.getReasonPhrase());
+            }
+        } catch (Exception e) {
+            result.put("success", false);
+            result.put("code", 500);
+            result.put("msg", "请求异常，异常信息：" + e.getClass() + "->" + e.getMessage());
+        } finally {
+            httpPost.abort();//中止请求，连接被释放回连接池
+        }
+        return result;
+    }
+
+
     public static JSONObject doPostWithBody(String url, JSONObject params, String bodyContent) {
         log.info("\n>>Http getMethod:URL:" + toHttpParamStr(url, params) + "\n");
         CloseableHttpClient httpClient = getHttpClient(url);
@@ -409,4 +462,18 @@ public class HttpClientUtil2 {
         }
         return httpQueryParams;
     }
+
+    public static Token parseTokenStr2Token(String tokenStr) {
+        if (tokenStr != null && !"".equals(tokenStr)) {
+            if (tokenStr.contains(":")) {
+                String[] split = tokenStr.split("\\:");
+                Token token = new Token();
+                token.setKey(split[0]);
+                token.setValue(split[1]);
+                return token;
+            }
+        }
+        return null;
+    }
+
 }

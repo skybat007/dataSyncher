@@ -58,7 +58,7 @@ spring:
     minimum-idle: 3
     maximum-pool-size: 24
     pool-name: ${spring.application.name}-Primary-CP
-    idle-timeout: 10000
+    idle-timeout: 20000
     cachePrepStmts: true
     prepStmtCacheSize: 250
     prepStmtCacheSqlLimit: 2048
@@ -75,40 +75,12 @@ spring:
           username: ZHFTYJJCPT
           password: ToKreDi*nJ
           driver-class-name: oracle.jdbc.driver.OracleDriver
-          url: jdbc:oracle:thin:@10.192.19.116:1521/ORCL
+          url: jdbc:oracle:thin:@10.190.55.65:9205/ORCL
         readonly:
           username: ZHFTYJJCPT
           password: ToKreDi*nJ
           driver-class-name: oracle.jdbc.driver.OracleDriver
           url: jdbc:oracle:thin:@10.192.19.116:1521/ORCL
-#  primary-datasource:
-#    type: com.zaxxer.hikari.HikariDataSource
-#    driverClassName: oracle.jdbc.driver.OracleDriver
-##    url: jdbc:oracle:thin:@10.190.55.65:9205/ORCL
-#    url: jdbc:oracle:thin:@10.192.19.116:1521/ORCL
-#    username: ZHFTYJJCPT
-#    password: ToKreDi*nJ
-
-#  read-only-datasource:
-#    type: com.zaxxer.hikari.HikariDataSource
-#    driverClassName: oracle.jdbc.driver.OracleDriver
-#    url: jdbc:oracle:thin:@10.192.19.116:1521/ORCL
-#    username: ZHFTYJJCPT
-#    password: ToKreDi*nJ
-#    hikari:
-#      connection-test-query: SELECT 1 FROM DUAL
-#      minimum-idle: 3
-#      maximum-pool-size: 24
-#      pool-name: ${spring.application.name}-CP
-#      idle-timeout: 10000
-#      cachePrepStmts: true
-#      prepStmtCacheSize: 250
-#      prepStmtCacheSqlLimit: 2048
-#      leakDetectionThreshold: 2000
-#      validation-interval: 5000
-#      validation-query-timeout: 5000
-#      max-lifetime: 5
-#      test-while-idle: true
   freemarker:
     allow-request-override: false
     allow-session-override: false
@@ -136,21 +108,6 @@ spring:
         content:
           enabled: true
           paths: /**
-
-# 服务启动时提前加载，饥饿加载模式启用
-#ribbon:
-#  eager-load:
-#    enabled: true
-#    clients: id-generator
-#zuul:
-#  ribbon-isolation-strategy: semaphore
-
-#mybatis:
-#    configuration:
-#        map-underscore-to-camel-case: true
-#        default-fetch-size: 100
-#        default-statement-timeout: 30
-#    mapperLocations: classpath*:com.cetc.cloud.datasynch.provider.mapper/**/**Mapper.xml
 logging:
   level:
     root: INFO

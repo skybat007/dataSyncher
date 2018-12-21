@@ -38,7 +38,9 @@ public class SanxiaoCalcRunnable implements OuterJobRunnableTemplate {
     }
 
     public void calculateHasTroubleSanXiao() throws SQLException {
-
+        String sql0 = "update BLK_SANXIAO_PLACE set HAS_TROUBLE=0";
+        int count0 = dbOperateService.oracleUpdateSql(sql0);
+        log.info("reset HAS_TROUBLE=0,changed rows:"+count0);
 
         //获取有未处理事件的三小场所ID的list
         String getTroublePlaceIds = "SELECT DISTINCT a.\"ID\"\n" +

@@ -15,8 +15,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth
                 .inMemoryAuthentication()
-                .withUser("luolinjie")
-                .password("lvxf0221")
+                .withUser("zdk")
+                .password("Password@1")
                 .roles("USER");
     }
 

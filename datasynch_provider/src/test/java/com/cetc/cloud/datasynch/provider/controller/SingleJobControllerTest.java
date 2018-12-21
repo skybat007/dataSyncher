@@ -41,7 +41,7 @@ public class SingleJobControllerTest extends TestCase {
         singleJobController.insertXinfangDataToday();
     }
     @Test
-    public void testInsertXinfangHistoryData() throws Exception {
-        singleJobController.insertXinfangHistoryData("2018-12-12", "2018-12-13");
+    public void testInsertXinfangHistoryData1() throws Exception {
+        singleJobController.insertXinfangHistoryData("2018-12-14", "2018-12-20");
     }
 }

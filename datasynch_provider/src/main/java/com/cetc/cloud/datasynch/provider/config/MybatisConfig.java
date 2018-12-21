@@ -48,7 +48,7 @@ public class MybatisConfig {
     }
 
     @Bean(name = "readOnlyJdbcTemplate")
-    public JdbcTemplate readOnlyJdbcTemplate(@Qualifier("primaryDataSource")DataSource dataSource) {
+    public JdbcTemplate readOnlyJdbcTemplate(@Qualifier("readOnlyDataSource")DataSource dataSource) {
         return new JdbcTemplate(dataSource);
     }
 

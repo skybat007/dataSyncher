@@ -39,10 +39,11 @@ import java.util.List;
  **/
 @Service("dbQueryService")
 @Slf4j
-@DS("slave")
+@DS("readonly")
 public class DbQueryService {
 
     @Autowired
+    @Qualifier("readOnlyJdbcTemplate")
     JdbcTemplate readOnlyJdbcTemplate;
     /**
      * 获取 <表名,<字段名,数据类型 > >组成的Map

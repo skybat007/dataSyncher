@@ -3,14 +3,13 @@ package com.cetc.cloud.datasynch.provider.controller;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.cetc.cloud.datasynch.api.model.ScheduleModel;
-import com.cetc.cloud.datasynch.api.model.XinFangEventModel;
-import com.cetc.cloud.datasynch.api.model.XinFangPeopleModel;
+import com.cetc.cloud.datasynch.api.model.*;
 import com.cetc.cloud.datasynch.api.service.SingleJobRemoteService;
 import com.cetc.cloud.datasynch.provider.core.util.HttpClientUtil2;
 import com.cetc.cloud.datasynch.provider.mapper.XinfangEventMapper;
 import com.cetc.cloud.datasynch.provider.service.impl.*;
 import com.cetc.cloud.datasynch.provider.template.SanxiaoCalcRunnable;
+import com.cetc.cloud.datasynch.provider.template.XinfangGetRunnable;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -50,6 +49,9 @@ public class SingleJobController implements SingleJobRemoteService {
 
     @Autowired
     private XinfangEventMapper xinfangEventMapper;
+
+    @Autowired
+    private OuterUrlsService outerUrlsService;
 
     @Override
     public void backupTable(String tableName) {
@@ -99,90 +101,37 @@ public class SingleJobController implements SingleJobRemoteService {
     @Override
     public void insertXinfangDataToday() throws SQLException {
         log.info("Started Scheduled Job:insertXinfangDataToday()");
-        String SQL = "select URL,BODY from DS_OUTER_URLS where table_name='WEEKLY_XINFANG_TOKEN'";
-        List<HashMap> SQLRes = dbOperateService.oracleQuerySql(SQL);
-        String url = (String) SQLRes.get(0).get("URL");
-        String body = (String) SQLRes.get(0).get("BODY");
-        String tokenString = null;
-        //todo 获取token
-        JSONObject jsonObject = HttpClientUtil2.doPostWithBody(url, null, body);
-        if (jsonObject.getInteger("code") == 200) {
-            String tokenJson = jsonObject.getString("data");
-            JSONObject tokenJsonObj = JSON.parseObject(tokenJson);
-            tokenString = tokenJsonObj.getString("access_token");
-            System.out.println("====>> get token:" + tokenString);
-        } else {
-            return;
-        }
-        //todo 在线请求
-        if (tokenString != null) {
-            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-            String formatedDate = format.format(new Date());
-            String SQL2 = "select URL from DS_OUTER_URLS where table_name='WEEKLY_XINFANG'";
-            List<HashMap> SQLRes2 = dbOperateService.oracleQuerySql(SQL2);
-            String url1 = (String) SQLRes2.get(0).get("URL");
-            String URL = url1;
-            JSONObject params = new JSONObject();
-            params.put("access_token", tokenString);
-            params.put("date", formatedDate);
-
-            JSONObject httpQueryRes = HttpClientUtil2.doGet(URL, params);
-            if (200 == httpQueryRes.getIntValue("code")) {
-                String dataString = httpQueryRes.getString("data");
-                JSONArray jsonRes = JSON.parseArray(dataString);
-                JSONArray jsonRes1 = new JSONArray();
-                Set<String> visitCodeSet = xinfangEventMapper.getVisitCodeList();
-                Iterator<Object> iterator = jsonRes.iterator();
-                while (iterator.hasNext()) {
-                    JSONObject next = (JSONObject) iterator.next();
-                    String VISITNO = next.getString("VISITNO");
-                    if (!visitCodeSet.contains(VISITNO)) {
-                        jsonRes1.add(next);
-                    }
-                }
-                insertXinfangJSONData(jsonRes1);
-            }
-        }
+        XinfangGetRunnable xinfangGetRunnable = new XinfangGetRunnable(dbQueryService, dbOperateService, httpOperateService, outerUrlsService);
+        xinfangGetRunnable.run();
     }
 
     @Override
     public void insertXinfangHistoryData(String min, String max) throws SQLException {
-
-        String SQL = "select URL,BODY from DS_OUTER_URLS where table_name='WEEKLY_XINFANG_TOKEN'";
-        List<HashMap> SQLRes = dbOperateService.oracleQuerySql(SQL);
-        String url = (String) SQLRes.get(0).get("URL");
-        String body = (String) SQLRes.get(0).get("BODY");
-        String tokenString = null;
-        //todo 获取token
-        JSONObject jsonObject = HttpClientUtil2.doPostWithBody(url, null, body);
-        if (jsonObject.getInteger("code") == 200) {
-            String tokenJson = jsonObject.getString("data");
-            JSONObject tokenJsonObj = JSON.parseObject(tokenJson);
-            tokenString = tokenJsonObj.getString("access_token");
-            System.out.println("====>> get token:" + tokenString);
-        } else {
-            return;
-        }
-        //todo 在线请求
+        log.info("executing insertXinfangHistoryData():\nparam1:min"+min+"\nparam2:max:"+max);
+        //1.获取Http请求信息
+        DddOuterURLsModel xinfangHistoryModel = outerUrlsService.getModelByTableName("WEEKLY_XINFANG_HISTORY");
+        //2.获取关联token请求信息
+        DddOuterURLsModel tokenModel = outerUrlsService.getModelByObjectId(xinfangHistoryModel.getToken_link_id());
+        //3.获取最新token值
+        String tokenString = XinfangGetRunnable.getXinfangTokenStr(tokenModel);
+        // 在线请求
         if (tokenString != null) {
-            String SQL2 = "select URL,params from DS_OUTER_URLS where table_name='WEEKLY_XINFANG_HISTORY'";
-            List<HashMap> SQLRes2 = dbOperateService.oracleQuerySql(SQL2);
-            String url1 = (String) SQLRes2.get(0).get("URL");
-            String params1 = (String) SQLRes2.get(0).get("PARAMS");
+            String url1 = xinfangHistoryModel.getUrl();
+            String params1 = xinfangHistoryModel.getParams();
             String URL = url1;
             JSONObject params = new JSONObject();
             params.put("access_token", tokenString);
             params.put("min", min);
             params.put("max", max);
-
             JSONObject paramObject = HttpClientUtil2.getParamObject(params1);
             Iterator<String> iterator = paramObject.keySet().iterator();
             while (iterator.hasNext()) {
                 String nextKey = iterator.next();
                 params.put(nextKey, paramObject.getString(nextKey));
             }
-
-            JSONObject httpQueryRes = HttpClientUtil2.doGet(URL, params);
+            String tokenStr = xinfangHistoryModel.getHeaders();
+            Token token = HttpClientUtil2.parseTokenStr2Token(tokenStr);
+            JSONObject httpQueryRes = HttpClientUtil2.doGetWithAuthoration(URL, params,token);
             if (200 == httpQueryRes.getIntValue("code")) {
                 String dataString = httpQueryRes.getString("data");
                 JSONObject data = JSON.parseObject(dataString);
@@ -195,8 +144,6 @@ public class SingleJobController implements SingleJobRemoteService {
     private void insertXinfangJSONData(JSONArray jsonRes) {
 //        int count = jsonRes.getIntValue("count");
         //todo 获取信访visitCode集合，用于比对重复值
-
-
         JSONArray dataArr = jsonRes;
         for (int i = 0; i < dataArr.size(); i++) {
             JSONObject obj = dataArr.getJSONObject(i);

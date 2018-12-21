@@ -191,7 +191,7 @@ public class ScheduleController implements ScheduleRemoteService {
         }
         if (CommonInstance.JOB_get_today_xinfang.equals(jobName)) {
 
-            XinfangGetRunnable myCalculateRunnable = new XinfangGetRunnable(dbQueryService, dbOperateService, httpOperateService);
+            XinfangGetRunnable myCalculateRunnable = new XinfangGetRunnable(dbQueryService, dbOperateService, httpOperateService, outerUrlsService);
             CronTrigger trigger = null;
             try {
                 trigger = new CronTrigger(cronExpression);
