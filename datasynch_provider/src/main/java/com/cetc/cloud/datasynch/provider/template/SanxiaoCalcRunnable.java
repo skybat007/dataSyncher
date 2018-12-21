@@ -1,5 +1,6 @@
 package com.cetc.cloud.datasynch.provider.template;
 
+import com.cetc.cloud.datasynch.provider.controller.RePullTableController;
 import com.cetc.cloud.datasynch.provider.service.impl.*;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,12 +19,13 @@ public class SanxiaoCalcRunnable implements OuterJobRunnableTemplate {
     private DbQueryService dbQueryService;
     private DbOperateService dbOperateService;
     private HttpOperateService httpOperateService;
+    private RePullTableController rePullTableController;
 
-
-    public SanxiaoCalcRunnable(DbQueryService dbQueryService, DbOperateService dbOperateService, HttpOperateService httpOperateService) {
+    public SanxiaoCalcRunnable(DbQueryService dbQueryService, DbOperateService dbOperateService, HttpOperateService httpOperateService,RePullTableController rePullTableController) {
         this.dbQueryService = dbQueryService;
         this.dbOperateService = dbOperateService;
         this.httpOperateService = httpOperateService;
+        this.rePullTableController = rePullTableController;
     }
 
     @Override
@@ -31,6 +33,7 @@ public class SanxiaoCalcRunnable implements OuterJobRunnableTemplate {
         Thread.currentThread().setName("calcTrblSanXiao");
         //todo 执行计算,输出匹配的三小场所id
         try {
+            rePullTableController.clearAndPullAgainTableByTableName("BLK_SANXIAO_PLACE");
             calculateHasTroubleSanXiao();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -40,7 +43,7 @@ public class SanxiaoCalcRunnable implements OuterJobRunnableTemplate {
     public void calculateHasTroubleSanXiao() throws SQLException {
         String sql0 = "update BLK_SANXIAO_PLACE set HAS_TROUBLE=0";
         int count0 = dbOperateService.oracleUpdateSql(sql0);
-        log.info("reset HAS_TROUBLE=0,changed rows:"+count0);
+        log.info("reset HAS_TROUBLE=0,changed rows:" + count0);
 
         //获取有未处理事件的三小场所ID的list
         String getTroublePlaceIds = "SELECT DISTINCT a.\"ID\"\n" +

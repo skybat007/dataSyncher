@@ -616,22 +616,67 @@ public class DbOperateService {
     public String backUpTable(String tableName) {
         //todo 执行备份
         int count = 0;
-        String newCopyName = tableName + "_copy" + count;
+        String newCopyName = tableName + "_COPY" + count;
         boolean ifExistsTable = false;
         while (true) {
             ifExistsTable = checkIfExistsTable(newCopyName);
             if (ifExistsTable == true) {
-                newCopyName = tableName + "_copy" + count;
+                newCopyName = tableName + "_COPY" + count;
                 count++;
 
             } else {
-                log.info("success! Table copy doesn't exists, will do backup by TableName:" + tableName + "_copy" + count);
+                log.info("success! Table copy doesn't exists, will do backup by TableName:" + tableName + "_COPY" + count);
                 break;
             }
         }
         backUpTable(tableName, newCopyName);
-
+        //删除多余的备份
+        try {
+            deleteRedundantTableCopies(tableName);
+        } catch (Exception e) {
+            log.error("" + e.getMessage());
+        }
         return newCopyName;
+    }
+
+    public void deleteRedundantTableCopies(String tableName) throws SQLException {
+
+        String SQL = "SELECT TABLE_NAME FROM USER_ALL_TABLES " +
+                "WHERE TABLE_NAME LIKE '" + tableName + "_COPY%'";
+        List<String> list = oracleQueryList(SQL);
+        log.info(SQL);
+        log.info("\nCopy counts:" + list.size());
+        if (list.size() >= 3) { //只留2个备份
+            log.info("\nPrepare Delete Redundant Copies");
+
+            list.sort(new Comparator() {
+                @Override
+                public int compare(Object o1, Object o2) {
+                    String obj1 = (String) o1;
+                    String obj2 = (String) o2;
+                    if (obj1.length() > 2 && obj2.length() > 2) {
+                        if (Integer.valueOf(obj1.substring(obj1.length() - 1, obj1.length())) > Integer.valueOf(obj2.substring(obj2.length() - 1, obj2.length()))) {
+                            return 1;
+                        } else if (Integer.valueOf(obj1.substring(obj1.length() - 1, obj1.length())) < Integer.valueOf(obj2.substring(obj2.length() - 1, obj2.length()))) {
+                            {
+                                return -1;
+                            }
+                        }
+                    }
+                    return 0;
+                }
+            });
+            for (int i=0;i<list.size()-2;i++){
+                boolean b = dropTable(list.get(i));
+                if (b) {
+                    log.info("\nSuccessfully Dropped Table:" + list.get(i));
+                }else {
+                    log.error("\nFailed Dropping Table:" + list.get(i));
+                }
+            }
+        } else {
+            return;
+        }
     }
 
     public boolean truncateTableByTbName(String targetTbName) {

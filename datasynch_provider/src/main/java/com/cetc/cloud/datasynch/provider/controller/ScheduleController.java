@@ -40,6 +40,8 @@ public class ScheduleController implements ScheduleRemoteService {
     HttpOperateService httpOperateService;
     @Autowired
     OuterUrlsService outerUrlsService;
+    @Autowired
+    RePullTableController rePullTableController;
 
     @Override
     public List<ScheduleModel> queryScheduleJobList() {
@@ -196,7 +198,7 @@ public class ScheduleController implements ScheduleRemoteService {
         String uuid = null;
         if (CommonInstance.JOB_calc_trouble_sanxiao.equals(jobName)) {
 
-            SanxiaoCalcRunnable myCalculateRunnable = new SanxiaoCalcRunnable(dbQueryService, dbOperateService, httpOperateService);
+            SanxiaoCalcRunnable myCalculateRunnable = new SanxiaoCalcRunnable(dbQueryService, dbOperateService, httpOperateService,rePullTableController);
             CronTrigger trigger = null;
             try {
                 trigger = new CronTrigger(cronExpression);

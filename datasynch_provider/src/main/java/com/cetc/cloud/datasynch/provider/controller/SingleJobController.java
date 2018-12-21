@@ -49,7 +49,8 @@ public class SingleJobController implements SingleJobRemoteService {
 
     @Autowired
     private XinfangEventMapper xinfangEventMapper;
-
+    @Autowired
+    RePullTableController rePullTableController;
     @Autowired
     private OuterUrlsService outerUrlsService;
 
@@ -74,7 +75,7 @@ public class SingleJobController implements SingleJobRemoteService {
 
     @Override
     public void calculateHasTroubleSanXiao() throws SQLException {
-        SanxiaoCalcRunnable sanxiaoCalcRunnable = new SanxiaoCalcRunnable(dbQueryService, dbOperateService, httpOperateService);
+        SanxiaoCalcRunnable sanxiaoCalcRunnable = new SanxiaoCalcRunnable(dbQueryService, dbOperateService, httpOperateService,rePullTableController);
         sanxiaoCalcRunnable.calculateHasTroubleSanXiao();
     }
 

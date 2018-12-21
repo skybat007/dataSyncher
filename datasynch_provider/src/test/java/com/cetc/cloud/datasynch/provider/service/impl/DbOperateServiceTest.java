@@ -37,4 +37,9 @@ public class DbOperateServiceTest extends TestCase {
         int seq_urban_risk_detail = dbOperateService.getNextSeqVal("SEQ_URBAN_RISK_DETAIL");
         System.out.println("SEQ_URBAN_RISK_DETAIL.netxVal:" + seq_urban_risk_detail);
     }
+    @Test
+    public void testDeleteRedundantTableCopies() throws Exception {
+        String tableName = "TEST";
+        dbOperateService.deleteRedundantTableCopies(tableName);
+    }
 }
