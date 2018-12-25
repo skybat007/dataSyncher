@@ -120,23 +120,26 @@ public class HttpClientUtil2 {
     }
 
     public static String toHttpParamStr(String url, JSONObject params) {
-        Set<String> keySet = params.keySet();
-        Iterator<String> iterator = keySet.iterator();
         String paramStr = "";
-        while (iterator.hasNext()) {
-            String key = iterator.next();
-            paramStr += key + "=" + params.getString(key) + "&";
-        }
-        if (params.size() == 0) {
+        if (null == params) {
             String res = url;
             return res;
-        } else {
-            String res = url + "?" + paramStr;
-            if (res.endsWith("&")) {
-                res = res.substring(0, res.length() - 1);
-            }
-            return res;
         }
+        if (params.size() != 0) {
+            Set<String> keySet = params.keySet();
+            Iterator<String> iterator = keySet.iterator();
+
+            while (iterator.hasNext()) {
+                String key = iterator.next();
+                paramStr += key + "=" + params.getString(key) + "&";
+            }
+        }
+        String res = url + "?" + paramStr;
+        if (res.endsWith("&")) {
+            res = res.substring(0, res.length() - 1);
+        }
+        return res;
+
     }
 
     public static JSONObject doPostWithParam_Body_Token(String url, JSONObject params, String bodyContent, String tokenStr) {
@@ -252,7 +255,9 @@ public class HttpClientUtil2 {
      * @return
      */
     public static JSONObject doGetWithAuthoration(String url, JSONObject params, Token token) {
+
         log.info("\n>>Http getMethod:URL:" + toHttpParamStr(url, params) + "\n");
+
         CloseableHttpClient httpClient = getHttpClient(url);
         JSONObject result = new JSONObject();
         result.put("success", true);

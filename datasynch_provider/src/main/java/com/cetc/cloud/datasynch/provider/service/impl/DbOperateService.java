@@ -137,6 +137,23 @@ public class DbOperateService {
 
         return resMap;
     }
+    public HashMap<String, String> queryTableStructureByTableName2(String tableName) throws SQLException {
+
+        String SQL = "SELECT column_name,data_type \n" +
+                "FROM user_tab_columns \n" +
+                "WHERE table_name ='" + tableName + "'";
+        List<HashMap> list = oracleQuerySql(SQL);
+        // 结果集 HashMap的Key是不能重复的，因此，每次put相同的key，都会将其value覆盖
+        HashMap<String, String> resMap = new HashMap<String, String>();
+
+        for (HashMap<String, String> map : list) {
+            String column_name = map.get("COLUMN_NAME");
+            String data_type = map.get("DATA_TYPE");
+            resMap.put(column_name, data_type);
+        }
+
+        return resMap;
+    }
 
     public List<HashMap> oracleQueryTable(String tbName) throws SQLException {
         List<HashMap> list = new ArrayList<HashMap>();

@@ -82,6 +82,7 @@ public class XinfangGetRunnable implements OuterJobRunnableTemplate  {
                     String VISITNO = next.getString("VISITNO");
                     if (!visitCodeSet.contains(VISITNO)) {
                         jsonRes1.add(next);
+                        visitCodeSet.add(VISITNO);
                     }
                 }
                 insertXinfangJSONData(jsonRes1);

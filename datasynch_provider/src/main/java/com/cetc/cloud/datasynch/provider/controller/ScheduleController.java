@@ -6,6 +6,7 @@ import com.cetc.cloud.datasynch.provider.service.impl.*;
 import com.cetc.cloud.datasynch.provider.common.CommonInstance;
 import com.cetc.cloud.datasynch.provider.template.ChengguanEventAttachRunnable;
 import com.cetc.cloud.datasynch.provider.template.SanxiaoCalcRunnable;
+import com.cetc.cloud.datasynch.provider.template.WeatherAlarmRunnable;
 import com.cetc.cloud.datasynch.provider.template.XinfangGetRunnable;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -171,6 +172,7 @@ public class ScheduleController implements ScheduleRemoteService {
         }
         return res;
     }
+
     @Override
     public HashMap<String, String> triggerOnceJobByTargetTableName(String tableName) {
         HashMap res = new HashMap();
@@ -198,7 +200,7 @@ public class ScheduleController implements ScheduleRemoteService {
         String uuid = null;
         if (CommonInstance.JOB_calc_trouble_sanxiao.equals(jobName)) {
 
-            SanxiaoCalcRunnable myCalculateRunnable = new SanxiaoCalcRunnable(dbQueryService, dbOperateService, httpOperateService,rePullTableController);
+            SanxiaoCalcRunnable myCalculateRunnable = new SanxiaoCalcRunnable(dbQueryService, dbOperateService, httpOperateService, rePullTableController);
             CronTrigger trigger = null;
             try {
                 trigger = new CronTrigger(cronExpression);
@@ -227,6 +229,18 @@ public class ScheduleController implements ScheduleRemoteService {
         if (CommonInstance.JOB_add_chengguanevent_attach.equals(jobName)) {
 
             ChengguanEventAttachRunnable myCalculateRunnable = new ChengguanEventAttachRunnable(dbQueryService, dbOperateService, httpOperateService, outerUrlsService);
+            CronTrigger trigger = null;
+            try {
+                trigger = new CronTrigger(cronExpression);
+            } catch (Exception e) {
+                log.error("Error cron Expression:" + cronExpression);
+            }
+            if (trigger != null) {
+                uuid = jobManageService.startOuterScheduledJob(jobName, myCalculateRunnable, trigger);
+            }
+        }
+        if (CommonInstance.JOB_get_weather_alarm_info.equals(jobName)) {
+            WeatherAlarmRunnable myCalculateRunnable = new WeatherAlarmRunnable(dbOperateService, outerUrlsService);
             CronTrigger trigger = null;
             try {
                 trigger = new CronTrigger(cronExpression);

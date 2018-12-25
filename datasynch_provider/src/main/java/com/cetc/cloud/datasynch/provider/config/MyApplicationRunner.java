@@ -29,5 +29,7 @@ public class MyApplicationRunner implements ApplicationRunner {
         scheduleController.startOuterScheduleJob(CommonInstance.JOB_get_today_xinfang,"00 40 17 * * ?");
         /*启动任务--获取时间附件信息*/
         scheduleController.startOuterScheduleJob(CommonInstance.JOB_add_chengguanevent_attach,"00 0/30 * * * ?");
+        /*启动任务--获取天气预警信息*/
+        scheduleController.startOuterScheduleJob(CommonInstance.JOB_get_weather_alarm_info,"00 0/15 * * * ?");
     }
 }
