@@ -44,6 +44,11 @@ public interface ScheduleService extends ScheduleRemoteService {
         }
 
         @Override
+        public HashMap<String, String> triggerOnceJobByTargetTableName(String tableName) {
+            return null;
+        }
+
+        @Override
         public HashMap<String, String> startOuterScheduleJob(String jobName, String cronExpression) {
             return null;
         }
