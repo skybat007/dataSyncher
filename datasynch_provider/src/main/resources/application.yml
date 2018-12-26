@@ -76,6 +76,11 @@ spring:
           password: ToKreDi*nJ
           driver-class-name: oracle.jdbc.driver.OracleDriver
           url: jdbc:oracle:thin:@10.190.55.65:9205/ORCL
+#        master:
+#          username: ZHFTYJJCPT_COPY
+#          password: 123456
+#          driver-class-name: oracle.jdbc.driver.OracleDriver
+#          url: jdbc:oracle:thin:@10.192.19.108:1521/ORCL
         readonly:
           username: ZHFTYJJCPT
           password: ToKreDi*nJ

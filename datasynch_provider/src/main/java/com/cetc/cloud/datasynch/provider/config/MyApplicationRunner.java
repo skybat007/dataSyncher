@@ -23,8 +23,10 @@ public class MyApplicationRunner implements ApplicationRunner {
     public void run(ApplicationArguments var1) throws Exception{
         /*启动所有的内部schedule任务*/
         scheduleController.startAllEnabledScheduleJobs();
+        /*启动任务--清空并重新拉取三小场所列表*/
+        scheduleController.startOuterScheduleJob(CommonInstance.JOB_repull_sanxiao_list, "0 00 8 * * ?");
         /*启动任务--计算隐患三小场所*/
-        scheduleController.startOuterScheduleJob(CommonInstance.JOB_calc_trouble_sanxiao, "0 0/30 * * * ?");
+        scheduleController.startOuterScheduleJob(CommonInstance.JOB_calc_trouble_sanxiao, "0 30 8 * * ?");
         /*启动任务--获取今日信访数据*/
         scheduleController.startOuterScheduleJob(CommonInstance.JOB_get_today_xinfang,"00 40 17 * * ?");
         /*启动任务--获取时间附件信息*/

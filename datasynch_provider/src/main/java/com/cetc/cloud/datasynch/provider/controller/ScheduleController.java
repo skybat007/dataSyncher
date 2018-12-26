@@ -4,10 +4,7 @@ import com.cetc.cloud.datasynch.api.model.ScheduleModel;
 import com.cetc.cloud.datasynch.api.service.ScheduleRemoteService;
 import com.cetc.cloud.datasynch.provider.service.impl.*;
 import com.cetc.cloud.datasynch.provider.common.CommonInstance;
-import com.cetc.cloud.datasynch.provider.template.ChengguanEventAttachRunnable;
-import com.cetc.cloud.datasynch.provider.template.SanxiaoCalcRunnable;
-import com.cetc.cloud.datasynch.provider.template.WeatherAlarmRunnable;
-import com.cetc.cloud.datasynch.provider.template.XinfangGetRunnable;
+import com.cetc.cloud.datasynch.provider.template.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.support.CronTrigger;
@@ -201,6 +198,21 @@ public class ScheduleController implements ScheduleRemoteService {
         if (CommonInstance.JOB_calc_trouble_sanxiao.equals(jobName)) {
 
             SanxiaoCalcRunnable myCalculateRunnable = new SanxiaoCalcRunnable(dbQueryService, dbOperateService, httpOperateService, rePullTableController);
+            CronTrigger trigger = null;
+            try {
+                trigger = new CronTrigger(cronExpression);
+            } catch (Exception e) {
+                log.error("Error cron Expression:" + cronExpression);
+            }
+
+            if (trigger != null) {
+                uuid = jobManageService.startOuterScheduledJob(jobName, myCalculateRunnable, trigger);
+            }
+            log.info("\n\n>>>>\n\n  >>>> scheduling job:" + jobName + " started!");
+        }
+        if (CommonInstance.JOB_repull_sanxiao_list.equals(jobName)) {
+
+            RepullSanxiaoListRunnable myCalculateRunnable = new RepullSanxiaoListRunnable(rePullTableController);
             CronTrigger trigger = null;
             try {
                 trigger = new CronTrigger(cronExpression);
