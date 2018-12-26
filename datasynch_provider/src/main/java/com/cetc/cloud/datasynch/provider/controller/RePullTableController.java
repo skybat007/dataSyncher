@@ -55,6 +55,7 @@ public class RePullTableController implements RePullTableRemoteService {
             int i = synchJobLogInfoService.deleteByJobId(scheduleModel.getId());
             int i1 =0;
             try {
+                log.info("started once job:");
                 jobManageService.startOnceJob(scheduleModel);
             }finally {
                 i1 = scheduleService.enableStatusByJobId(scheduleModel.getId());

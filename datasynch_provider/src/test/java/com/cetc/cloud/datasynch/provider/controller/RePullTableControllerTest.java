@@ -21,7 +21,7 @@ public class RePullTableControllerTest extends TestCase {
     RePullTableController rePullTableController;
 
     @Test
-    public void testClearAndPullAgainTableByJobId() throws Exception {
+    public void testClearAndPullAgainTableByTableName() throws Exception {
         log.info("start test");
         rePullTableController.clearAndPullAgainTableByTableName("BLK_SANXIAO_PLACE");
         log.info("end test");
