@@ -2,6 +2,7 @@ package com.cetc.cloud.datasynch.api.model;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.io.Serializable;
 
@@ -17,6 +18,7 @@ import java.io.Serializable;
  **/
 @Data
 @NoArgsConstructor
+@ToString
 public class DddOuterURLsModel implements Serializable {
 
     private String url;
