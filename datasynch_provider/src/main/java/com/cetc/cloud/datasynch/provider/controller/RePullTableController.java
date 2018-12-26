@@ -59,7 +59,6 @@ public class RePullTableController implements RePullTableRemoteService {
                 jobManageService.startOnceJob(scheduleModel);
             }finally {
                 i1 = scheduleService.enableStatusByJobId(scheduleModel.getId());
-
             }
             if (i > 0 && i1 >0) {
                 res.put("res", "success");

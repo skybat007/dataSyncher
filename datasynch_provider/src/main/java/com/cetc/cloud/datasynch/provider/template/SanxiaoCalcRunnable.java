@@ -21,7 +21,7 @@ public class SanxiaoCalcRunnable implements OuterJobRunnableTemplate {
     private HttpOperateService httpOperateService;
     private RePullTableController rePullTableController;
 
-    public SanxiaoCalcRunnable(DbQueryService dbQueryService, DbOperateService dbOperateService, HttpOperateService httpOperateService,RePullTableController rePullTableController) {
+    public SanxiaoCalcRunnable(DbQueryService dbQueryService, DbOperateService dbOperateService, HttpOperateService httpOperateService, RePullTableController rePullTableController) {
         this.dbQueryService = dbQueryService;
         this.dbOperateService = dbOperateService;
         this.httpOperateService = httpOperateService;
@@ -33,7 +33,7 @@ public class SanxiaoCalcRunnable implements OuterJobRunnableTemplate {
         Thread.currentThread().setName("calcTrblSanXiao");
         //todo 执行计算,输出匹配的三小场所id
         try {
-            rePullTableController.clearAndPullAgainTableByTableName("BLK_SANXIAO_PLACE");
+            log.info("calculateHasTroubleSanXiao");
             calculateHasTroubleSanXiao();
         } catch (SQLException e) {
             e.printStackTrace();
