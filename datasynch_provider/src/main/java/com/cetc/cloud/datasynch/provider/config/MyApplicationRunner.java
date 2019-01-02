@@ -23,15 +23,17 @@ public class MyApplicationRunner implements ApplicationRunner {
     public void run(ApplicationArguments var1) throws Exception{
         /*启动所有的内部schedule任务*/
         scheduleController.startAllEnabledScheduleJobs();
-        /*启动任务--清空并重新拉取三小场所列表*/
-        scheduleController.startOuterScheduleJob(CommonInstance.JOB_repull_sanxiao_list, "0 00 8 * * ?");
+        /*启动任务--比对更新三小场所列表*/
+        scheduleController.startOuterScheduleJob(CommonInstance.JOB_refresh_sanxiao_list, "00 00 8 * * ?");
         /*启动任务--计算隐患三小场所*/
-        scheduleController.startOuterScheduleJob(CommonInstance.JOB_calc_trouble_sanxiao, "0 30 8 * * ?");
+        scheduleController.startOuterScheduleJob(CommonInstance.JOB_calc_trouble_sanxiao, "00 30 8 * * ?");
         /*启动任务--获取今日信访数据*/
         scheduleController.startOuterScheduleJob(CommonInstance.JOB_get_today_xinfang,"00 40 17 * * ?");
         /*启动任务--获取时间附件信息*/
         scheduleController.startOuterScheduleJob(CommonInstance.JOB_add_chengguanevent_attach,"00 0/30 * * * ?");
         /*启动任务--获取天气预警信息*/
-        scheduleController.startOuterScheduleJob(CommonInstance.JOB_get_weather_alarm_info,"00 0/15 * * * ?");
+        scheduleController.startOuterScheduleJob(CommonInstance.JOB_get_weather_alarm_info,"00 0/5 * * * ?");
+        /*启动任务--获取空气AQI信息*/
+        scheduleController.startOuterScheduleJob(CommonInstance.JOB_generate_water_AQI_info,"00 00 * * * ?");
     }
 }

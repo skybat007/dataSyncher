@@ -102,7 +102,7 @@ public class SingleJobController implements SingleJobRemoteService {
     @Override
     public void insertXinfangDataToday() throws SQLException {
         log.info("Started Scheduled Job:insertXinfangDataToday()");
-        XinfangGetRunnable xinfangGetRunnable = new XinfangGetRunnable(dbQueryService, dbOperateService, httpOperateService, outerUrlsService);
+        XinfangGetRunnable xinfangGetRunnable = new XinfangGetRunnable(outerUrlsService);
         xinfangGetRunnable.run();
     }
 

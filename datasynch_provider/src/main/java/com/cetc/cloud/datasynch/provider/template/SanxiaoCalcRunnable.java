@@ -41,6 +41,12 @@ public class SanxiaoCalcRunnable implements OuterJobRunnableTemplate {
     }
 
     public void calculateHasTroubleSanXiao() throws SQLException {
+        int counts = dbOperateService.getTableRowCounts("BLK_SANXIAO_PLACE");
+        if (counts==0) {
+            log.error("table BLK_SANXIAO_PLACE counts is 0 !!");
+            return;
+        }
+
         String sql0 = "update BLK_SANXIAO_PLACE set HAS_TROUBLE=0";
         int count0 = dbOperateService.oracleUpdateSql(sql0);
         log.info("reset HAS_TROUBLE=0,changed rows:" + count0);

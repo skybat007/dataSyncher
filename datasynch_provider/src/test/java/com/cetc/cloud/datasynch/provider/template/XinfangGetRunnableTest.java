@@ -26,8 +26,9 @@ public class XinfangGetRunnableTest extends TestCase {
     HttpOperateService httpOperateService;
     @Autowired
     OuterUrlsService outerUrlsService;
+
     public void testInsertXinfangDataToday() throws Exception {
-        XinfangGetRunnable xinfangGetRunnable = new XinfangGetRunnable(dbQueryService, dbOperateService, httpOperateService, outerUrlsService);
+        XinfangGetRunnable xinfangGetRunnable = new XinfangGetRunnable(outerUrlsService);
         xinfangGetRunnable.run();
     }
 }

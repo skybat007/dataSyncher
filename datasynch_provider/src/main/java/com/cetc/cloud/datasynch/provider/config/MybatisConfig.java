@@ -1,5 +1,6 @@
 package com.cetc.cloud.datasynch.provider.config;
 
+import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.extension.plugins.PaginationInterceptor;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -32,30 +33,44 @@ public class MybatisConfig {
     public PaginationInterceptor paginationInterceptor() {
         return new PaginationInterceptor();
     }
+//
+//    @Bean(name = "primaryJdbcTemplate")
+//    @Primary
+//    public JdbcTemplate primaryJdbcTemplate(@Qualifier("primaryDataSource")DataSource dataSource) {
+//        return new JdbcTemplate(dataSource);
+//    }
+//
+//    @Bean(name = "primaryDataSource")
+//    @ConfigurationProperties(prefix = "spring.datasource.dynamic.datasource.master")
+//    @Primary
+//    public DataSource primaryDataSource() {
+//        DataSource dataSource = DataSourceBuilder.create().build();
+//        return dataSource;
+//    }
+//
+//    @Bean(name = "readOnlyJdbcTemplate")
+//    public JdbcTemplate readOnlyJdbcTemplate(@Qualifier("readOnlyDataSource")DataSource dataSource) {
+//        return new JdbcTemplate(dataSource);
+//    }
+//
+//
+//    @Bean(name = "readOnlyDataSource")
+//    @ConfigurationProperties(prefix = "spring.datasource.dynamic.datasource.readonly")
+//    public DataSource readOnlyDataSource() {
+//        DataSource dataSource = DataSourceBuilder.create().build();
+//        return dataSource;
+//    }
 
-    @Bean(name = "primaryJdbcTemplate")
-    @Primary
-    public JdbcTemplate primaryJdbcTemplate(@Qualifier("primaryDataSource")DataSource dataSource) {
-        return new JdbcTemplate(dataSource);
-    }
-
-    @Bean(name = "primaryDataSource")
-    @ConfigurationProperties(prefix = "spring.datasource.dynamic.datasource.master")
-    @Primary
-    public DataSource primaryDataSource() {
-        DataSource dataSource = DataSourceBuilder.create().build();
-        return dataSource;
-    }
-
-    @Bean(name = "readOnlyJdbcTemplate")
-    public JdbcTemplate readOnlyJdbcTemplate(@Qualifier("readOnlyDataSource")DataSource dataSource) {
-        return new JdbcTemplate(dataSource);
-    }
-
-    @Bean(name = "readOnlyDataSource")
-    @ConfigurationProperties(prefix = "spring.datasource.dynamic.datasource.readonly")
-    public DataSource readOnlyDataSource() {
-        DataSource dataSource = DataSourceBuilder.create().build();
-        return dataSource;
-    }
+//    @Bean(name = "thirdJdbcTemplate")
+//    public JdbcTemplate slave2JdbcTemplate(@Qualifier("thirdDataSource")DataSource dataSource) {
+//        return new JdbcTemplate(dataSource);
+//    }
+//
+//    @Bean(name = "thirdDataSource")
+//    @DS("third")
+//    @ConfigurationProperties(prefix = "spring.datasource.dynamic.datasource.third")
+//    public DataSource thirdDataSource() {
+//        DataSource dataSource = DataSourceBuilder.create().build();
+//        return dataSource;
+//    }
 }

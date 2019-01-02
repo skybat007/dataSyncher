@@ -77,7 +77,6 @@ public class SequenceManagerControllerTest extends TestCase {
     @Test
     public void testExactAllSequences() throws Exception {
 
-
         String s = sequenceManagerController.exactAllSequences();
         System.out.println(s);
     }

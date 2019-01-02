@@ -28,15 +28,9 @@ import java.util.*;
 @Slf4j
 public class XinfangGetRunnable implements OuterJobRunnableTemplate  {
 
-    private DbQueryService dbQueryService;
-    private DbOperateService dbOperateService;
-    private HttpOperateService httpOperateService;
     private OuterUrlsService outerUrlsService;
 
-    public XinfangGetRunnable(DbQueryService dbQueryService, DbOperateService dbOperateService, HttpOperateService httpOperateService,OuterUrlsService outerUrlsService) {
-        this.dbQueryService = dbQueryService;
-        this.dbOperateService = dbOperateService;
-        this.httpOperateService = httpOperateService;
+    public XinfangGetRunnable(OuterUrlsService outerUrlsService) {
         this.outerUrlsService = outerUrlsService;
     }
 
@@ -61,8 +55,7 @@ public class XinfangGetRunnable implements OuterJobRunnableTemplate  {
         DddOuterURLsModel tokenModel = outerUrlsService.getModelByObjectId(xinfangModel.getToken_link_id());
         //3.获取最新token值
         String tokenString = getXinfangTokenStr(tokenModel);
-        //todo 在线请求
-
+        //在线请求
         if (tokenString != null) {
             SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
             String formatedDate = format.format(new Date());
@@ -106,12 +99,9 @@ public class XinfangGetRunnable implements OuterJobRunnableTemplate  {
         }
     }
 
-    private void insertXinfangJSONData(JSONArray jsonRes) {
+    private void insertXinfangJSONData(JSONArray dataArr) {
 //        int count = jsonRes.getIntValue("count");
         //todo 获取信访visitCode集合，用于比对重复值
-
-
-        JSONArray dataArr = jsonRes;
         for (int i = 0; i < dataArr.size(); i++) {
             JSONObject obj = dataArr.getJSONObject(i);
             XinFangEventModel xinFangEventModel = new XinFangEventModel();

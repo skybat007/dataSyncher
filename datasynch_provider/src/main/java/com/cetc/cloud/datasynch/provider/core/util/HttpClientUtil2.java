@@ -134,7 +134,12 @@ public class HttpClientUtil2 {
                 paramStr += key + "=" + params.getString(key) + "&";
             }
         }
-        String res = url + "?" + paramStr;
+        String res = "";
+        if (paramStr.length()!=0) {
+            res = url + "?" + paramStr;
+        }else {
+            res = url;
+        }
         if (res.endsWith("&")) {
             res = res.substring(0, res.length() - 1);
         }
@@ -196,7 +201,7 @@ public class HttpClientUtil2 {
 
 
     public static JSONObject doPostWithBody(String url, JSONObject params, String bodyContent) {
-        log.info("\n>>Http getMethod:URL:" + toHttpParamStr(url, params) + "\n");
+        log.info("\n>>Http doPostWithBody:URL:" + toHttpParamStr(url, params) + "\n");
         CloseableHttpClient httpClient = getHttpClient(url);
         JSONObject result = new JSONObject();
         result.put("success", true);

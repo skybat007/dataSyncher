@@ -1,5 +1,6 @@
 package com.cetc.cloud.datasynch.provider.mapper;
 
+import com.baomidou.dynamic.datasource.annotation.DS;
 import com.cetc.cloud.datasynch.api.model.XinFangEventModel;
 import com.cetc.cloud.datasynch.api.model.XinFangPeopleModel;
 import org.apache.ibatis.annotations.Mapper;
@@ -21,6 +22,7 @@ import java.util.Set;
  * Update_Description: luolinjie 补充
  **/
 @Mapper
+@DS("master")
 public interface XinfangEventMapper {
 
     int addEvent(@Param("xinFangEventModel")XinFangEventModel xinFangEventModel);

@@ -15,7 +15,6 @@ package com.cetc.cloud.datasynch.provider.service.impl;
 import com.baomidou.dynamic.datasource.annotation.DS;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.jdbc.support.rowset.SqlRowSetMetaData;
@@ -43,7 +42,6 @@ import java.util.List;
 public class DbQueryService {
 
     @Autowired
-    @Qualifier("readOnlyJdbcTemplate")
     JdbcTemplate readOnlyJdbcTemplate;
     /**
      * 获取 <表名,<字段名,数据类型 > >组成的Map
@@ -57,7 +55,7 @@ public class DbQueryService {
                     "WHERE table_name in(\n" +
                     "SELECT table_name from user_all_tables \n" +
                     ")";
-        List<HashMap> list = oracleQuerySql(SQL);
+        List<HashMap> list = oracleQuerySql_readOnly(SQL);
         HashMap<String, HashMap> resMap = new HashMap<String, HashMap>();
         for (HashMap<String, String> map : list) {
             HashMap<String, String> colName_type = new HashMap<String, String>();
@@ -92,7 +90,7 @@ public class DbQueryService {
     }
 
 
-    public List<HashMap> oracleQuerySql(String sql) {
+    public List<HashMap> oracleQuerySql_readOnly(String sql) {
         List<HashMap> data = new ArrayList<HashMap>();
         log.debug("\r\n-------->------------------->--------------------------->\r\n"+
                 readOnlyJdbcTemplate.getDataSource().toString());
@@ -112,7 +110,7 @@ public class DbQueryService {
         return data;
     }
 
-    public boolean checkIfTableExists(String tbName) {
+    public boolean checkIfTableExists_readOnly(String tbName) {
         String sql = "SELECT COUNT(*) FROM " + tbName;
         log.debug("sql: " + sql);
         SqlRowSet resultSet = null;
@@ -132,7 +130,7 @@ public class DbQueryService {
         }
         return false;
     }
-    public int getTableRowCounts(String tbName) {
+    public int getTableRowCounts_readOnly(String tbName) {
         String sql = "SELECT COUNT(*) FROM " + tbName;
         log.debug("sql: " + sql);
 

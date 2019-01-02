@@ -42,7 +42,7 @@ public class ValueDictController implements ValueDictRemoteService {
     @Autowired
     ValueDictService valueDictService;
     @Autowired
-    @Qualifier("primaryJdbcTemplate")
+//    @Qualifier("primaryJdbcTemplate")
     private JdbcTemplate primaryJdbcTemplate;
 
 

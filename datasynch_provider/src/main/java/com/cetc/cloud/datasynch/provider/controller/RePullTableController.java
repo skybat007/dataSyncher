@@ -34,6 +34,8 @@ public class RePullTableController implements RePullTableRemoteService {
     DbOperateService dbOperateService;
     @Autowired
     JobManageService jobManageService;
+    @Autowired
+    ScheduleController scheduleController;
 
     @Override
     public String clearAndPullAgainTableByTableName(String tableName) {
@@ -48,32 +50,29 @@ public class RePullTableController implements RePullTableRemoteService {
         //2.清空表
         String copyName = dbOperateService.backUpTable(scheduleModel.getTargetTableName());
         log.info("\n>> BackUpTable:"+scheduleModel.getTargetTableName()+"\nbackup tableName："+copyName);
+
         boolean clearRes = dbOperateService.truncateTableByTbName(scheduleModel.getTargetTableName());
 
         //3.通过jobId清空日志
         if (clearRes) {
             int i = synchJobLogInfoService.deleteByJobId(scheduleModel.getId());
-            int i1 =0;
+            if (i>0){
+                log.info("delete schedule log success:"+i);
+            }
             try {
-                jobManageService.startOnceJob(scheduleModel);
-            }finally {
-                i1 = scheduleService.enableStatusByJobId(scheduleModel.getId());
+                log.info("started once job:");
+                scheduleController.triggerOnceJobByTargetTableName(scheduleModel.getTargetTableName());
+            }catch (Exception e){
+                log.error("Error starting once job:triggerOnceJobByTargetTableName()"+scheduleModel.getTargetTableName());
             }
-            if (i > 0 && i1 >0) {
-                res.put("res", "success");
-                res.put("msg", "successfully executed clearAndPullAgainTableByTableName, targetTable:" + scheduleModel.getTargetTableName());
-                return res.toJSONString();
-            } else {
-                res.put("res", "fail");
-                res.put("msg", "failed executed clearAndPullAgainTableByTableName, targetTable:" + scheduleModel.getTargetTableName());
-                return res.toJSONString();
-            }
+            res.put("res", "success");
+            res.put("msg", "success executed clearAndPullAgainTableByTableName, targetTable:" + scheduleModel.getTargetTableName());
+            return res.toJSONString();
         } else {
             res.put("res", "fail");
-            res.put("msg", "failed executed truncateTableByTbName, targetTable:" + scheduleModel.getTargetTableName());
+            res.put("msg", "failed executed clearAndPullAgainTableByTableName, targetTable:" + scheduleModel.getTargetTableName());
             return res.toJSONString();
         }
-
 
     }
 }

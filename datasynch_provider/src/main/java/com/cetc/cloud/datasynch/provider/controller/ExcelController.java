@@ -30,7 +30,7 @@ import java.util.List;
 public class ExcelController implements ExcelRemoteService {
 
     @Autowired
-    @Qualifier("primaryJdbcTemplate")
+//    @Qualifier("primaryJdbcTemplate")
     private JdbcTemplate primaryJdbcTemplate;
 
     @Override

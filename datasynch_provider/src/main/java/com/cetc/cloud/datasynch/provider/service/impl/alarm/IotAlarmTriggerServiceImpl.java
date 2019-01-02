@@ -32,7 +32,7 @@ public class IotAlarmTriggerServiceImpl extends AlarmTriggerAbstract {
     IotAlarmTriggerMapper iotAlarmTriggerMapper;
 
 //    @Scheduled(cron = "0 0/5 * * * *")
-    @Scheduled(cron = "0/30 * * * * *")
+//    @Scheduled(cron = "0/30 * * * * *")
     public void schedule(){
         Thread.currentThread().setName("IotAlarm");
         long start = System.currentTimeMillis();

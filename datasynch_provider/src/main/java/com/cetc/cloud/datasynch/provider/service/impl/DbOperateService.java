@@ -17,7 +17,7 @@ import com.cetc.cloud.datasynch.api.model.ScheduleModel;
 import com.cetc.cloud.datasynch.provider.common.CommonInstance;
 import com.cetc.cloud.datasynch.provider.controller.SequenceManagerController;
 import com.cetc.cloud.datasynch.provider.core.util.ListUtil;
-import com.cetc.cloud.datasynch.provider.tools.DbTools;
+import com.cetc.cloud.datasynch.provider.core.tools.DbTools;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.jdbc.ScriptRunner;
@@ -49,9 +49,9 @@ import java.util.*;
 @Slf4j
 @DS("master")
 public class DbOperateService {
-    @Qualifier("primaryJdbcTemplate")
+    //    @Qualifier("jdbcTemplate")
     @Autowired
-    private JdbcTemplate primaryJdbcTemplate;
+    JdbcTemplate jdbcTemplate;
 
     @Autowired
     ColumnMappingService columnMappingService;
@@ -109,12 +109,18 @@ public class DbOperateService {
      * @return
      * @throws SQLException
      */
-    public HashMap<String, HashMap> queryTableStructureByTableName(String tableName) throws SQLException {
+    public HashMap<String, HashMap> queryTableStructureByTableName(String tableName) {
 
         String SQL = "SELECT table_name,column_name,data_type \n" +
                 "FROM user_tab_columns \n" +
                 "WHERE table_name ='" + tableName + "'";
-        List<HashMap> list = oracleQuerySql(SQL);
+        List<HashMap> list = null;
+        try {
+            list = oracleQuerySql(SQL);
+        } catch (Exception e) {
+            log.error("SQL Error：" + SQL);
+            e.printStackTrace();
+        }
         // 结果集 HashMap的Key是不能重复的，因此，每次put相同的key，都会将其value覆盖
         HashMap<String, HashMap> resMap = new HashMap<String, HashMap>();
         // 筛选存储当前业务库表的集合
@@ -137,6 +143,7 @@ public class DbOperateService {
 
         return resMap;
     }
+
     public HashMap<String, String> queryTableStructureByTableName2(String tableName) throws SQLException {
 
         String SQL = "SELECT column_name,data_type \n" +
@@ -162,7 +169,7 @@ public class DbOperateService {
         try {
             String sql = "select * from \"" + tbName + "\"";
             log.debug("sql: " + sql);
-            resultSet = primaryJdbcTemplate.queryForRowSet(sql);
+            resultSet = jdbcTemplate.queryForRowSet(sql);
             while (resultSet.next()) {
                 ResultSetMetaData resultSetMetaData = (ResultSetMetaData) resultSet.getMetaData();
                 int columnNumber = resultSetMetaData.getColumnCount();
@@ -182,10 +189,38 @@ public class DbOperateService {
         return list;
     }
 
+    /**
+     * 注意：只能指定返回2个字段
+     *
+     * @param sql
+     * @return
+     * @throws SQLException
+     */
+    @DS("master")
+    public List<List> oracleQueryList_2member(String sql) throws SQLException {
+        List<List> data = new ArrayList<List>();
+        SqlRowSet rs = jdbcTemplate.queryForRowSet(sql);
+        while (rs.next()) {
+            ArrayList<String> values = new ArrayList<>();
+            try {
+                String value1 = rs.getString(1);
+                values.add(value1);
+                String value2 = rs.getString(2);
+                values.add(value2);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            data.add(values);
+        }
+        log.debug("sql: " + sql);
+
+        return data;
+    }
+
     public List<HashMap> oracleQuerySql(String sql) throws SQLException {
         List<HashMap> data = new ArrayList<HashMap>();
         SqlRowSet rs = null;
-        rs = primaryJdbcTemplate.queryForRowSet(sql);
+        rs = jdbcTemplate.queryForRowSet(sql);
         while (rs.next()) {
             int len = rs.getMetaData().getColumnCount();
             LinkedHashMap row = new LinkedHashMap();
@@ -210,7 +245,7 @@ public class DbOperateService {
      */
     public List<String> oracleQueryList(String sql) throws SQLException {
         List<String> data = new ArrayList<String>();
-        SqlRowSet rs = primaryJdbcTemplate.queryForRowSet(sql);
+        SqlRowSet rs = jdbcTemplate.queryForRowSet(sql);
         while (rs.next()) {
             String value = rs.getString(1);
             data.add(value);
@@ -223,7 +258,7 @@ public class DbOperateService {
     public List<HashMap> oracleQuerySql(String sql, String urlOracle, String orclUsername, String orclPassword) throws SQLException {
         List<HashMap> data = new ArrayList<HashMap>();
         SqlRowSet rs = null;
-        rs = primaryJdbcTemplate.queryForRowSet(sql);
+        rs = jdbcTemplate.queryForRowSet(sql);
         while (rs.next()) {
             int len = rs.getMetaData().getColumnCount();
             LinkedHashMap row = new LinkedHashMap();
@@ -241,20 +276,81 @@ public class DbOperateService {
 
     public boolean oracleExecuteSql(String sql) throws SQLException {
 //     execute 方法返回一个 boolean 值，以指示第一个结果的形式。
-        primaryJdbcTemplate.execute(sql);
+        jdbcTemplate.execute(sql);
         log.debug("sql: " + sql);
         return true;
     }
 
     public int oracleUpdateSql(String sql) throws SQLException {
-        int update = primaryJdbcTemplate.update(sql);
+        int update = jdbcTemplate.update(sql);
         log.debug("sql: " + sql);
         return update;
     }
 
+//    /**
+//     * 批量执行Insert语句
+//     * @param sql
+//     * @return
+//     * @throws SQLException
+//     */
+//    public int oracleBatchInsertSql(String sql) throws SQLException {
+//        int update = jdbcTemplate.update(sql);
+//        log.debug("sql: " + sql);
+//        return update;
+//    }
+
+    /**
+     * 批量执行SQL语句
+     *
+     * @param sql
+     * @return
+     * @throws SQLException
+     */
+    public int[] oracleBatchSql(String[] sql) throws SQLException {
+        int[] ints = jdbcTemplate.batchUpdate(sql);
+        int successCount = 0;
+        int failCount = 0;
+        for (int i : ints) {
+            if (i == 1) {
+                successCount++;
+            } else {
+                failCount++;
+            }
+        }
+//        log.info("batch insert res: " + ints);
+        log.debug("sql: " + sql);
+        return new int[]{successCount, failCount};
+    }
+
+    /**
+     * 批量执行SQL语句
+     *
+     * @param sqls
+     * @return
+     * @throws SQLException
+     */
+    public int[] oracleBatchSql(List<String> sqls) {
+        if (sqls.size() == 0) {
+            log.error("Empty sqls:oracleBatchSql");
+            return new int[]{0, 0};
+        }
+        int[] ints = jdbcTemplate.batchUpdate(ListUtil.toStringArray(sqls));
+        int successCount = 0;
+        int failCount = 0;
+        for (int i : ints) {
+            if (i == 1) {
+                successCount++;
+            } else {
+                failCount++;
+            }
+        }
+        log.debug("sql: " + sqls);
+        return new int[]{successCount, failCount};
+    }
+
 
     public void oracleBatchSqlFile(String filePath) throws SQLException, IOException {
-        ScriptRunner runner = new ScriptRunner(primaryJdbcTemplate.getDataSource().getConnection());
+        ScriptRunner runner = new ScriptRunner(jdbcTemplate.getDataSource().getConnection());
 
         runner.setDelimiter(";");//每条命令间的分隔符
         Resources.setCharset(Charset.forName("UTF-8")); //设置字符集,不然中文乱码插入错误
@@ -324,7 +420,7 @@ public class DbOperateService {
             }
 
             //获取序列nextval值
-            SqlRowSet sqlRowSet = primaryJdbcTemplate.queryForRowSet("SELECT " + tbSeqMappingProp.getProperty(targetTableName) + ".NEXTVAL FROM DUAL");
+            SqlRowSet sqlRowSet = jdbcTemplate.queryForRowSet("SELECT " + tbSeqMappingProp.getProperty(targetTableName) + ".NEXTVAL FROM DUAL");
             int nextValue = 0;
             while (sqlRowSet.next()) {
                 nextValue = sqlRowSet.getInt(1);
@@ -338,7 +434,7 @@ public class DbOperateService {
                     " VALUES (" + nextValue + "," + tableValues + ")";
 
             log.debug("sql: " + sql);
-            int count = primaryJdbcTemplate.update(sql);
+            int count = jdbcTemplate.update(sql);
             if (count > 0) {
                 log.debug("insert successful！");
                 successCounter++;
@@ -375,6 +471,7 @@ public class DbOperateService {
         List keyList_SQL = new ArrayList<String>();
 
         if (mapping.size() == 0) {
+            log.error("Empty mapping!tableName:" + tableName);
             resList.add(CommonInstance.FAIL);
             resList.add(successCounter);
             resList.add(failCounter);
@@ -414,7 +511,7 @@ public class DbOperateService {
             }
 
             //获取序列nextval值
-            SqlRowSet sqlRowSet = primaryJdbcTemplate.queryForRowSet("SELECT " + tbSeqMappingProp.getProperty(targetTableName) + ".NEXTVAL FROM DUAL");
+            SqlRowSet sqlRowSet = jdbcTemplate.queryForRowSet("SELECT " + tbSeqMappingProp.getProperty(targetTableName) + ".NEXTVAL FROM DUAL");
             int nextValue = 0;
             while (sqlRowSet.next()) {
                 nextValue = sqlRowSet.getInt(1);
@@ -428,7 +525,7 @@ public class DbOperateService {
                     " VALUES (" + nextValue + "," + tableValues + ")";
 
             log.debug("sql: " + sql);
-            int count = primaryJdbcTemplate.update(sql);
+            int count = jdbcTemplate.update(sql);
             if (count > 0) {
 //                alarmMsgService.pushAlaramInfo(targetTableName, valueObj);
                 log.debug("insert successful！");
@@ -444,6 +541,91 @@ public class DbOperateService {
         resList.add(successCounter);
         resList.add(failCounter);
         return resList;
+    }
+
+
+    /**
+     * 优化版：利用批处理命令，执行insert语句
+     *
+     * @param queryResult
+     * @param tableName
+     * @return
+     */
+    public int[] batchInsertIntoTargetTableByTableName(List<HashMap> queryResult, String tableName) {
+        if (null == queryResult) {
+            return new int[]{0, 0};
+        }
+        if (tbSeqMappingProp == null) {
+            try {
+                tbSeqMappingProp = sequenceManagerController.loadMappingExcel();
+            } catch (Exception e) {
+                log.error("Error: cannot Execute : DbOperateService：sequenceManagerController.loadMappingExcel(); ");
+            }
+        }
+        List<Integer> resList = new ArrayList<Integer>();
+        //获取 "字段-字段类型" 映射map
+        HashMap<String, HashMap> tbStructureMap = queryTableStructureByTableName(tableName);
+
+        //根据targetTable获取对应的字段映射表(需要过滤掉为null的字段)
+        HashMap mapping = columnMappingService.getColumnMappingByTargetTableName(tableName);
+        if (mapping.size() == 0) {
+            log.error("Empty mapping!tableName:" + tableName);
+            return new int[]{0, queryResult.size()};
+        }
+
+        int successCounter = 0;
+        int failCounter = 0;
+        List keyList_SQL = new ArrayList<String>();
+        /**要让映射过程可控，就需要以定义的mapping表为参考标准拼接SQL*/
+        //遍历mapping，并根据mapping结果集中的key，将值通过映射表映射到数据库中
+        Set set = mapping.keySet();//这里以mapping的keyset作为参考表，即使源表中多余的字段，也不会因mapping中没有对应的字段映射而报错
+        Iterator iterator = set.iterator();
+        while (iterator.hasNext()) {
+            String k = (String) iterator.next();//mapping的keyName
+            keyList_SQL.add(mapping.get(k));
+        }
+
+        ArrayList<String> insertSQLList = new ArrayList<>();
+
+        for (int i = 0; i < queryResult.size(); i++) {
+            List valueList_SQL = new ArrayList<String>();
+            HashMap valueObj = queryResult.get(i);
+            Set set1 = mapping.keySet();//这里以mapping的keyset作为参考表，即使源表中多余的字段，也不会因mapping中没有对应的字段映射而报错
+            Iterator iterator1 = set1.iterator();
+            while (iterator1.hasNext()) {
+                String k = (String) iterator1.next();//mapping的keyName
+                valueList_SQL.add(valueObj.get(k));
+            }
+            String targetTableName = tableName;
+            //根据表名、字段名称集合,与表结构 获取 组装后的SQL值String
+            String tableValues = getTableValuesSQLString(targetTableName, keyList_SQL, valueList_SQL, tbStructureMap);
+            //异常情况处理：如果不能在业务库中找到这张目标表对应的表结构,则放弃执行该任务
+            if (null == tableValues || "".equals(tableValues)) {
+                log.error("cannot find target table:\"" + targetTableName + "\" in targetDB");
+                return new int[]{0, queryResult.size()};
+            }
+            String sequenceName = tbSeqMappingProp.getProperty(targetTableName);
+
+            String sql = "INSERT INTO \"" + targetTableName + "\"(" +
+                    CommonInstance.GLOBAL_COLNAME_INCRE_ID + "," +
+                    //组装key列表
+                    ListUtil.getSQLColumnsListWithQuotes(keyList_SQL) + ")" +
+                    //组装value列表
+                    " VALUES (" + sequenceName + ".NEXTVAL," + tableValues + ")";
+            insertSQLList.add(sql);
+        }
+
+        int[] batchSqlRes = null;
+        log.info("ListToInsert.size():" + insertSQLList.size());
+        try {
+            batchSqlRes = oracleBatchSql(ListUtil.toStringArray(insertSQLList));
+            log.info("\nInsert:SuccessCount:" + batchSqlRes[0]);
+            log.info("\nInsert:FailCount:" + batchSqlRes[1]);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return batchSqlRes;
     }
 
     /**
@@ -487,19 +669,18 @@ public class DbOperateService {
                 return true;
             }
         } catch (Exception e) {
-            log.error("DbOperateService.checkIfTableExists(),SQL:" + sql);
+            log.error("DbOperateService.checkIfTableExists_readOnly(),SQL:" + sql);
 //            e.printStackTrace();
             return false;
         }
         return false;
     }
 
-
     public int getTableRowCounts(String tbName) throws SQLException {
         String sql = "SELECT COUNT(*) FROM \"" + tbName + "\"";
         log.debug("sql: " + sql);
 
-        SqlRowSet resultSet = primaryJdbcTemplate.queryForRowSet(sql);
+        SqlRowSet resultSet = jdbcTemplate.queryForRowSet(sql);
         String count = null;
         while (resultSet.next()) {
             count = resultSet.getString(1);
@@ -511,7 +692,7 @@ public class DbOperateService {
         String SQL = "select count(1) COUNT \n" +
                 "from dba_sequences \n" +
                 "where sequence_owner='" + orclUsername + "' and SEQUENCE_NAME='" + sequenceName + "'";
-        SqlRowSet sqlRowSet = primaryJdbcTemplate.queryForRowSet(SQL);
+        SqlRowSet sqlRowSet = jdbcTemplate.queryForRowSet(SQL);
         int count = 0;
         log.info("\nsql:" + SQL);
         while (sqlRowSet.next()) {
@@ -528,7 +709,7 @@ public class DbOperateService {
         String SQL = "select count(1) COUNT \n" +
                 "from dba_sequences \n" +
                 "where sequence_owner='" + orclUsername + "' and SEQUENCE_NAME='" + targetTableName + "'";
-        SqlRowSet sqlRowSet = primaryJdbcTemplate.queryForRowSet(SQL);
+        SqlRowSet sqlRowSet = jdbcTemplate.queryForRowSet(SQL);
         int count = 0;
         log.info("\nsql:" + SQL);
         while (sqlRowSet.next()) {
@@ -545,7 +726,7 @@ public class DbOperateService {
         String SQL = "select count(1) COUNT \n" +
                 "from dba_sequences \n" +
                 "where sequence_owner='" + orclUsername + "' and SEQUENCE_NAME='SEQ_" + targetTableName + "'";
-        SqlRowSet sqlRowSet = primaryJdbcTemplate.queryForRowSet(SQL);
+        SqlRowSet sqlRowSet = jdbcTemplate.queryForRowSet(SQL);
         int count = 0;
         log.info("\nsql:" + SQL);
         while (sqlRowSet.next()) {
@@ -565,13 +746,13 @@ public class DbOperateService {
                 "start with 1\n" +
                 "increment by 1\n" +
                 "cache 50";
-        primaryJdbcTemplate.execute(sql);
+        jdbcTemplate.execute(sql);
         return true;
     }
 
     public boolean dropSequence(String sequenceName) {
         String sql = "drop sequence " + sequenceName;
-        primaryJdbcTemplate.execute(sql);
+        jdbcTemplate.execute(sql);
         return true;
     }
 
@@ -581,7 +762,7 @@ public class DbOperateService {
                 "FROM user_tab_columns" +
                 " WHERE TABLE_NAME ='" + targetTableName + "'" +
                 " AND column_name= '" + globalIncreIdColname + "'";
-        SqlRowSet sqlRowSet = primaryJdbcTemplate.queryForRowSet(sql);
+        SqlRowSet sqlRowSet = jdbcTemplate.queryForRowSet(sql);
         int count = 0;
         while (sqlRowSet.next()) {
             count = sqlRowSet.getInt(1);
@@ -597,28 +778,28 @@ public class DbOperateService {
     public boolean addColumn(String targetTableName, String columnName, String columnType_len) {
 
         String sql = "alter table " + targetTableName + " add " + columnName + " " + columnType_len;
-        primaryJdbcTemplate.execute(sql);
+        jdbcTemplate.execute(sql);
         return true;
     }
 
     public boolean addColumnComment(String targetTableName, String columnName, String columnComment) {
 
         String sql = "COMMENT ON COLUMN \"" + orclUsername + "\".\"" + targetTableName + "\".\"" + columnName + "\" IS \'" + columnComment + "\'";
-        primaryJdbcTemplate.execute(sql);
+        jdbcTemplate.execute(sql);
         return true;
     }
 
     public boolean addTableComment(String targetTableName, String tableComment) {
 
         String sql = "COMMENT ON TABLE \"" + orclUsername + "\".\"" + targetTableName + "\" IS " + tableComment;
-        primaryJdbcTemplate.execute(sql);
+        jdbcTemplate.execute(sql);
         return true;
     }
 
     public boolean checkIfExistsTable(String targetTableName) {
         String sql = "SELECT count(1) from user_all_tables " +
                 "WHERE table_name ='" + targetTableName + "'";
-        SqlRowSet sqlRowSet = primaryJdbcTemplate.queryForRowSet(sql);
+        SqlRowSet sqlRowSet = jdbcTemplate.queryForRowSet(sql);
         int count = 0;
         while (sqlRowSet.next()) {
             count = sqlRowSet.getInt(1);
@@ -683,11 +864,11 @@ public class DbOperateService {
                     return 0;
                 }
             });
-            for (int i=0;i<list.size()-2;i++){
+            for (int i = 0; i < list.size() - 2; i++) {
                 boolean b = dropTable(list.get(i));
                 if (b) {
                     log.info("\nSuccessfully Dropped Table:" + list.get(i));
-                }else {
+                } else {
                     log.error("\nFailed Dropping Table:" + list.get(i));
                 }
             }
@@ -699,8 +880,10 @@ public class DbOperateService {
     public boolean truncateTableByTbName(String targetTbName) {
         boolean ifExistsTable = checkIfExistsTable(targetTbName);
         if (ifExistsTable) {
+            log.info("prepare truncate table:" + targetTbName);
             String sql = "truncate TABLE \"" + orclUsername + "\".\"" + targetTbName + "\"";
-            primaryJdbcTemplate.execute(sql);
+            jdbcTemplate.execute(sql);
+            log.info("done truncate table:" + targetTbName);
             return true;
         } else {
             log.error("\n >>> Table does not exists! tableName:" + targetTbName);
@@ -712,7 +895,7 @@ public class DbOperateService {
         boolean ifExistsTable = checkIfExistsTable(tableName);
         if (ifExistsTable) {
             String sql = "DROP TABLE \"" + orclUsername + "\".\"" + tableName + "\"";
-            primaryJdbcTemplate.execute(sql);
+            jdbcTemplate.execute(sql);
             return true;
         } else {
             log.error("\n >>> Table does not exists! tableName:" + tableName);
@@ -731,11 +914,11 @@ public class DbOperateService {
         //todo 3.获取差值 objectID：215  nextVal：315 目标值：215   215-315= -100
         int differNum = maxObjectId - nextSeqVal;
         String SQL1 = "alter sequence \"" + orclUsername + "\".\"SEQ_" + tableName + "\" increment by " + differNum;
-        primaryJdbcTemplate.execute(SQL1);
+        jdbcTemplate.execute(SQL1);
         int nextSeqVal2 = getNextSeqVal(tableName);
         if (maxObjectId == nextSeqVal2) {
             String SQL2 = "alter sequence SEQ_" + tableName + " increment by 1";
-            primaryJdbcTemplate.execute(SQL2);
+            jdbcTemplate.execute(SQL2);
             return true;
         }
 
@@ -746,7 +929,7 @@ public class DbOperateService {
     public int getMaxObjectId(String tableName) {
         int maxObjId = -1;
         String sql = "select max(OBJECT_ID) FROM \"" + orclUsername + "\".\"" + tableName + "\"";
-        SqlRowSet rowSet = primaryJdbcTemplate.queryForRowSet(sql);
+        SqlRowSet rowSet = jdbcTemplate.queryForRowSet(sql);
         if (!rowSet.wasNull()) {
             rowSet.next();
             maxObjId = rowSet.getInt(1);
@@ -757,7 +940,7 @@ public class DbOperateService {
     public int getNextSeqVal(String sequenceName) {
         int nextVal = -1;
         String sql = "select " + sequenceName + ".nextval from dual";
-        SqlRowSet rowSet = primaryJdbcTemplate.queryForRowSet(sql);
+        SqlRowSet rowSet = jdbcTemplate.queryForRowSet(sql);
         try {
             rowSet.next();
             return rowSet.getInt(1);
@@ -774,13 +957,42 @@ public class DbOperateService {
      */
     public void backUpTable(String srcTableName, String bkTableName) {
         String SQL = "create TABLE \"" + orclUsername + "\".\"" + bkTableName + "\" as  SELECT * FROM " + srcTableName;
-        primaryJdbcTemplate.execute(SQL);
+        jdbcTemplate.execute(SQL);
+//        增加约束
+        String SQL2 = "select COLUMN_NAME,DATA_DEFAULT\n" +
+                "from user_tab_columns\n" +
+                "where table_name='" + srcTableName + "'\n" +
+                "and data_default is not null";
+        List<HashMap> hashMaps = null;
+        try {
+            hashMaps = oracleQuerySql(SQL2);
+            if (null == hashMaps) {
+                return;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        for (HashMap map : hashMaps) {
+            String column_name = (String) map.get("COLUMN_NAME");
+            String data_default = (String) map.get("DATA_DEFAULT");
+            int i = executeAlterTableSQL(bkTableName, column_name, data_default);
+            if (i>0){
+                log.info("Add Table Constraint:executeAlterTableSQL(bkTableName, column_name, data_default)"+bkTableName+ column_name+ data_default);
+            }
+        }
     }
+
+    private int executeAlterTableSQL(String tableName, String column_name, String data_default) {
+        String sql = "alter table " + tableName + " modify " + column_name + " default " + data_default;
+        int update = jdbcTemplate.update(sql);
+        return update;
+    }
+
 
     public List getAllSequenceNameList() {
         List<String> list = new ArrayList<String>();
         String SQL = "SELECT sequence_name from user_sequences";
-        SqlRowSet rowSet = primaryJdbcTemplate.queryForRowSet(SQL);
+        SqlRowSet rowSet = jdbcTemplate.queryForRowSet(SQL);
         while (rowSet.next()) {
             String seq_name = rowSet.getString(1);
             list.add(seq_name);
@@ -791,7 +1003,7 @@ public class DbOperateService {
     public List getAllTableList() {
         List list = new ArrayList();
         String sql = "SELECT TABLE_NAME FROM USER_TABLES";
-        SqlRowSet rowSet = primaryJdbcTemplate.queryForRowSet(sql);
+        SqlRowSet rowSet = jdbcTemplate.queryForRowSet(sql);
         while (rowSet.next()) {
             String table_name = rowSet.getString(1);
             list.add(table_name);

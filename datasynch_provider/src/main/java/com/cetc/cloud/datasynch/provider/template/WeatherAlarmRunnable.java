@@ -8,7 +8,7 @@ import com.cetc.cloud.datasynch.api.model.Token;
 import com.cetc.cloud.datasynch.provider.core.util.HttpClientUtil2;
 import com.cetc.cloud.datasynch.provider.service.impl.DbOperateService;
 import com.cetc.cloud.datasynch.provider.service.impl.OuterUrlsService;
-import com.cetc.cloud.datasynch.provider.tools.DbTools;
+import com.cetc.cloud.datasynch.provider.core.tools.DbTools;
 import lombok.extern.slf4j.Slf4j;
 
 import java.sql.SQLException;
@@ -60,7 +60,7 @@ public class WeatherAlarmRunnable implements OuterJobRunnableTemplate {
                 try {
                     String warningContent = singleInfo.getString("WarningContent");
                     JSONArray warningInfo = singleInfo.getJSONArray("WarningInfo");
-                    JSONObject warningInfoObj = warningInfo.getJSONObject(1);
+                    JSONObject warningInfoObj = warningInfo.getJSONObject(0);
                     String releaseTime = warningInfoObj.getString("ReleaseTime");
                     String releaseArea = warningInfoObj.getString("ReleaseArea");
                     String alertCategory = warningInfoObj.getString("AlertCategory");
@@ -78,24 +78,24 @@ public class WeatherAlarmRunnable implements OuterJobRunnableTemplate {
                     String decoratedColumn_warninglevel = DbTools.getDecoratedColumn(warninglevel, warningLevel);
                     String decoratedColumn_releasetime = DbTools.getDecoratedColumn(releasetime, releaseTime);
                     String decoratedColumn_warningcontent = DbTools.getDecoratedColumn(warningcontent, warningContent);
-                    String sql = "insert int weather_alarm(RELEASEAREA,ALERTCATEGORY,WARNINGLEVEL,RELEASETIME,WARNINGCONTENT)" +
-                            " values("
+                    String sql = "insert into weather_alarm(OBJECT_ID,RELEASEAREA,ALERTCATEGORY,WARNINGLEVEL,RELEASETIME,WARNINGCONTENT)" +
+                            " values( SEQ_WEATHER_ALARM.NEXTVAL,"
                             +decoratedColumn_releaseArea+","
                             +decoratedColumn_alertcategory+","
                             +decoratedColumn_warninglevel+","
                             +decoratedColumn_releasetime+","
                             +decoratedColumn_warningcontent
                             + ")";
+                    log.info("SQL:"+sql);
                     int i1 = dbOperateService.oracleUpdateSql(sql);
                     if (i1 > 0) {
                         log.info("execute success! SQL :" + sql);
                     } else {
                         log.info("execute failed! SQL :" + sql);
                     }
-
-
                 } catch (Exception e) {
-                    log.error("Incompatable JSON format! abort insert to DB:" + data);
+                    log.error("SQL error， Maybe Data is Duplicated: print Data:" + data);
+//                    e.printStackTrace();
                 }
             }
         } else {

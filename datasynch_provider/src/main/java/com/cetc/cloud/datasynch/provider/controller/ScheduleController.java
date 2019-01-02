@@ -27,6 +27,8 @@ public class ScheduleController implements ScheduleRemoteService {
     @Autowired
     DbOperateService dbOperateService;
     @Autowired
+    DbThirdOperateService dbOperateService_zhft;
+    @Autowired
     JobManageService jobManageService;
     @Autowired
     ScheduleService scheduleService;
@@ -102,7 +104,7 @@ public class ScheduleController implements ScheduleRemoteService {
         }
         // 验证参数合法性
         if (CommonInstance.TYPE_DB == connType) {
-            if (false == dbQueryService.checkIfTableExists(source)) {
+            if (false == dbQueryService.checkIfTableExists_readOnly(source)) {
                 res.put("result", "fail");
                 res.put("msg", "failed,source Table:" + source + " doesn't exists!");
                 return res;
@@ -174,13 +176,12 @@ public class ScheduleController implements ScheduleRemoteService {
     public HashMap<String, String> triggerOnceJobByTargetTableName(String tableName) {
         HashMap res = new HashMap();
         ScheduleModel scheduleModel = scheduleService.queryModelByTableName(tableName);
-
+        scheduleModel.setIsEnabled(CommonInstance.ENABLED);
         //启动任务
         int jobid = jobManageService.startOnceJob(scheduleModel);
         if (-1 != jobid) {
             //修改状态
-            int i = scheduleService.enableStatusByJobId(scheduleModel.getId());
-            if (jobid == scheduleModel.getId() && i > 0) {
+            if (jobid == scheduleModel.getId() ) {
                 res.put("result", "success");
                 res.put("msg", "start job:" + jobid + " success!");
             }
@@ -210,9 +211,9 @@ public class ScheduleController implements ScheduleRemoteService {
             }
             log.info("\n\n>>>>\n\n  >>>> scheduling job:" + jobName + " started!");
         }
-        if (CommonInstance.JOB_repull_sanxiao_list.equals(jobName)) {
+        if (CommonInstance.JOB_refresh_sanxiao_list.equals(jobName)) {
 
-            RepullSanxiaoListRunnable myCalculateRunnable = new RepullSanxiaoListRunnable(rePullTableController);
+            RefreshSanxiaoListRunnable myCalculateRunnable = new RefreshSanxiaoListRunnable(dbOperateService_zhft,dbOperateService);
             CronTrigger trigger = null;
             try {
                 trigger = new CronTrigger(cronExpression);
@@ -227,7 +228,7 @@ public class ScheduleController implements ScheduleRemoteService {
         }
         if (CommonInstance.JOB_get_today_xinfang.equals(jobName)) {
 
-            XinfangGetRunnable myCalculateRunnable = new XinfangGetRunnable(dbQueryService, dbOperateService, httpOperateService, outerUrlsService);
+            XinfangGetRunnable myCalculateRunnable = new XinfangGetRunnable( outerUrlsService);
             CronTrigger trigger = null;
             try {
                 trigger = new CronTrigger(cronExpression);
@@ -253,6 +254,30 @@ public class ScheduleController implements ScheduleRemoteService {
         }
         if (CommonInstance.JOB_get_weather_alarm_info.equals(jobName)) {
             WeatherAlarmRunnable myCalculateRunnable = new WeatherAlarmRunnable(dbOperateService, outerUrlsService);
+            CronTrigger trigger = null;
+            try {
+                trigger = new CronTrigger(cronExpression);
+            } catch (Exception e) {
+                log.error("Error cron Expression:" + cronExpression);
+            }
+            if (trigger != null) {
+                uuid = jobManageService.startOuterScheduledJob(jobName, myCalculateRunnable, trigger);
+            }
+        }
+        if (CommonInstance.JOB_generate_water_AQI_info.equals(jobName)) {
+            WaterAQIRunnable myCalculateRunnable = new WaterAQIRunnable(dbOperateService);
+            CronTrigger trigger = null;
+            try {
+                trigger = new CronTrigger(cronExpression);
+            } catch (Exception e) {
+                log.error("Error cron Expression:" + cronExpression);
+            }
+            if (trigger != null) {
+                uuid = jobManageService.startOuterScheduledJob(jobName, myCalculateRunnable, trigger);
+            }
+        }
+        if (CommonInstance.JOB_generate_water_AQI_info.equals(jobName)) {
+            WaterAQIRunnable myCalculateRunnable = new WaterAQIRunnable(dbOperateService);
             CronTrigger trigger = null;
             try {
                 trigger = new CronTrigger(cronExpression);

@@ -93,7 +93,8 @@ public interface CommonInstance {
     String JOB_get_today_xinfang = "get_today_xinfang";
     String JOB_add_chengguanevent_attach = "add_chengguanevent_attach";
     String JOB_get_weather_alarm_info = "get_weather_alarm_info";
-    String JOB_repull_sanxiao_list = "repull_sanxiao_list";
+    String JOB_refresh_sanxiao_list = "refresh_sanxiao_list";
+    String JOB_generate_water_AQI_info = "generate_water_AQI_info";
 
     /**
      * param 统一组织形式
@@ -101,4 +102,17 @@ public interface CommonInstance {
     String GLOBAL_PARAM_KEYNAME = "PARAM_KEY";
     String GLOBAL_PARAM_VALUENAME = "PARAM_VALUE";
 
+    /**
+     * 水质AQI类型
+     */
+    public static final int AQI_Pm10_24h = 1;
+    public static final int AQI_Pm2_5_24h = 2;
+    public static final int AQI_O3_1h = 3;
+    public static final int AQI_O3_8h = 4;
+    public static final int AQI_NO2_24h = 5;
+    public static final int AQI_SO2_24h = 6;
+    public static final int AQI_CO_24h = 7;
+    public static final int AQI_NO2_1h = 8;
+    public static final int AQI_SO2_1h = 9;
+    public static final int AQI_CO_1h = 10;
 }

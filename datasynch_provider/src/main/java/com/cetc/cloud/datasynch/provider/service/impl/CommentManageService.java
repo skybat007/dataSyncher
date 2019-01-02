@@ -1,5 +1,6 @@
 package com.cetc.cloud.datasynch.provider.service.impl;
 
+import com.baomidou.dynamic.datasource.annotation.DS;
 import com.cetc.cloud.datasynch.api.model.DddColumnCommentModel;
 import com.cetc.cloud.datasynch.api.model.DddTableCommentModel;
 import lombok.extern.slf4j.Slf4j;
@@ -26,7 +27,6 @@ import java.util.List;
 @Slf4j
 public class CommentManageService {
     @Autowired
-    @Qualifier("readOnlyJdbcTemplate")
     private JdbcTemplate primaryJdbcTemplate;
 
     @Value("${spring.datasource.dynamic.datasource.readonly.username}")

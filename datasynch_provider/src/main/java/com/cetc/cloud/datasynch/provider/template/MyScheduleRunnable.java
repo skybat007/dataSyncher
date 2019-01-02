@@ -144,7 +144,7 @@ public class MyScheduleRunnable implements Runnable {
         // null==model表示还未发起过请求)
         //增加第二次启动任务的逻辑：
         if (scheduleModel.getIsPagingQuery() == CommonInstance.DO_PAGING) {
-            tableRowCounts_src = dbQueryService.getTableRowCounts(scheduleModel.getSource());
+            tableRowCounts_src = dbQueryService.getTableRowCounts_readOnly(scheduleModel.getSource());
             tableRowCounts_trgt = dbOperateService.getTableRowCounts(scheduleModel.getTargetTableName());
             boolean compareRes = tableRowCounts_src > tableRowCounts_trgt ? true : false;
             boolean reachedLastRow = false;
@@ -175,7 +175,7 @@ public class MyScheduleRunnable implements Runnable {
                 //创建新的SQL请求语句
                 String SQL = SQLCreator.createSQLByTbNameAndRowParam(scheduleModel.getSource(), startRow, endRow, scheduleModel.getOrderByColumnName());
                 //获取数据
-                List<HashMap> queryResult = dbQueryService.oracleQuerySql(SQL);
+                List<HashMap> queryResult = dbQueryService.oracleQuerySql_readOnly(SQL);
                 //通过pagenum和pagesize计算StartRow和EndRow
                 if (queryResult.size() != scheduleModel.getPageSize()) {
                     endRow = startRow + queryResult.size() - 1;
@@ -205,7 +205,7 @@ public class MyScheduleRunnable implements Runnable {
             //创建新的SQL请求语句
             String SQL = SQLCreator.createSQLByTbNameAndRowParam(scheduleModel.getSource(), startRow, endRow, scheduleModel.getOrderByColumnName());
             //获取结果数据
-            List<HashMap> queryResult = dbQueryService.oracleQuerySql(SQL);
+            List<HashMap> queryResult = dbQueryService.oracleQuerySql_readOnly(SQL);
             log.info("\n\n----->>>>Received queryResult:Size:--" + queryResult.size());
             /**数据入库**/
             List<Integer> insertResList = dbOperateService.insertIntoTargetTable(queryResult, scheduleModel);

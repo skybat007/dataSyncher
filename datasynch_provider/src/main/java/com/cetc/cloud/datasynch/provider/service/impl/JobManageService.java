@@ -107,7 +107,6 @@ public class JobManageService {
     public int startOnceJob(ScheduleModel scheduleModel) {
         //创建定时任务
         MyScheduleRunnable runnableInstance = new MyScheduleRunnable(scheduleModel, synchJobLogInfoService, scheduleService, dbQueryService, dbOperateService, httpOperateService);
-        String cron = scheduleModel.getCronExpression();
 
         try {
             //创建定时任务并启动
@@ -115,7 +114,7 @@ public class JobManageService {
             /**将定时任务记录在内存中，供其他功能查询*/
             futures.put(scheduleModel.getId() + "-" + scheduleModel.getTargetTableName(), future);
             log.info("job:" + scheduleModel.getId() + "--started!");
-            log.info("cron:" + scheduleModel.getCronExpression());
+            log.info("cron: Trigger Now" );
             log.info("source:" + scheduleModel.getSource());
             log.info("target:" + scheduleModel.getTargetTableName());
             return scheduleModel.getId();
