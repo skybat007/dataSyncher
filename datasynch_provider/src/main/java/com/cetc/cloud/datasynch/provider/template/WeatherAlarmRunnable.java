@@ -65,6 +65,13 @@ public class WeatherAlarmRunnable implements OuterJobRunnableTemplate {
                     String releaseArea = warningInfoObj.getString("ReleaseArea");
                     String alertCategory = warningInfoObj.getString("AlertCategory");
                     String warningLevel = warningInfoObj.getString("WarningLevel");
+
+                    if (releaseArea==null||"".equals(releaseArea)||
+                            releaseTime==null||"".equals(releaseTime)||
+                            alertCategory==null||"".equals(alertCategory)||
+                            warningLevel==null||"".equals(warningLevel)||
+                    warningContent==null||"".equals(warningContent)
+                            ) continue;
                     //获取 "字段-字段类型" 映射map
                     HashMap<String, String> tbStructureMap = dbOperateService.queryTableStructureByTableName2("WEATHER_ALARM");
                     //获取字段类型

@@ -1,5 +1,6 @@
 package com.cetc.cloud.datasynch.provider.template;
 
+import com.cetc.cloud.datasynch.provider.mapper.XinfangEventMapper;
 import com.cetc.cloud.datasynch.provider.service.impl.DbOperateService;
 import com.cetc.cloud.datasynch.provider.service.impl.DbQueryService;
 import com.cetc.cloud.datasynch.provider.service.impl.HttpOperateService;
@@ -26,9 +27,11 @@ public class XinfangGetRunnableTest extends TestCase {
     HttpOperateService httpOperateService;
     @Autowired
     OuterUrlsService outerUrlsService;
+    @Autowired
+    XinfangEventMapper xinfangEventMapper;
 
     public void testInsertXinfangDataToday() throws Exception {
-        XinfangGetRunnable xinfangGetRunnable = new XinfangGetRunnable(outerUrlsService);
+        XinfangGetRunnable xinfangGetRunnable = new XinfangGetRunnable(outerUrlsService,xinfangEventMapper);
         xinfangGetRunnable.run();
     }
 }

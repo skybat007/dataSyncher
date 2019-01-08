@@ -29,7 +29,7 @@ public interface ScheduleService extends ScheduleRemoteService {
 
 
         @Override
-        public HashMap createScheduleJob(int connType, String source,int isPagingQUery, String orderByColumnName, String httpParamExpression, String httpToken, String httpParamPageSize, String httpParamPageNum, String httpJsonExtractRule, String httpTotalExtractRule, String targetTableName, String pageSize, String cronExpression) throws SQLException {
+        public HashMap createScheduleJob(int connType, String source, int srcDs, int isPagingQuery, String orderByColumnName, String httpParamExpression, String httpToken, String httpPagingType, String httpParamPageSize, String httpParamPageNum, String httpJsonExtractRule, String targetTableName, String pageSize, String cronExpression) throws SQLException {
             return null;
         }
 

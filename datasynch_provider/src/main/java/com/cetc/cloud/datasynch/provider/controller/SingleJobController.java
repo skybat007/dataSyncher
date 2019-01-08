@@ -75,7 +75,7 @@ public class SingleJobController implements SingleJobRemoteService {
 
     @Override
     public void calculateHasTroubleSanXiao() throws SQLException {
-        SanxiaoCalcRunnable sanxiaoCalcRunnable = new SanxiaoCalcRunnable(dbQueryService, dbOperateService, httpOperateService,rePullTableController);
+        SanxiaoCalcRunnable sanxiaoCalcRunnable = new SanxiaoCalcRunnable(dbQueryService, dbOperateService, httpOperateService, rePullTableController);
         sanxiaoCalcRunnable.calculateHasTroubleSanXiao();
     }
 
@@ -102,13 +102,13 @@ public class SingleJobController implements SingleJobRemoteService {
     @Override
     public void insertXinfangDataToday() throws SQLException {
         log.info("Started Scheduled Job:insertXinfangDataToday()");
-        XinfangGetRunnable xinfangGetRunnable = new XinfangGetRunnable(outerUrlsService);
+        XinfangGetRunnable xinfangGetRunnable = new XinfangGetRunnable(outerUrlsService, xinfangEventMapper);
         xinfangGetRunnable.run();
     }
 
     @Override
     public void insertXinfangHistoryData(String min, String max) throws SQLException {
-        log.info("executing insertXinfangHistoryData():\nparam1:min"+min+"\nparam2:max:"+max);
+        log.info("executing insertXinfangHistoryData():\nparam1:min" + min + "\nparam2:max:" + max);
         //1.获取Http请求信息
         DddOuterURLsModel xinfangHistoryModel = outerUrlsService.getModelByTableName("WEEKLY_XINFANG_HISTORY");
         //2.获取关联token请求信息
@@ -132,7 +132,7 @@ public class SingleJobController implements SingleJobRemoteService {
             }
             String tokenStr = xinfangHistoryModel.getHeaders();
             Token token = HttpClientUtil2.parseTokenStr2Token(tokenStr);
-            JSONObject httpQueryRes = HttpClientUtil2.doGetWithAuthoration(URL, params,token);
+            JSONObject httpQueryRes = HttpClientUtil2.doGetWithAuthoration(URL, params, token);
             if (200 == httpQueryRes.getIntValue("code")) {
                 String dataString = httpQueryRes.getString("data");
                 JSONObject data = JSON.parseObject(dataString);

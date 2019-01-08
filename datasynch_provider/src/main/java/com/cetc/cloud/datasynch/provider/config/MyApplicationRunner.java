@@ -28,12 +28,12 @@ public class MyApplicationRunner implements ApplicationRunner {
         /*启动任务--计算隐患三小场所*/
         scheduleController.startOuterScheduleJob(CommonInstance.JOB_calc_trouble_sanxiao, "00 30 8 * * ?");
         /*启动任务--获取今日信访数据*/
-        scheduleController.startOuterScheduleJob(CommonInstance.JOB_get_today_xinfang,"00 40 17 * * ?");
+        scheduleController.startOuterScheduleJob(CommonInstance.JOB_get_today_xinfang,"30 40 17 * * ?");
         /*启动任务--获取时间附件信息*/
         scheduleController.startOuterScheduleJob(CommonInstance.JOB_add_chengguanevent_attach,"00 0/30 * * * ?");
         /*启动任务--获取天气预警信息*/
-        scheduleController.startOuterScheduleJob(CommonInstance.JOB_get_weather_alarm_info,"00 0/5 * * * ?");
+        scheduleController.startOuterScheduleJob(CommonInstance.JOB_get_weather_alarm_info,"05 0/5 * * * ?");
         /*启动任务--获取空气AQI信息*/
-        scheduleController.startOuterScheduleJob(CommonInstance.JOB_generate_water_AQI_info,"00 00 * * * ?");
+        scheduleController.startOuterScheduleJob(CommonInstance.JOB_generate_water_AQI_info,"19 00 * * * ?");
     }
 }

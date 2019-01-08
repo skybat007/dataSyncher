@@ -25,11 +25,19 @@ public class ScheduleService {
         String tableName = scheduleModel.getTargetTableName();
         String scheduleExpression = scheduleModel.getCronExpression();
         int isPagingQuery = scheduleModel.getIsPagingQuery();
+        int srcDs = scheduleModel.getSrcDs();
 
         int connType = scheduleModel.getConnType();
-        if (null == source || pageSize < 1 || null == tableName || null == scheduleExpression || connType < 0 || connType > 1 ||
-                isPagingQuery < 0 || isPagingQuery > 1) {
-            return -1;
+        if (connType==CommonInstance.TYPE_DB) {
+            if (null == source || pageSize < 1 || null == tableName || null == scheduleExpression ||
+                    isPagingQuery < 0 || isPagingQuery > 1 || srcDs < 0) {
+                return -1;
+            }
+        }else if (connType==CommonInstance.TYPE_INTERFACE){
+            if (null == source || pageSize < 1 || null == tableName || null == scheduleExpression ||
+                    isPagingQuery < 0 || isPagingQuery > 1 ) {
+                return -1;
+            }
         }
         int jobId = scheduleMapper.addScheduleInstance(scheduleModel);
         if (jobId > 0) {
@@ -52,16 +60,16 @@ public class ScheduleService {
         return scheduleMapper.updateCronByJobId(jobId, cron);
     }
 
-    public int alterJobStatusByJobId(int jobId,int statusToChange) {
+    public int alterJobStatusByJobId(int jobId, int statusToChange) {
         //获取运行状态
         int status = scheduleMapper.getStatusByJobId(jobId);
         if (statusToChange == status) {
             return 1;
         }
         //修改运行状态
-        if (statusToChange==CommonInstance.ENABLED||statusToChange==CommonInstance.DISABLED) {
+        if (statusToChange == CommonInstance.ENABLED || statusToChange == CommonInstance.DISABLED) {
             return scheduleMapper.updateEnableStatusByJobId(jobId, statusToChange);
-        }else {
+        } else {
             return -1;
         }
     }
@@ -80,6 +88,7 @@ public class ScheduleService {
     public ScheduleModel queryModelByJobId(int jobId) {
         return scheduleMapper.queryModelByJobId(jobId);
     }
+
     public ScheduleModel queryModelByTableName(String tableName) {
         return scheduleMapper.queryModelByTableName(tableName);
     }
@@ -87,9 +96,9 @@ public class ScheduleService {
     public List<Integer> queryEnabledJobIdList() {
         List<ScheduleModel> scheduleModels = queryScheduleJobList();
         ArrayList<Integer> jobList = new ArrayList<Integer>();
-        for (ScheduleModel model: scheduleModels){
+        for (ScheduleModel model : scheduleModels) {
             int isEnabled = model.getIsEnabled();
-            if (isEnabled==1) {
+            if (isEnabled == 1) {
                 jobList.add(model.getId());
             }
         }

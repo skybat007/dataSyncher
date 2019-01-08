@@ -4,6 +4,7 @@ import com.cetc.cloud.datasynch.api.model.ScheduleModel;
 import com.cetc.cloud.datasynch.api.model.SynchJobLogInfoModel;
 import com.cetc.cloud.datasynch.provider.common.CommonInstance;
 import com.cetc.cloud.datasynch.provider.middleware.SQLCreator;
+import com.cetc.cloud.datasynch.provider.service.DbQuerySumService;
 import com.cetc.cloud.datasynch.provider.service.impl.*;
 import lombok.extern.slf4j.Slf4j;
 
@@ -17,15 +18,15 @@ import java.util.List;
  */
 @Slf4j
 public class MyScheduleRunnable implements Runnable {
-    private ScheduleModel scheduleModel;
 
+    private ScheduleModel scheduleModel;
     private SynchJobLogInfoService synchJobLogInfoService;
     private ScheduleService scheduleService;
-    private DbQueryService dbQueryService;
+    private DbQuerySumService dbQueryService;
     private DbOperateService dbOperateService;
     private HttpOperateService httpOperateService;
 
-    public MyScheduleRunnable(ScheduleModel scheduleModel, SynchJobLogInfoService synchJobLogInfoService,ScheduleService scheduleService, DbQueryService dbQueryService, DbOperateService dbOperateService, HttpOperateService httpOperateService) {
+    public MyScheduleRunnable(ScheduleModel scheduleModel, SynchJobLogInfoService synchJobLogInfoService, ScheduleService scheduleService, DbQuerySumService dbQueryService, DbOperateService dbOperateService, HttpOperateService httpOperateService) {
         this.scheduleModel = scheduleModel;
         this.synchJobLogInfoService = synchJobLogInfoService;
         this.scheduleService = scheduleService;
@@ -38,7 +39,7 @@ public class MyScheduleRunnable implements Runnable {
     public void run() {
         //更新任务
         updateScheduleModel(scheduleModel);
-        if (scheduleModel.getIsEnabled()==0){
+        if (scheduleModel.getIsEnabled() == 0) {
             return;
         }
         Thread.currentThread().setName(scheduleModel.getTargetTableName());
@@ -47,8 +48,8 @@ public class MyScheduleRunnable implements Runnable {
                 + "\nThread.currentThread().getId():" + Thread.currentThread().getId());
         try {
             boolean ifExistsTable = checkIfTableExists(scheduleModel.getTargetTableName());
-            if (ifExistsTable==false){
-                log.error("table doesn't exists:"+scheduleModel.getTargetTableName()+" ,please create table first!");
+            if (ifExistsTable == false) {
+                log.error("table doesn't exists:" + scheduleModel.getTargetTableName() + " ,please create table first!");
                 return;
             }
             //检查是否存在TargetTable对应的序列，如果不存在，则提前创建
@@ -57,6 +58,12 @@ public class MyScheduleRunnable implements Runnable {
             checkAndCreateColumn(scheduleModel.getTargetTableName(), CommonInstance.GLOBAL_COLNAME_INCRE_ID, "NUMBER", "id");
             checkAndCreateColumn(scheduleModel.getTargetTableName(), CommonInstance.GLOBAL_COLNAME_CREATE_TIME, "DATE DEFAULT SYSDATE", "创建时间");
             checkAndCreateColumn(scheduleModel.getTargetTableName(), CommonInstance.GLOBAL_COLNAME_UPDATE_TIME, "DATE DEFAULT SYSDATE", "更新时间");
+
+
+            if (scheduleModel.getNeedsTruncateTargetTb() == 1) {
+                dbOperateService.backUpTable(scheduleModel.getTargetTableName());
+                dbOperateService.truncateTableByTbName(scheduleModel.getTargetTableName());
+            }
 
             //根据接入方式决定生成SQL query还是Http请求
             if (scheduleModel.getConnType() == CommonInstance.TYPE_DB) {
@@ -124,7 +131,7 @@ public class MyScheduleRunnable implements Runnable {
      *
      * @return
      */
-    private boolean doSQLPulling(SynchJobLogInfoService synchJobLogInfoService, DbQueryService dbQueryService, DbOperateService dbOperateService) throws SQLException {
+    private boolean doSQLPulling(SynchJobLogInfoService synchJobLogInfoService, DbQuerySumService dbQueryService, DbOperateService dbOperateService) throws SQLException {
 
         /**变量创建*/
         int singleJobTotalSuccessCount = 0;
@@ -297,7 +304,7 @@ public class MyScheduleRunnable implements Runnable {
                     if (null == logModel) {
                         toDoPageNum = CommonInstance.DEFAULT_START_PAGE_NUM;
                         //比较结果为false(说明已经在while循环中且已经完成了第一次循环)&&上次访问到的数据体大小==pageSize： todoPage+1
-                    } else if (reachedLastRow == false && logModel.getQueryResultSize() == scheduleModel.getPageSize()&&logModel.getIsSuccess()==CommonInstance.SUCCESS) {
+                    } else if (reachedLastRow == false && logModel.getQueryResultSize() == scheduleModel.getPageSize() && logModel.getIsSuccess() == CommonInstance.SUCCESS) {
                         toDoPageNum = logModel.getLastQueryPageNum() + 1;
                         //比较结果为true&上次访问到的数据体大小<pageSize：todoPage不变，做非完整页面续接
                     } else if (logModel.getQueryResultSize() < scheduleModel.getPageSize()) {
@@ -362,7 +369,7 @@ public class MyScheduleRunnable implements Runnable {
                         synchJobLogInfoModel.setFailCount(insertResList.get(2));
                         singleJobTotalSuccessCount += synchJobLogInfoModel.getSuccessCount();
                         singleJobTotalFailCount += synchJobLogInfoModel.getFailCount();
-                    }else {
+                    } else {
                         synchJobLogInfoModel.setJobId(scheduleModel.getId());
                         synchJobLogInfoModel.setIsSuccess(0);
                         synchJobLogInfoModel.setCurrentPageSize(scheduleModel.getPageSize());

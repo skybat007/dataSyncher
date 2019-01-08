@@ -2,6 +2,7 @@ package com.cetc.cloud.datasynch.provider.controller;
 
 import com.cetc.cloud.datasynch.api.model.ScheduleModel;
 import com.cetc.cloud.datasynch.api.service.ScheduleRemoteService;
+import com.cetc.cloud.datasynch.provider.mapper.XinfangEventMapper;
 import com.cetc.cloud.datasynch.provider.service.impl.*;
 import com.cetc.cloud.datasynch.provider.common.CommonInstance;
 import com.cetc.cloud.datasynch.provider.template.*;
@@ -42,7 +43,8 @@ public class ScheduleController implements ScheduleRemoteService {
     OuterUrlsService outerUrlsService;
     @Autowired
     RePullTableController rePullTableController;
-
+    @Autowired
+    XinfangEventMapper xinfangEventMapper;
     @Override
     public List<ScheduleModel> queryScheduleJobList() {
         List<ScheduleModel> list = scheduleService.queryScheduleJobList();
@@ -51,11 +53,11 @@ public class ScheduleController implements ScheduleRemoteService {
 
 
     @Override
-    public HashMap createScheduleJob(int connType, String source, int isPagingQuery,
+    public HashMap createScheduleJob(int connType, String source, int srcDs, int isPagingQuery,
                                      String orderByColumnName,
                                      String httpParamExpression, String httpToken, String httpPagingType, String httpParamPageSize,
                                      String httpParamPageNum, String httpJsonExtractRule,
-                                     String targetTableName, String pageSize, String cronExpression) throws SQLException {
+                                     String targetTableName, int needsTruncateTargetTb, String pageSize, String cronExpression) throws SQLException {
         HashMap res = new HashMap();
 
         //共有参数完整性校验
@@ -124,6 +126,7 @@ public class ScheduleController implements ScheduleRemoteService {
         ScheduleModel scheduleModel = new ScheduleModel();
         scheduleModel.setConnType(connType);
         scheduleModel.setSource(source);
+        scheduleModel.setSrcDs(srcDs);
         scheduleModel.setIsPagingQuery(isPagingQuery);
         scheduleModel.setOrderByColumnName(orderByColumnName);
         scheduleModel.setHttpParamExpression(httpParamExpression);
@@ -133,6 +136,7 @@ public class ScheduleController implements ScheduleRemoteService {
         scheduleModel.setHttpParamPageNum(httpParamPageNum);
         scheduleModel.setHttpJsonExtractRule(httpJsonExtractRule);
         scheduleModel.setTargetTableName(targetTableName);
+        scheduleModel.setNeedsTruncateTargetTb(needsTruncateTargetTb);
         scheduleModel.setPageSize(Integer.parseInt(pageSize));
         scheduleModel.setCronExpression(cronExpression);
 
@@ -228,7 +232,7 @@ public class ScheduleController implements ScheduleRemoteService {
         }
         if (CommonInstance.JOB_get_today_xinfang.equals(jobName)) {
 
-            XinfangGetRunnable myCalculateRunnable = new XinfangGetRunnable( outerUrlsService);
+            XinfangGetRunnable myCalculateRunnable = new XinfangGetRunnable( outerUrlsService, xinfangEventMapper);
             CronTrigger trigger = null;
             try {
                 trigger = new CronTrigger(cronExpression);

@@ -60,7 +60,7 @@ public class CommentManageController implements CommentManageRemoteService {
         Sheet sheet = workbook.getSheet(sheetName);
         // getLastRowNum，获取最后一行的行标
         log.debug(String.valueOf(sheet.getLastRowNum()));
-        for (int j = startRow; j < sheet.getLastRowNum(); j++) {
+        for (int j = startRow; j <= sheet.getLastRowNum(); j++) {
             Row row = sheet.getRow(j);
             String col1 = "";
             String col2 = "";
@@ -105,7 +105,7 @@ public class CommentManageController implements CommentManageRemoteService {
         Sheet sheet = workbook.getSheet(sheetName);
         // getLastRowNum，获取最后一行的行标
         log.debug(String.valueOf(sheet.getLastRowNum()));
-        for (int j = startRow; j < sheet.getLastRowNum(); j++) {
+        for (int j = startRow; j <= sheet.getLastRowNum(); j++) {
             Row row = sheet.getRow(j);
             String tableName = "";
             String columnName = "";

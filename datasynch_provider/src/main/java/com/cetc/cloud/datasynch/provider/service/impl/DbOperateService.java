@@ -823,7 +823,7 @@ public class DbOperateService {
                 count++;
 
             } else {
-                log.info("success! Table copy doesn't exists, will do backup by TableName:" + tableName + "_COPY" + count);
+                log.info("success! Do backup by TableName:" + tableName + "_COPY" + count);
                 break;
             }
         }
@@ -883,7 +883,7 @@ public class DbOperateService {
             log.info("prepare truncate table:" + targetTbName);
             String sql = "truncate TABLE \"" + orclUsername + "\".\"" + targetTbName + "\"";
             jdbcTemplate.execute(sql);
-            log.info("done truncate table:" + targetTbName);
+            log.info("Done! truncate table:" + targetTbName);
             return true;
         } else {
             log.error("\n >>> Table does not exists! tableName:" + targetTbName);

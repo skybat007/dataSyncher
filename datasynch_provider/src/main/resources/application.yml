@@ -72,10 +72,15 @@ spring:
       primary: master #设置默认的数据源或者数据源组,默认值即为master,如果你主从默认下主库的名称就是master可不定义此项。
       datasource:
         master:
-          username: ZHFTYJJCPT
-          password: ToKreDi*nJ
+          username: ZHFTYJJCPT_COPY
+          password: 456789
           driver-class-name: oracle.jdbc.driver.OracleDriver
-          url: jdbc:oracle:thin:@10.190.55.65:9205/ORCL
+          url: jdbc:oracle:thin:@10.192.19.108:1521/ORCL
+#        master:
+#          username: ZHFTYJJCPT
+#          password: ToKreDi*nJ
+#          driver-class-name: oracle.jdbc.driver.OracleDriver
+#          url: jdbc:oracle:thin:@10.190.55.65:9205/ORCL
         readonly:
           username: ZHFTYJJCPT
           password: ToKreDi*nJ
@@ -91,11 +96,7 @@ spring:
 #          password: ToKreDi*nJ
 #          driver-class-name: oracle.jdbc.driver.OracleDriver
 #          url: jdbc:oracle:thin:@10.192.19.116:1521/ORCL
-#        master:
-#          username: ZHFTYJJCPT_COPY
-#          password: 123456
-#          driver-class-name: oracle.jdbc.driver.OracleDriver
-#          url: jdbc:oracle:thin:@10.192.19.108:1521/ORCL
+
 #        zhft:
 #          username: ZHFTYJJCPT
 #          password: ToKreDi*nJ

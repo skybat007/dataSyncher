@@ -13,11 +13,11 @@ import java.util.Date;
  */
 @Data
 @NoArgsConstructor
-@ToString
 public class ScheduleModel implements Serializable {
     private int id;                         //job唯一主键
     private int connType;                   //连接方式（0：前置机方式 1：接口方式）
     private String source;                  //源（请求URL路径@token/前置机view视图的名称）
+    private int srcDs;                      //源数据源 ： 0：readOnly配置（数据库默认值）  1：third数据源配置
     private int isPagingQuery;              //是否是分页查询(如果不做分页,则全量请求入库,没有pagesize)
     private String orderByColumnName;       //（数据库请求独有参数）源-排序字段名称
     private String httpParamExpression;     //（HTTP请求独有参数）入参表达式
@@ -27,147 +27,12 @@ public class ScheduleModel implements Serializable {
     private String httpPagingType;          //（HTTP请求独有参数）分页参数组织类型（1:normal;2:json;3:position）
     private String httpJsonExtractRule;     //（HTTP请求独有参数）json解析规则
     private String targetTableName;         //入库表名
+    private int needsTruncateTargetTb;   //是否要清空表  0：不清空 1：清空
     private int pageSize;                   //页大小
     private String cronExpression;          //定时表达式
     private int isEnabled;                  //是否开启（0：关闭 1：开启）
     private Date createTime;                //创建时间
     private Date updateTime;                //更新时间
-
-    public int getIsPagingQuery() {
-        return isPagingQuery;
-    }
-
-    public void setIsPagingQuery(int isPagingQuery) {
-        this.isPagingQuery = isPagingQuery;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public int getConnType() {
-        return connType;
-    }
-
-    public void setConnType(int connType) {
-        this.connType = connType;
-    }
-
-    public String getSource() {
-        return source;
-    }
-
-    public void setSource(String source) {
-        this.source = source;
-    }
-
-    public String getOrderByColumnName() {
-        return orderByColumnName;
-    }
-
-    public void setOrderByColumnName(String orderByColumnName) {
-        this.orderByColumnName = orderByColumnName;
-    }
-
-    public String getHttpParamExpression() {
-        return httpParamExpression;
-    }
-
-    public void setHttpParamExpression(String httpParamExpression) {
-        this.httpParamExpression = httpParamExpression;
-    }
-
-    public String getHttpToken() {
-        return httpToken;
-    }
-
-    public void setHttpToken(String httpToken) {
-        this.httpToken = httpToken;
-    }
-
-    public String getHttpParamPageSize() {
-        return httpParamPageSize;
-    }
-
-    public void setHttpParamPageSize(String httpParamPageSize) {
-        this.httpParamPageSize = httpParamPageSize;
-    }
-
-    public String getHttpParamPageNum() {
-        return httpParamPageNum;
-    }
-
-    public void setHttpParamPageNum(String httpParamPageNum) {
-        this.httpParamPageNum = httpParamPageNum;
-    }
-
-    public String getHttpPagingType() {
-        return httpPagingType;
-    }
-
-    public void setHttpPagingType(String httpPagingType) {
-        this.httpPagingType = httpPagingType;
-    }
-
-    public String getHttpJsonExtractRule() {
-        return httpJsonExtractRule;
-    }
-
-    public void setHttpJsonExtractRule(String httpJsonExtractRule) {
-        this.httpJsonExtractRule = httpJsonExtractRule;
-    }
-
-    public String getTargetTableName() {
-        return targetTableName;
-    }
-
-    public void setTargetTableName(String targetTableName) {
-        this.targetTableName = targetTableName;
-    }
-
-    public int getPageSize() {
-        return pageSize;
-    }
-
-    public void setPageSize(int pageSize) {
-        this.pageSize = pageSize;
-    }
-
-    public String getCronExpression() {
-        return cronExpression;
-    }
-
-    public void setCronExpression(String cronExpression) {
-        this.cronExpression = cronExpression;
-    }
-
-    public int getIsEnabled() {
-        return isEnabled;
-    }
-
-    public void setIsEnabled(int isEnabled) {
-        this.isEnabled = isEnabled;
-    }
-
-    public Date getCreateTime() {
-        return createTime;
-    }
-
-    public void setCreateTime(Date createTime) {
-        this.createTime = createTime;
-    }
-
-    public Date getUpdateTime() {
-        return updateTime;
-    }
-
-    public void setUpdateTime(Date updateTime) {
-        this.updateTime = updateTime;
-    }
 
     @Override
     public String toString() {
@@ -183,9 +48,11 @@ public class ScheduleModel implements Serializable {
                 ", httpParamPageNum='" + httpParamPageNum + '\'' +
                 ", httpJsonExtractRule='" + httpJsonExtractRule + '\'' +
                 ", targetTableName='" + targetTableName + '\'' +
+                ", needsTruncateTargetTb='" + needsTruncateTargetTb + '\'' +
                 ", pageSize=" + pageSize +
                 ", cronExpression='" + cronExpression + '\'' +
                 ", isEnabled=" + isEnabled +
+                ", srcDs=" + srcDs +
                 ", createTime=" + createTime +
                 ", updateTime=" + updateTime +
                 '}';

@@ -24,6 +24,7 @@ public interface ScheduleRemoteService {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "connType", value = "连接类型(0-数据库;1-接口)", required = true, dataType = "int", paramType = "query"),
             @ApiImplicitParam(name = "source", value = "源-表名(例：QAJJ_PUCENTP_V)/源-URL(例：http://10.190.55.62:8080/GetLeadRota/v1/getLeadRotaByDate.action)", required = true, dataType = "String", paramType = "query"),
+            @ApiImplicitParam(name = "srcDs", value = "数据库数据源类别：0：readOnly；1：third", required = false, dataType = "int", paramType = "query"),
             @ApiImplicitParam(name = "isPagingQuery", value = "是否为分页查询（0-不分页;1.分页）", required = true, dataType = "int", paramType = "query"),
             @ApiImplicitParam(name = "orderByColumnName", value = "【数据库】排序字段名,若不排序则填:rownum", required = false, dataType = "String", paramType = "query"),
             @ApiImplicitParam(name = "httpParamExpression", value = "【接口】http入参表达式(例:StartDate=2018/9/24&EndDate=2018/9/30)", required = false, dataType = "String", paramType = "query"),
@@ -33,17 +34,20 @@ public interface ScheduleRemoteService {
             @ApiImplicitParam(name = "httpParamPageNum", value = "【接口】pageNum对应参数名;【2.page】【3.STARTPOSITION】", required = false, dataType = "String", paramType = "query"),
             @ApiImplicitParam(name = "httpJsonExtractRule", value = "【接口】httpJson解析规则(例:data.resultSet.[*])", required = false, dataType = "String", paramType = "query"),
             @ApiImplicitParam(name = "targetTableName", value = "目标表名称", required = true, dataType = "String", paramType = "query"),
+            @ApiImplicitParam(name = "needsTruncateTargetTb", value = "是否要清空目标表", required = true, dataType = "int", paramType = "query"),
             @ApiImplicitParam(name = "pageSize", value = "页大小", required = true, dataType = "String", paramType = "query"),
             @ApiImplicitParam(name = "cronExpression", value = "cron表达式(例：每30秒请求一次：0/30 \\* \\* \\* \\* ? |每1分钟请求一次 0 0/1 \\* \\* \\* ?)", required = false, dataType = "String", paramType = "query")
     })
-    HashMap createScheduleJob(int connType, String source, int isPagingQuery,String orderByColumnName,
-                              String httpParamExpression, String httpToken,String httpPagingType, String httpParamPageSize,
-                              String httpParamPageNum,  String httpJsonExtractRule,
-                              String targetTableName, String pageSize, String cronExpression) throws SQLException;
+    HashMap createScheduleJob(int connType, String source, int srcDs, int isPagingQuery,
+                              String orderByColumnName,
+                              String httpParamExpression, String httpToken, String httpPagingType, String httpParamPageSize,
+                              String httpParamPageNum, String httpJsonExtractRule,
+                              String targetTableName, int needsTruncateTargetTb, String pageSize, String cronExpression) throws SQLException;
 
     @RequestMapping(value = "/schedule/job/querylist", produces = "application/json", method = RequestMethod.GET)
     @ApiOperation(value = "查询表同步任务List", notes = "查询表同步任务List", produces = "application/json")
     List<ScheduleModel> queryScheduleJobList();
+
 
 
     @RequestMapping(value = "/schedule/job/start/byJobId", produces = "application/json", method = RequestMethod.POST)

@@ -29,13 +29,13 @@ import java.util.*;
 public class XinfangGetRunnable implements OuterJobRunnableTemplate  {
 
     private OuterUrlsService outerUrlsService;
+    private XinfangEventMapper xinfangEventMapper;
 
-    public XinfangGetRunnable(OuterUrlsService outerUrlsService) {
+    public XinfangGetRunnable(OuterUrlsService outerUrlsService,XinfangEventMapper xinfangEventMapper) {
         this.outerUrlsService = outerUrlsService;
+        this.xinfangEventMapper = xinfangEventMapper;
     }
 
-    @Autowired
-    private XinfangEventMapper xinfangEventMapper;
 
     @Override
     public void run() {
