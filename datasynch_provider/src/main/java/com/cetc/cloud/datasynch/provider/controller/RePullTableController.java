@@ -60,6 +60,8 @@ public class RePullTableController implements RePullTableRemoteService {
                 log.info("delete schedule log success:"+i);
             }
             try {
+                //ENABLE任务
+                scheduleService.alterJobStatusByJobId(scheduleModel.getId(), CommonInstance.ENABLED);
                 log.info("started once job:");
                 scheduleController.triggerOnceJobByTargetTableName(scheduleModel.getTargetTableName());
             }catch (Exception e){

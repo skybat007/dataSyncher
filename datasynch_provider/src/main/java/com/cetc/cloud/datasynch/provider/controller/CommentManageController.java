@@ -78,8 +78,8 @@ public class CommentManageController implements CommentManageRemoteService {
 
             modelList.add(model);
         }
-        List<DddTableCommentModel> failedList = commentManageService.addTableCommentList(modelList);
-        return failedList;
+        List<DddTableCommentModel> successList = commentManageService.addTableCommentList(modelList);
+        return successList;
     }
 
     @Override

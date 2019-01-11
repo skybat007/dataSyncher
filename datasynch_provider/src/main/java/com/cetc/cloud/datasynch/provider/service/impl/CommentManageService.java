@@ -41,9 +41,9 @@ public class CommentManageService {
                     "IS\t'" + model.getTableComment() + "'";
             try {
                 primaryJdbcTemplate.update(SQL);
+                resList.add(model);
             } catch (Exception e) {
                 log.error(model.toString());
-                resList.add(model);
                 failCount++;
             }
             successCount++;
@@ -64,10 +64,10 @@ public class CommentManageService {
 
             try {
                 primaryJdbcTemplate.update(SQL);
+                resList.add(model);
             } catch (Exception e) {
                 log.error(model.toString());
                 e.printStackTrace();
-                resList.add(model);
                 failCount++;
             }
             successCount++;
