@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cetc.cloud.datasynch.provider.mapper.IotAlarmTriggerMapper">
+
+    <select id="queryIotEventByTime" parameterType="java.lang.String" resultType="java.util.HashMap">
+        select a.OBJECT_ID object_id, c.DEVICE_NAME DEVICE_NAME, a.DEVICE_CODE DEVICE_CODE, a.DEVICE_TYPE DEVICE_TYPE, a.address ALARM_OBJECT, a.object_id fRowId, b.data_value data_value, b.event_level event_level,
+        a.jd84 jd84, a.wd84 wd84, a.region_code region_code, a.street_code street_code, a.community_code community_code, b.PRODUCE_TIME create_time
+        from IOT_DEVICE a, IOT_EVENT b, IOT_CODE c
+        where a.DEVICE_CODE = b.DEVICE_CODE and a.DEVICE_TYPE = c.DEVICE_TYPE and b.PRODUCE_TIME &gt; to_date(#{start_date_str},'yyyy-mm-dd hh24:mi:ss') and
+        b.PRODUCE_TIME &lt;= to_date(#{end_date_str},'yyyy-mm-dd hh24:mi:ss')
+        ORDER BY create_time ASC
+    </select>
+
+</mapper>

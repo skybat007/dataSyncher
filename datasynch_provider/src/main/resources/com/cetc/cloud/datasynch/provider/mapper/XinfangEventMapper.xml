@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cetc.cloud.datasynch.provider.mapper.XinfangEventMapper">
+    <resultMap id="BaseResultMap_Event" type="com.cetc.cloud.datasynch.api.model.XinFangEventModel">
+        <result column="VISITTIME" jdbcType="VARCHAR" property="visitTime"/>
+        <result column="VISITNO" jdbcType="VARCHAR" property="visitNo"/>
+        <result column="VISITPERSONNELNUM" jdbcType="VARCHAR" property="visitPersonnelNum"/>
+        <result column="CONTRADICTION" jdbcType="VARCHAR" property="contradiction"/>
+        <result column="MATTERSNAME" jdbcType="VARCHAR" property="mattersName"/>
+        <result column="VISITMATTERSREMARK" jdbcType="VARCHAR" property="visitMattersRemark"/>
+        <result column="EVENTADDRESS" jdbcType="VARCHAR" property="eventAddress"/>
+        <result column="PERFORMANCENAME" jdbcType="VARCHAR" property="performanceName"/>
+        <result column="DEPARTMENTNAME" jdbcType="VARCHAR" property="departmentName"/>
+        <result column="VISITPLACE" jdbcType="VARCHAR" property="visitPlace"/>
+        <result column="OUTATTITUDE" jdbcType="VARCHAR" property="outAttitude"/>
+        <result column="ISINCLUDEDSTATISTICS" jdbcType="VARCHAR" property="isIncludedStatistics"/>
+        <result column="VISITADDRESSNAME" jdbcType="VARCHAR" property="visitAddressName"/>
+        <result column="SOURCE" jdbcType="VARCHAR" property="source"/>
+        <result column="VISITTYPE" jdbcType="VARCHAR" property="visitType"/>
+        <result column="OBJECT_ID" jdbcType="INTEGER" property="objectId"/>
+    </resultMap>
+
+    <resultMap id="BaseResultMap_People" type="com.cetc.cloud.datasynch.api.model.XinFangPeopleModel">
+        <result column="VISITNO" jdbcType="VARCHAR" property="visitNo"/>
+        <result column="NAME" jdbcType="VARCHAR" property="name"/>
+        <result column="SEX" jdbcType="VARCHAR" property="sex"/>
+        <result column="DATEOFBIRTH" jdbcType="VARCHAR" property="dateofBirth"/>
+        <result column="ADDRESS" jdbcType="VARCHAR" property="address"/>
+        <result column="CERTKIND" jdbcType="VARCHAR" property="certKind"/>
+        <result column="CERTNO" jdbcType="VARCHAR" property="certNo"/>
+        <result column="ISSUING" jdbcType="VARCHAR" property="issuing"/>
+        <result column="CENSUSREGISTER" jdbcType="VARCHAR" property="censusRegister"/>
+        <result column="NATION" jdbcType="VARCHAR" property="nation"/>
+        <result column="CERTIFICATEVALIDITY" jdbcType="VARCHAR" property="certificateValidity"/>
+        <result column="CONTACTNUMBER" jdbcType="VARCHAR" property="contactNumber"/>
+        <result column="CERTADDRESS" jdbcType="VARCHAR" property="certAddress"/>
+        <result column="ISMAIN" jdbcType="INTEGER" property="isMain"/>
+        <result column="OBJECT_ID" jdbcType="INTEGER" property="objectId"/>
+    </resultMap>
+
+    <sql id="BaseTable_Event">
+        WEEKLY_XINFANG_EVENT
+    </sql>
+    <sql id="BaseTable_People">
+        WEEKLY_XINFANG_PEOPLE
+    </sql>
+
+    <sql id="BaseColumns_Event">
+        VISITTIME,VISITNO,VISITPERSONNELNUM,CONTRADICTION,MATTERSNAME,VISITMATTERSREMARK,EVENTADDRESS,PERFORMANCENAME,
+        DEPARTMENTNAME,VISITPLACE,OUTATTITUDE,ISINCLUDEDSTATISTICS,VISITADDRESSNAME,SOURCE,VISITTYPE,
+        OBJECT_ID,JD84,WD84,STREET_NAME,COMMUNITY_NAME
+    </sql>
+
+    <sql id="BaseColumns_Insert_Event">
+        VISITNO,VISITTIME,VISITPERSONNELNUM,CONTRADICTION,MATTERSNAME,VISITMATTERSREMARK,EVENTADDRESS,PERFORMANCENAME,
+        DEPARTMENTNAME,VISITPLACE,OUTATTITUDE,ISINCLUDEDSTATISTICS,VISITADDRESSNAME,SOURCE,VISITTYPE,OBJECT_ID
+    </sql>
+    <sql id="BaseColumns_People">
+        VISITTIME,VISITNO,VISITPERSONNELNUM,CONTRADICTION,MATTERSNAME,VISITMATTERSREMARK,EVENTADDRESS,PERFORMANCENAME,
+        DEPARTMENTNAME,VISITPLACE,OUTATTITUDE,ISINCLUDEDSTATISTICS,VISITADDRESSNAME,SOURCE,VISITTYPE,
+        OBJECT_ID,JD84,WD84,STREET_NAME,COMMUNITY_NAME
+    </sql>
+
+    <sql id="BaseColumns_Insert_People">
+        VISITNO,NAME,SEX,DATEOFBIRTH,ADDRESS,CERTKIND,CERTNO,ISSUING,CENSUSREGISTER,NATION,CERTIFICATEVALIDITY,
+        CONTACTNUMBER,CERTADDRESS,ISMAIN,OBJECT_ID
+    </sql>
+
+    <insert id="addEvent" useGeneratedKeys="true" keyProperty="objId"
+            parameterType="com.cetc.cloud.datasynch.api.model.XinFangEventModel">
+        <selectKey keyProperty="objId" resultType="int" order="BEFORE">
+            select SEQ_WEEKLY_XINFANG_EVENT.NEXTVAL from dual
+        </selectKey>
+
+        INSERT INTO
+        <include refid="BaseTable_Event"/>
+        (
+        <include refid="BaseColumns_Insert_Event"/>
+        )
+        VALUES (
+        #{xinFangEventModel.visitNo,jdbcType=VARCHAR},
+        #{xinFangEventModel.visitTime,jdbcType=VARCHAR},
+        #{xinFangEventModel.visitPersonnelNum,jdbcType=VARCHAR},
+        #{xinFangEventModel.contradiction,jdbcType=VARCHAR},
+        #{xinFangEventModel.mattersName,jdbcType=VARCHAR},
+        #{xinFangEventModel.visitMattersRemark,jdbcType=VARCHAR},
+        #{xinFangEventModel.eventAddress,jdbcType=VARCHAR},
+        #{xinFangEventModel.performanceName,jdbcType=VARCHAR},
+        #{xinFangEventModel.departmentName,jdbcType=VARCHAR},
+        #{xinFangEventModel.visitPlace,jdbcType=VARCHAR},
+        #{xinFangEventModel.outAttitude,jdbcType=VARCHAR},
+        #{xinFangEventModel.isIncludedStatistics,jdbcType=VARCHAR},
+        #{xinFangEventModel.visitAddressName,jdbcType=VARCHAR},
+        #{xinFangEventModel.source,jdbcType=VARCHAR},
+        #{xinFangEventModel.visitType,jdbcType=VARCHAR},
+        #{objId,jdbcType=INTEGER}
+        )
+    </insert>
+    <insert id="addPerson" useGeneratedKeys="true" keyProperty="objId"
+            parameterType="com.cetc.cloud.datasynch.api.model.XinFangPeopleModel">
+        <selectKey keyProperty="objId" resultType="int" order="BEFORE">
+            select SEQ_WEEKLY_XINFANG_PEOPLE.NEXTVAL from dual
+        </selectKey>
+
+        INSERT INTO
+        <include refid="BaseTable_People"/>
+        (
+        <include refid="BaseColumns_Insert_People"/>
+        )
+        VALUES (
+        #{personModel.visitNo,jdbcType=VARCHAR},
+        #{personModel.name,jdbcType=VARCHAR},
+        #{personModel.sex,jdbcType=VARCHAR},
+        #{personModel.dateofBirth,jdbcType=VARCHAR},
+        #{personModel.address,jdbcType=VARCHAR},
+        #{personModel.certKind,jdbcType=VARCHAR},
+        #{personModel.certNo,jdbcType=VARCHAR},
+        #{personModel.issuing,jdbcType=VARCHAR},
+        #{personModel.censusRegister,jdbcType=VARCHAR},
+        #{personModel.nation,jdbcType=VARCHAR},
+        #{personModel.certificateValidity,jdbcType=VARCHAR},
+        #{personModel.contactNumber,jdbcType=VARCHAR},
+        #{personModel.certAddress,jdbcType=VARCHAR},
+        #{personModel.isMain,jdbcType=VARCHAR},
+        #{objId,jdbcType=INTEGER}
+        )
+    </insert>
+    <select id="getVisitCodeList" resultType="java.lang.String">
+        SELECT VISITNO
+        FROM <include refid="BaseTable_Event"/>
+    </select>
+
+
+</mapper>
