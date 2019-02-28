@@ -1,5 +1,6 @@
 package com.cetc.cloud.datasynch.provider.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.cetc.cloud.datasynch.api.model.ValueDictModel;
 import com.cetc.cloud.datasynch.provider.mapper.ValueDictMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,5 +25,15 @@ public class ValueDictService {
 
     public int addList(List<ValueDictModel> modelList){
        return valueDictMapper.addList(modelList);
+    }
+
+    public String getCodeInChineseByCode(String tableName, String columnName, String code) {
+        QueryWrapper<ValueDictModel> wrapper = new QueryWrapper<>();
+        wrapper.lambda()
+                .eq(ValueDictModel::getTableName,tableName)
+                .eq(ValueDictModel::getColumnName,columnName)
+                .eq(ValueDictModel::getCode,code);
+        ValueDictModel valueDictModel = valueDictMapper.selectOne(wrapper);
+        return valueDictModel.getCodeInChinese();
     }
 }

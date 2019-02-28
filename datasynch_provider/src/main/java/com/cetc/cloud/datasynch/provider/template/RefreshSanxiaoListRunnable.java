@@ -1,7 +1,7 @@
 package com.cetc.cloud.datasynch.provider.template;
 
 import com.cetc.cloud.datasynch.api.model.SanxiaoModel;
-import com.cetc.cloud.datasynch.provider.core.util.ListUtil;
+import com.cetc.cloud.datasynch.provider.util.ListUtil;
 import com.cetc.cloud.datasynch.provider.service.impl.DbOperateService;
 import com.cetc.cloud.datasynch.provider.service.impl.DbThirdOperateService;
 import lombok.NoArgsConstructor;
@@ -35,10 +35,10 @@ public class RefreshSanxiaoListRunnable implements OuterJobRunnableTemplate {
         Thread.currentThread().setName("refreshSanxiao");
         //1.通过数据库读取三小场所数据_new
 //        String sql = "select ID,STATUS from T_KZ_SMALL_PLACE";
-        String sql = "select ID,STATUS from FBPT.T_KZ_SMALL_PLACE";
+        String sql = "select ID,STATUS,LDDM,YHCOUNT from FBPT.T_KZ_SMALL_PLACE";
         List<List> sanxiaoList_new = null;
         try {
-            sanxiaoList_new = dbThirdOperateService.oracleQueryList_2member(sql);
+            sanxiaoList_new = dbThirdOperateService.oracleQueryList_4member(sql);
             if (sanxiaoList_new.size() == 0) {
                 log.error("Empty: sanxiaoList_new");
                 return;
@@ -56,16 +56,16 @@ public class RefreshSanxiaoListRunnable implements OuterJobRunnableTemplate {
         Iterator<List> iterator2 = sanxiaoList_new.iterator();
         while (iterator2.hasNext()) {
             List next = iterator2.next();
-            SanxiaoModel sanxiaoModel = new SanxiaoModel((String) next.get(0), (String) next.get(1));
+            SanxiaoModel sanxiaoModel = new SanxiaoModel((String) next.get(0), (String) next.get(1), (String) next.get(2), (String) next.get(3));
             sanxiaoModelset_new.add(sanxiaoModel);
             sanxiaoIds_new.add((String) next.get(0));
         }
 
         //2.获取 ---old集合
-        String sql0 = "select ID,STATUS from BLK_SANXIAO_PLACE";
+        String sql0 = "select ID,STATUS,LDDM,YHCOUNT from BLK_SANXIAO_PLACE";
         List<List> sanxiaoList_old = null;
         try {
-            sanxiaoList_old = dbOperateService.oracleQueryList_2member(sql0);
+            sanxiaoList_old = dbOperateService.oracleQueryList_4member(sql0);
             if (sanxiaoList_old.size() == 0) {
                 log.info("Empty: sanxiaoList_old");
             }
@@ -80,7 +80,7 @@ public class RefreshSanxiaoListRunnable implements OuterJobRunnableTemplate {
         Iterator<List> iterator1 = sanxiaoList_old.iterator();
         while (iterator1.hasNext()) {
             List next = iterator1.next();
-            SanxiaoModel sanxiaoModel = new SanxiaoModel((String) next.get(0), (String) next.get(1));
+            SanxiaoModel sanxiaoModel = new SanxiaoModel((String) next.get(0), (String) next.get(1), (String) next.get(2), (String) next.get(3));
             sanxiaoModelset_old.add(sanxiaoModel);
             sanxiaoIds_old.add((String) next.get(0));
         }
@@ -98,7 +98,7 @@ public class RefreshSanxiaoListRunnable implements OuterJobRunnableTemplate {
         //3.2.重新获取 --- old集合
         List<List> sanxiaoList_old2 = null;
         try {
-            sanxiaoList_old2 = dbOperateService.oracleQueryList_2member(sql0);
+            sanxiaoList_old2 = dbOperateService.oracleQueryList_4member(sql0);
             if (sanxiaoList_old2.size() == 0) {
                 log.info("Empty: sanxiaoList_old");
             } else {
@@ -113,7 +113,7 @@ public class RefreshSanxiaoListRunnable implements OuterJobRunnableTemplate {
         Iterator<List> iterator3 = sanxiaoList_old2.iterator();
         while (iterator3.hasNext()) {
             List next = iterator3.next();
-            SanxiaoModel sanxiaoModel = new SanxiaoModel((String) next.get(0), (String) next.get(1));
+            SanxiaoModel sanxiaoModel = new SanxiaoModel((String) next.get(0), (String) next.get(1), (String) next.get(2), (String) next.get(3));
             sanxiaoModelset_old2.add(sanxiaoModel);
             sanxiaoIds_old2.add((String) next.get(0));
         }
@@ -137,6 +137,7 @@ public class RefreshSanxiaoListRunnable implements OuterJobRunnableTemplate {
         List<String> sanxiaoBatchDeleteSQL = getSanxiaoStatusBatchDeleteSQL(idsToDelete);
         int[] deleteRes = dbOperateService.oracleBatchSql(sanxiaoBatchDeleteSQL);
         log.info("\n>> Finished Delete Old data:BLK_SANXIAO_PLACE\n success count:" + deleteRes[0] + ",fail count:" + deleteRes[1]);
+        log.info("\n>> Finished ! RefreshSanXiaoListRunnable()\nTotal："+sanxiaoList_new.size()+"\nUpdated new:"+listToUpdate.size()+"\nDeleted old:"+idsToDelete.size());
     }
 
     /**
@@ -152,11 +153,16 @@ public class RefreshSanxiaoListRunnable implements OuterJobRunnableTemplate {
         List<String> sqlList = new ArrayList<String>();
         while (iterator.hasNext()) {
             SanxiaoModel next = iterator.next();
-            String sql = "update BLK_SANXIAO_PLACE set STATUS='" + next.getStatus() + "' where id = '" + next.getId() + "'";
+            String sql = "update BLK_SANXIAO_PLACE set "
+                    + "STATUS='" + next.getStatus() + "',"
+                    + "LDDM='" + next.getLddm()+ "',"
+                    + "YHCOUNT='" + next.getYhCount()+ "'\n"
+                    + " where id = '" + next.getId() + "'";
             sqlList.add(sql);
         }
         return sqlList;
     }
+
     private List<String> getSanxiaoStatusBatchDeleteSQL(List<String> modelList) {
 
         Iterator<String> iterator = modelList.iterator();

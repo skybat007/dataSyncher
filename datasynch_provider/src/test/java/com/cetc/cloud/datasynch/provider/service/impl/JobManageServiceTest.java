@@ -1,6 +1,7 @@
 package com.cetc.cloud.datasynch.provider.service.impl;
 
 import com.cetc.cloud.datasynch.api.model.ScheduleModel;
+import com.cetc.cloud.datasynch.provider.core.JobManageService;
 import junit.framework.TestCase;
 import org.junit.Test;
 import org.junit.runner.RunWith;

@@ -1,17 +1,19 @@
 package com.cetc.cloud.datasynch.provider.core.util;
 
-import lombok.extern.slf4j.Slf4j;
+import org.apache.log4j.Logger;
+import org.junit.Test;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.InetAddress;
+import java.sql.Statement;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 /**
  * 实现CMD的ping命令
  * @author tgg
  */
-@Slf4j
 public class Ping {
 
     public static boolean ping2(String ipAddress) throws Exception {
@@ -30,8 +32,8 @@ public class Ping {
         // Linux命令如下
         // String pingCommand = "ping" -c " + pingTimes    + " -w " + timeOut + ipAddress;
         try {
-            if (log.isDebugEnabled()) {
-                log.debug(pingCommand);
+            if (logger.isDebugEnabled()) {
+                logger.debug(pingCommand);
             }
             // 执行命令并获取输出
             Process p = r.exec(pingCommand);
@@ -48,13 +50,13 @@ public class Ping {
             // 如果出现类似=23ms TTL=62这样的字样,出现的次数=测试次数则返回真
             return connectedCount == pingTimes;
         } catch (Exception e) {
-            log.error(e.getMessage());
+            logger.error(e);
             return false;
         } finally {
             try {
                 in.close();
             } catch (IOException e) {
-                log.error(e.getMessage());
+                logger.error(e);
             }
         }
     }
@@ -80,13 +82,14 @@ public class Ping {
             String tail = split[1];
             String IP_port = tail.split("/")[0];
             if (IP_port.contains(":")){
-                log.info(IP_port.split(":")[0]);
+                logger.info(IP_port.split(":")[0]);
                 return IP_port.split(":")[0];
             }else {
-                log.info(IP_port);
+                logger.info(IP_port);
                 return IP_port;
             }
         }
         return null;
     }
+    private static final Logger logger = Logger.getLogger(Ping.class);
 }

@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cetc.cloud.datasynch.provider.mapper.input.AlarmTriggerMapper">
+
+    <resultMap id="alarmModel" type="com.cetc.cloud.datasynch.api.model.AlarmModel">
+        <id property="objectId" column="OBJECT_ID" jdbcType="NUMERIC"/>
+        <result property="alarmObject" column="ALARM_OBJECT"/>
+        <result property="fRowId" column="F_ROW_ID" jdbcType="NUMERIC"/>
+        <result property="originTableName" column="ORIGIN_TABLE_NAME"/>
+        <result property="systemId" column="SYSTEM_ID"/>
+        <result property="releaseTime" column="RELEASE_TIME"/>
+        <result property="cancelTime" column="CANCEL_TIME"/>
+        <result property="releasePerson" column="RELEASE_PERSON"/>
+        <result property="alarmState" column="ALARM_STATE" jdbcType="NUMERIC"/>
+        <result property="contents" column="CONTENTS"/>
+        <result property="alarmLevel" column="ALARM_LEVEL"/>
+        <result property="alarmTypeLv1" column="ALARM_TYPE_LV1"/>
+        <result property="alarmTypeLv2" column="ALARM_TYPE_LV2"/>
+        <result property="disposalState" column="DISPOSAL_STATE" jdbcType="NUMERIC"/>
+        <result property="sendState" column="SEND_STATE" jdbcType="NUMERIC"/>
+        <result property="channel" column="CHANNEL"/>
+        <result property="yjjcCreateTime" column="YJJC_CREATE_TIME"/>
+        <result property="yjjcUpdateTime" column="YJJC_UPDATE_TIME"/>
+        <result property="lddm" column="LDDM"/>
+        <result property="jd84" column="JD84"/>
+        <result property="wd84" column="WD84"/>
+        <result property="regionCode" column="REGION_CODE"/>
+        <result property="streetCode" column="STREET_CODE"/>
+        <result property="communityCode" column="COMMUNITY_CODE"/>
+        <result property="address" column="ADDRESS"/>
+        <result property="streetName" column="STREET_NAME"/>
+        <result property="communityName" column="COMMUNITY_NAME"/>
+
+
+    </resultMap>
+
+    <insert id="releaseAlarm" parameterType="com.cetc.cloud.datasynch.api.model.AlarmModel">
+        <selectKey keyColumn="object_id" keyProperty="objectId" resultType="java.lang.Integer" order="BEFORE">
+            select nvl(max(object_id),0)+1 from ALARM_INFORMATION
+        </selectKey>
+        insert into ALARM_INFORMATION(OBJECT_ID, ALARM_OBJECT, F_ROW_ID, ORIGIN_TABLE_NAME, SYSTEM_ID, RELEASE_TIME, CANCEL_TIME, RELEASE_PERSON,ALARM_STATE
+        ,CONTENTS,ALARM_LEVEL,ALARM_TYPE_LV1,ALARM_TYPE_LV2,DISPOSAL_STATE,SEND_STATE,CHANNEL,YJJC_CREATE_TIME,YJJC_UPDATE_TIME,LDDM,JD84,WD84,REGION_CODE,STREET_CODE,COMMUNITY_CODE,ADDRESS,STREET_NAME,COMMUNITY_NAME)
+        VALUES (#{objectId,jdbcType=NUMERIC}, #{alarmObject,jdbcType=VARCHAR}, #{fRowId,jdbcType=VARCHAR}, #{originTableName,jdbcType=VARCHAR}, #{systemId,jdbcType=VARCHAR}, #{releaseTime,jdbcType=DATE}, #{cancelTime,jdbcType=DATE}, #{releasePerson,jdbcType=VARCHAR},#{alarmState,jdbcType=NUMERIC}
+        ,#{contents,jdbcType=VARCHAR},#{alarmLevel,jdbcType=VARCHAR},#{alarmTypeLv1,jdbcType=VARCHAR},#{alarmTypeLv2,jdbcType=VARCHAR},#{disposalState,jdbcType=VARCHAR},#{sendState,jdbcType=NUMERIC},#{channel,jdbcType=VARCHAR},#{yjjcCreateTime,jdbcType=DATE},#{yjjcUpdateTime,jdbcType=DATE},#{lddm,jdbcType=VARCHAR}
+        ,#{jd84,jdbcType=VARCHAR},#{wd84,jdbcType=VARCHAR},#{regionCode,jdbcType=VARCHAR},#{streetCode,jdbcType=VARCHAR},#{communityCode,jdbcType=VARCHAR},#{address,jdbcType=VARCHAR},#{streetName,jdbcType=VARCHAR},#{communityName,jdbcType=VARCHAR})
+    </insert>
+
+    <!--<insert id="releaseAlarm" parameterType="com.cetc.cloud.datasynch.api.model.AlarmModel">-->
+        <!--<selectKey keyColumn="object_id" keyProperty="object_id" resultType="java.lang.Integer" order="BEFORE">-->
+            <!--select nvl(max(object_id),0)+1 from tableau-->
+        <!--</selectKey>-->
+        <!--insert into ALARM_INFORMATION(OBJECT_ID, ALARM_OBJECT, F_ROW_ID, ORIGIN_TABLE_NAME, SYSTEM_ID, RELEASE_TIME, CANCEL_TIME, RELEASE_PERSON,ALARM_STATE-->
+        <!--,CONTENTS,ALARM_LEVEL,ALARM_TYPE_LV1,ALARM_TYPE_LV2,DISPOSAL_STATE,SEND_STATE,CHANNEL,YJJC_CREATE_TIME,YJJC_UPDATE_TIME,LDDM,JD84,WD84,REGION_CODE,STREET_CODE,COMMUNITY_CODE,ADDRESS,STREET_NAME,COMMUNITY_NAME)-->
+        <!--VALUES (#{object_id}, #{model.alarmObject}, #{model.fRowId}, #{model.originTableName}, #{model.systemId}, #{model.releaseTime}, #{model.cancelTime}, #{model.relesePerson},#{model.alarmState}-->
+        <!--,#{model.contents},#{model.alarmLevel},#{model.alarmTypeLv1},#{model.alarmTypeLv2},#{model.disposalState},#{model.sendState},#{model.channel},#{model.yjjcCreateTime},#{model.yjjcUpdateTime},#{model.lddm}-->
+        <!--,#{model.jd84},#{model.wd84},#{model.regionCode},#{model.streetCode},#{model.communityCode},#{model.address},#{model.streetName},#{model.communityName})-->
+    <!--</insert>-->
+
+    <delete id="cancelAlarm">
+        update ALARM_INFORMATION SET ALARM_STATE = 0, CANCEL_TIME = #{cancelTime}
+        where system_id = #{systemId}
+    </delete>
+
+    <select id="queryIotEventByTime" parameterType="java.lang.String" resultType="java.util.HashMap">
+        select a.OBJECT_ID object_id, c.DEVICE_NAME DEVICE_NAME, a.DEVICE_CODE DEVICE_CODE, a.DEVICE_TYPE DEVICE_TYPE, a.address ALARM_OBJECT, a.object_id fRowId, b.data_value data_value, b.event_level event_level,
+        a.jd84 jd84, a.wd84 wd84, a.region_code region_code, a.street_code street_code, a.community_code community_code, b.PRODUCE_TIME create_time
+        from IOT_DEVICE a, IOT_EVENT b, IOT_CODE c
+        where a.DEVICE_CODE = b.DEVICE_CODE and a.DEVICE_TYPE = c.DEVICE_TYPE and b.PRODUCE_TIME &gt; to_date(#{start_date_str},'yyyy-mm-dd hh24:mi:ss') and
+        b.PRODUCE_TIME &lt;= to_date(#{end_date_str},'yyyy-mm-dd hh24:mi:ss')
+        ORDER BY create_time ASC
+    </select>
+    <select id="queryDeviceTheLastIotEvent" resultType="java.util.HashMap">
+        select data_value, PRODUCE_TIME from(
+        select data_value, PRODUCE_TIME from iot_event where device_code = #{device_code} and PRODUCE_TIME &lt;  to_date(#{data_str},'yyyy-mm-dd hh24:mi:ss') ORDER BY PRODUCE_TIME desc) where rownum &lt; 2
+    </select>
+    <select id="queryLastAlarmDataReleaseTime" resultType="java.util.Date">
+        select * from(
+        select RELEASE_TIME from ALARM_INFORMATION ORDER BY RELEASE_TIME desc
+        ) where rownum &lt; 2
+    </select>
+    <select id="queryLastAlarmData" resultMap="alarmModel">
+        select OBJECT_ID, ALARM_OBJECT, F_ROW_ID, ORIGIN_TABLE_NAME, SYSTEM_ID, RELEASE_TIME, CANCEL_TIME, RELEASE_PERSON,ALARM_STATE
+        ,CONTENTS,ALARM_LEVEL,ALARM_TYPE_LV1,ALARM_TYPE_LV2,DISPOSAL_STATE,SEND_STATE,CHANNEL,YJJC_CREATE_TIME,YJJC_UPDATE_TIME
+        ,LDDM,JD84,WD84,REGION_CODE,STREET_CODE,COMMUNITY_CODE,ADDRESS,STREET_NAME,COMMUNITY_NAME from(
+        select OBJECT_ID, ALARM_OBJECT, F_ROW_ID, ORIGIN_TABLE_NAME, SYSTEM_ID, RELEASE_TIME, CANCEL_TIME, RELEASE_PERSON,ALARM_STATE
+        ,CONTENTS,ALARM_LEVEL,ALARM_TYPE_LV1,ALARM_TYPE_LV2,DISPOSAL_STATE,SEND_STATE,CHANNEL,YJJC_CREATE_TIME,YJJC_UPDATE_TIME
+        ,LDDM,JD84,WD84,REGION_CODE,STREET_CODE,COMMUNITY_CODE,ADDRESS,STREET_NAME,COMMUNITY_NAME
+        from ALARM_INFORMATION ORDER BY RELEASE_TIME desc
+        )
+        where rownum &lt; 2 and F_ROW_ID = #{fRowId}
+    </select>
+</mapper>

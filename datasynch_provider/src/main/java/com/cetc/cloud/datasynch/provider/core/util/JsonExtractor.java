@@ -3,15 +3,17 @@ package com.cetc.cloud.datasynch.provider.core.util;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
 /**
  * Created by llj on 2018/10/14.
  */
-@Slf4j
 public class JsonExtractor {
+
+    static Logger logger = LoggerFactory.getLogger(JsonExtractor.class);
 
     /**
      * 函数功能：根据传入json解析规则 获取"JsonObject"中的"JsonArray"形式的Data主体，并以List\<HashMap\>形式返回
@@ -41,7 +43,7 @@ public class JsonExtractor {
                 }
             }
             if (count > 1) {
-                log.error("number of \'*\' cannot more than 1!");
+                logger.error("number of \'*\' cannot more than 1!");
                 return null;
             }
         }
@@ -54,7 +56,7 @@ public class JsonExtractor {
                 String[] split = jsonExtractRule.split("\\.");
                 List<String> rule2list = Arrays.asList(split);
                 if (rule2list.size() == 0) {
-                    log.error("rule2list.size()==0, please check your jsonExtractRule!");
+                    logger.error("rule2list.size()==0, please check your jsonExtractRule!");
                     return null;
                 }
                 List<String> subExtractRule1 = rule2list.subList(1, rule2list.size());
@@ -82,7 +84,7 @@ public class JsonExtractor {
                 String[] split = jsonExtractRule.split("\\.");
                 List<String> rule2list = Arrays.asList(split);
                 if (rule2list.size() == 0) {
-                    log.error("rule2list.size()==0, please check your jsonExtractRule!");
+                    logger.error("rule2list.size()==0, please check your jsonExtractRule!");
                     return null;
                 }
                 List<String> subExtractRule1 = rule2list.subList(0, rule2list.size() - 1);
@@ -106,49 +108,11 @@ public class JsonExtractor {
 
                 return parseArray2List(array1);
             }
-        } else if (jsonExtractRule.equals("*") && data.startsWith("[") && data.endsWith("]")) {//只有"*"
+        }else if (jsonExtractRule.equals("*") && data.startsWith("[") && data.endsWith("]")) {//只有"*"
             JSONArray array1 = JSON.parseArray(data);
             return parseArray2List(array1);
         }
         return null;
-    }
-
-    //提取token值
-    public static String extractTokenStr(String token, String extractRule) {
-        JSONObject tokenJson = JSON.parseObject(token);
-        String tokenStr = null;
-        JSONObject temp = null;
-        if (tokenJson != null) {
-            String[] splitRule = extractRule.split("\\.");
-            for (int i = 0; i < splitRule.length; i++) {
-                if (i == splitRule.length - 1 && splitRule.length >= 2) {
-                    tokenStr = temp.getString(splitRule[i]);
-                } else if (splitRule.length == 1 && i == splitRule.length - 1) {
-                    return tokenJson.getString(splitRule[i]);
-                } else {
-                    temp = tokenJson.getJSONObject(splitRule[i]);
-                }
-            }
-        }
-        return tokenStr;
-    }
-    //提取token值
-    public static String extractTokenStr(JSONObject tokenJson, String extractRule) {
-        String tokenStr = null;
-        JSONObject temp = null;
-        if (tokenJson != null) {
-            String[] splitRule = extractRule.split("\\.");
-            for (int i = 0; i < splitRule.length; i++) {
-                if (i == splitRule.length - 1 && splitRule.length >= 2) {
-                    tokenStr = temp.getString(splitRule[i]);
-                } else if (splitRule.length == 1 && i == splitRule.length - 1) {
-                    return tokenJson.getString(splitRule[i]);
-                } else {
-                    temp = tokenJson.getJSONObject(splitRule[i]);
-                }
-            }
-        }
-        return tokenStr;
     }
 
     private static JSONArray getArrayInJSONArray(JSONArray array, List<String> arrayExtractRule) {

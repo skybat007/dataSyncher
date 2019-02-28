@@ -16,13 +16,12 @@ import com.baomidou.dynamic.datasource.annotation.DS;
 import com.cetc.cloud.datasynch.api.model.ScheduleModel;
 import com.cetc.cloud.datasynch.provider.common.CommonInstance;
 import com.cetc.cloud.datasynch.provider.controller.SequenceManagerController;
-import com.cetc.cloud.datasynch.provider.core.util.ListUtil;
-import com.cetc.cloud.datasynch.provider.core.tools.DbTools;
+import com.cetc.cloud.datasynch.provider.util.ListUtil;
+import com.cetc.cloud.datasynch.provider.tools.DbTools;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.jdbc.ScriptRunner;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
@@ -197,7 +196,7 @@ public class DbOperateService {
      * @throws SQLException
      */
     @DS("master")
-    public List<List> oracleQueryList_2member(String sql) throws SQLException {
+    public List<List> oracleQueryList_4member(String sql) throws SQLException {
         List<List> data = new ArrayList<List>();
         SqlRowSet rs = jdbcTemplate.queryForRowSet(sql);
         while (rs.next()) {
@@ -207,6 +206,10 @@ public class DbOperateService {
                 values.add(value1);
                 String value2 = rs.getString(2);
                 values.add(value2);
+                String value3 = rs.getString(3);
+                values.add(value3);
+                int value4 = rs.getInt(4);
+                values.add(String.valueOf(value4));
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -331,7 +334,7 @@ public class DbOperateService {
      */
     public int[] oracleBatchSql(List<String> sqls) {
         if (sqls.size() == 0) {
-            log.error("Empty sqls:oracleBatchSql");
+            log.warn("oracleBatchSql : Empty, Canceling invoking Method oracleBatchSql(List<String> sqls)");
             return new int[]{0, 0};
         }
         int[] ints = jdbcTemplate.batchUpdate(ListUtil.toStringArray(sqls));

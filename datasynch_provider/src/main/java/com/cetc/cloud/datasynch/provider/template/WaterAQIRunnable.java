@@ -1,6 +1,6 @@
 package com.cetc.cloud.datasynch.provider.template;
 
-import com.cetc.cloud.datasynch.provider.core.tools.AQICalcTools;
+import com.cetc.cloud.datasynch.provider.tools.AQICalcTools;
 import com.cetc.cloud.datasynch.provider.service.impl.DbOperateService;
 import lombok.extern.slf4j.Slf4j;
 
@@ -189,7 +189,7 @@ public class WaterAQIRunnable implements OuterJobRunnableTemplate {
                 + " and MONITOR_TIME=to_date('" + date + "', 'yyyy-mm-dd hh24:mi:ss')";
         List<List> resList = null;
         try {
-            resList = dbOperateService.oracleQueryList_2member(SQL_queryData);
+            resList = dbOperateService.oracleQueryList_4member(SQL_queryData);
         } catch (SQLException e) {
             log.error(SQL_queryData);
             e.printStackTrace();

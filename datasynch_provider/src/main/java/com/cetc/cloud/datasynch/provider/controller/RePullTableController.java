@@ -5,7 +5,7 @@ import com.cetc.cloud.datasynch.api.model.ScheduleModel;
 import com.cetc.cloud.datasynch.api.service.RePullTableRemoteService;
 import com.cetc.cloud.datasynch.provider.common.CommonInstance;
 import com.cetc.cloud.datasynch.provider.service.impl.DbOperateService;
-import com.cetc.cloud.datasynch.provider.service.impl.JobManageService;
+import com.cetc.cloud.datasynch.provider.core.JobManageService;
 import com.cetc.cloud.datasynch.provider.service.impl.ScheduleService;
 import com.cetc.cloud.datasynch.provider.service.impl.SynchJobLogInfoService;
 import lombok.extern.slf4j.Slf4j;
@@ -50,7 +50,7 @@ public class RePullTableController implements RePullTableRemoteService {
         //2.清空表
         String copyName = dbOperateService.backUpTable(scheduleModel.getTargetTableName());
         log.info("\n>> BackUpTable:"+scheduleModel.getTargetTableName()+"\nbackup tableName："+copyName);
-
+        //DISABLE任务
         boolean clearRes = dbOperateService.truncateTableByTbName(scheduleModel.getTargetTableName());
 
         //3.通过jobId清空日志

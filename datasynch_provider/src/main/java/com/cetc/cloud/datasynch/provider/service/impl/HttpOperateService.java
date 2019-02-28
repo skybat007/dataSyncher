@@ -1,14 +1,13 @@
 package com.cetc.cloud.datasynch.provider.service.impl;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.cetc.cloud.datasynch.api.model.DddOuterURLsModel;
 import com.cetc.cloud.datasynch.api.model.ScheduleModel;
 import com.cetc.cloud.datasynch.api.model.SynchJobLogInfoModel;
 import com.cetc.cloud.datasynch.api.model.Token;
-import com.cetc.cloud.datasynch.provider.core.util.HttpClientUtil2;
-import com.cetc.cloud.datasynch.provider.core.util.JsonExtractor;
+import com.cetc.cloud.datasynch.provider.util.HttpClientUtil2;
+import com.cetc.cloud.datasynch.provider.util.JsonExtractor;
 import com.cetc.cloud.datasynch.provider.common.CommonInstance;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

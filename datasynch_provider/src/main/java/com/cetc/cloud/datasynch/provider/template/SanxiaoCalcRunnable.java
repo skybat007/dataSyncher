@@ -55,7 +55,8 @@ public class SanxiaoCalcRunnable implements OuterJobRunnableTemplate {
         String getTroublePlaceIds = "SELECT DISTINCT a.\"ID\"\n" +
                 "from BLK_SANXIAO_PLACE a,BLK_CHENGGUAN_EVENT b\n" +
                 "WHERE a.name=b.EVENT_NAME\n" +
-                "and a.ADDRESS=b.ADDRESS";
+                "and a.ADDRESS=b.ADDRESS\n" +
+                "and b.state=1";
         List<String> troublePlaceIdList = dbOperateService.oracleQueryList(getTroublePlaceIds);
         int totalSuccessCount = 0;
         for (int i = 0; i < troublePlaceIdList.size(); i++) {

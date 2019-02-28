@@ -5,7 +5,8 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.cetc.cloud.datasynch.api.model.*;
 import com.cetc.cloud.datasynch.api.service.SingleJobRemoteService;
-import com.cetc.cloud.datasynch.provider.core.util.HttpClientUtil2;
+import com.cetc.cloud.datasynch.provider.core.JobManageService;
+import com.cetc.cloud.datasynch.provider.util.HttpClientUtil2;
 import com.cetc.cloud.datasynch.provider.mapper.XinfangEventMapper;
 import com.cetc.cloud.datasynch.provider.service.impl.*;
 import com.cetc.cloud.datasynch.provider.template.SanxiaoCalcRunnable;
@@ -16,7 +17,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.sql.SQLException;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**

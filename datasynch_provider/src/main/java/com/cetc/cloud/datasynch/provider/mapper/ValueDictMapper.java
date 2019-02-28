@@ -1,5 +1,6 @@
 package com.cetc.cloud.datasynch.provider.mapper;
 
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.cetc.cloud.datasynch.api.model.ValueDictModel;
 import org.apache.ibatis.annotations.Mapper;
 
@@ -16,6 +17,6 @@ import java.util.List;
  * Update_Description: luolinjie 补充
  **/
 @Mapper
-public interface ValueDictMapper {
+public interface ValueDictMapper extends BaseMapper<ValueDictModel>{
     int addList(List<ValueDictModel> modelList);
 }

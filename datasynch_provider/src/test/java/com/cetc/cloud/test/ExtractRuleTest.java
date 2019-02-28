@@ -1,6 +1,6 @@
 package com.cetc.cloud.test;
 
-import com.cetc.cloud.datasynch.provider.core.util.JsonExtractor;
+import com.cetc.cloud.datasynch.provider.util.JsonExtractor;
 import org.junit.Test;
 
 import java.util.HashMap;

@@ -459,7 +459,7 @@ public class MyScheduleRunnable implements Runnable {
             int count = synchJobLogInfoService.add(synchJobLogInfoModel);
 
             if (count >= 1) {
-                log.info("\n\n----->>>>successfuly done a SQL query: " +
+                log.info("\n\n----->>>>successfuly done a Http query: " +
                                 "\n" + scheduleModel.getSource() + "," +
                                 "\ncurrent tableName: " + scheduleModel.getTargetTableName() +
                                 "\ncurrent page: " + synchJobLogInfoModel.getLastQueryPageNum() +

@@ -20,13 +20,19 @@ import java.util.HashMap;
 @Slf4j
 public class ScheduleControllerTest extends TestCase {
     @Autowired
-    ScheduleController schduleController;
+    ScheduleController scheduleController;
 
     @Test
     public void testCreateScheduleJob() throws Exception {
 
-        HashMap blk_sanxiao_place = schduleController.createScheduleJob(1, "hqcsjclbxx/v1/gwapi", 0, 0, null, "page=1&pageSize=50", "Auth:233545", null, "10000", null, "rows.*",
+        HashMap blk_sanxiao_place = scheduleController.createScheduleJob(1, "hqcsjclbxx/v1/gwapi", 0, 0, null, "page=1&pageSize=50", "Auth:233545", null, "10000", null, "rows.*",
                 "BLK_SANXIAO_PLACE", 0, "10000", "0 0 0 * * ?");
         blk_sanxiao_place.values().stream().forEach(object -> System.out.println(object));
+    }
+    @Test
+    public void testStartScheduleJobByJobId() throws Exception {
+        String TABLE_NAME = "WEEKLY_WEIWEN";
+        HashMap<String, String> map = scheduleController.triggerOnceJobByTargetTableName(TABLE_NAME);
+        while (true);
     }
 }

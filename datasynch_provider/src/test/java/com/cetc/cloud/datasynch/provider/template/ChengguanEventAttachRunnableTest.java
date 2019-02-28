@@ -1,7 +1,6 @@
 package com.cetc.cloud.datasynch.provider.template;
 
 import com.cetc.cloud.datasynch.provider.service.impl.DbOperateService;
-import com.cetc.cloud.datasynch.provider.service.impl.DbQueryService;
 import com.cetc.cloud.datasynch.provider.service.impl.HttpOperateService;
 import com.cetc.cloud.datasynch.provider.service.impl.OuterUrlsService;
 import junit.framework.TestCase;
@@ -19,8 +18,7 @@ import org.springframework.test.context.web.WebAppConfiguration;
 @SpringBootTest
 @WebAppConfiguration
 public class ChengguanEventAttachRunnableTest extends TestCase {
-    @Autowired
-    DbQueryService dbQueryService;
+
     @Autowired
     DbOperateService dbOperateService;
     @Autowired
@@ -30,7 +28,7 @@ public class ChengguanEventAttachRunnableTest extends TestCase {
 
     @Test
     public void testRun() throws Exception {
-        ChengguanEventAttachRunnable chengguanEventAttachRunnable = new ChengguanEventAttachRunnable(dbQueryService, dbOperateService, httpOperateService, outerUrlsService);
+        ChengguanEventAttachRunnable chengguanEventAttachRunnable = new ChengguanEventAttachRunnable( dbOperateService, httpOperateService, outerUrlsService);
         chengguanEventAttachRunnable.run();
     }
 }

@@ -1,6 +1,6 @@
 package com.cetc.cloud.test;
 
-import com.cetc.cloud.datasynch.provider.core.util.FileDownloadUtil;
+import com.cetc.cloud.datasynch.provider.util.FileDownloadUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.junit.runner.RunWith;

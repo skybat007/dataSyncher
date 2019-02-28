@@ -5,10 +5,10 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.cetc.cloud.datasynch.api.model.DddOuterURLsModel;
 import com.cetc.cloud.datasynch.api.model.Token;
-import com.cetc.cloud.datasynch.provider.core.util.HttpClientUtil2;
+import com.cetc.cloud.datasynch.provider.util.HttpClientUtil2;
 import com.cetc.cloud.datasynch.provider.service.impl.DbOperateService;
 import com.cetc.cloud.datasynch.provider.service.impl.OuterUrlsService;
-import com.cetc.cloud.datasynch.provider.core.tools.DbTools;
+import com.cetc.cloud.datasynch.provider.tools.DbTools;
 import lombok.extern.slf4j.Slf4j;
 
 import java.sql.SQLException;
@@ -24,7 +24,7 @@ public class WeatherAlarmRunnable implements OuterJobRunnableTemplate {
     private DbOperateService dbOperateService;
     private OuterUrlsService outerUrlsService;
 
-    public WeatherAlarmRunnable( DbOperateService dbOperateService, OuterUrlsService outerUrlsService) {
+    public WeatherAlarmRunnable(DbOperateService dbOperateService, OuterUrlsService outerUrlsService) {
         this.dbOperateService = dbOperateService;
         this.outerUrlsService = outerUrlsService;
     }
@@ -66,12 +66,26 @@ public class WeatherAlarmRunnable implements OuterJobRunnableTemplate {
                     String alertCategory = warningInfoObj.getString("AlertCategory");
                     String warningLevel = warningInfoObj.getString("WarningLevel");
 
-                    if (releaseArea==null||"".equals(releaseArea)||
-                            releaseTime==null||"".equals(releaseTime)||
-                            alertCategory==null||"".equals(alertCategory)||
-                            warningLevel==null||"".equals(warningLevel)||
-                    warningContent==null||"".equals(warningContent)
-                            ) continue;
+                    if (releaseArea == null || "".equals(releaseArea)) {
+                        log.error("Field:`releaseArea` cannot be null!");
+                        continue;
+                    }
+                    if (releaseTime == null || "".equals(releaseTime)) {
+                        log.error("Field:`releaseTime` cannot be null!");
+                        continue;
+                    }
+                    if (alertCategory == null || "".equals(alertCategory)) {
+                        log.error("Field:`alertCategory` cannot be null!");
+                        continue;
+                    }
+                    if (warningLevel == null || "".equals(warningLevel)) {
+                        log.error("Field:`warningLevel` cannot be null!");
+                        continue;
+                    }
+                    if (warningContent == null || "".equals(warningContent)) {
+                        log.error("Field:`warningContent` cannot be null!");
+                        continue;
+                    }
                     //获取 "字段-字段类型" 映射map
                     HashMap<String, String> tbStructureMap = dbOperateService.queryTableStructureByTableName2("WEATHER_ALARM");
                     //获取字段类型
@@ -87,13 +101,13 @@ public class WeatherAlarmRunnable implements OuterJobRunnableTemplate {
                     String decoratedColumn_warningcontent = DbTools.getDecoratedColumn(warningcontent, warningContent);
                     String sql = "insert into weather_alarm(OBJECT_ID,RELEASEAREA,ALERTCATEGORY,WARNINGLEVEL,RELEASETIME,WARNINGCONTENT)" +
                             " values( SEQ_WEATHER_ALARM.NEXTVAL,"
-                            +decoratedColumn_releaseArea+","
-                            +decoratedColumn_alertcategory+","
-                            +decoratedColumn_warninglevel+","
-                            +decoratedColumn_releasetime+","
-                            +decoratedColumn_warningcontent
+                            + decoratedColumn_releaseArea + ","
+                            + decoratedColumn_alertcategory + ","
+                            + decoratedColumn_warninglevel + ","
+                            + decoratedColumn_releasetime + ","
+                            + decoratedColumn_warningcontent
                             + ")";
-                    log.info("SQL:"+sql);
+                    log.info("SQL:" + sql);
                     int i1 = dbOperateService.oracleUpdateSql(sql);
                     if (i1 > 0) {
                         log.info("execute success! SQL :" + sql);

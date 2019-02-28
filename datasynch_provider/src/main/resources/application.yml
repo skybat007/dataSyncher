@@ -1,5 +1,5 @@
 server:
-  port: 8001
+  port: 9207
   context-path: /
   address: ${spring.cloud.client.ipAddress}
   connection-timeout: 60000
@@ -76,6 +76,11 @@ spring:
 #          password: 456789
 #          driver-class-name: oracle.jdbc.driver.OracleDriver
 #          url: jdbc:oracle:thin:@10.192.19.108:1521/ORCL
+#        master:
+#          username: ZHFTYJJCPT
+#          password: ToKreDi*nJ
+#          driver-class-name: oracle.jdbc.driver.OracleDriver
+#          url: jdbc:oracle:thin:@10.192.19.116:1521/ORCL
         master:
           username: ZHFTYJJCPT
           password: ToKreDi*nJ
@@ -87,15 +92,10 @@ spring:
           driver-class-name: oracle.jdbc.driver.OracleDriver
           url: jdbc:oracle:thin:@10.192.19.116:1521/ORCL
         third:
-          username: ZHFTYJJCPT
-          password: ToKreDi*nJ
+          username: FBPT
+          password: 123456
           driver-class-name: oracle.jdbc.driver.OracleDriver
-          url: jdbc:oracle:thin:@10.192.19.116:1521/ORCL
-#        master:
-#          username: ZHFTYJJCPT
-#          password: ToKreDi*nJ
-#          driver-class-name: oracle.jdbc.driver.OracleDriver
-#          url: jdbc:oracle:thin:@10.192.19.116:1521/ORCL
+          url: jdbc:oracle:thin:@10.192.19.108:1521/ORCL
 
 #        zhft:
 #          username: ZHFTYJJCPT

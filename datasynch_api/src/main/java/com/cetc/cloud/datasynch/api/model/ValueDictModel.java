@@ -1,5 +1,9 @@
 package com.cetc.cloud.datasynch.api.model;
 
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableName;
+import lombok.Data;
+
 import java.io.Serializable;
 
 /**
@@ -12,86 +16,25 @@ import java.io.Serializable;
  * Update_Date: 2018/12/5
  * Update_Description: luolinjie 补充
  **/
+@Data
+@TableName("DS_VALUE_DICT")
 public class ValueDictModel implements Serializable {
+    @TableField("OBJECT_ID")
     private String objectId;
+    @TableField("TABLE_NAME")
     private String tableName;
+    @TableField("COLUMN_NAME")
     private String columnName;
+    @TableField("CODE")
     private String code;
+    @TableField("CODE_IN_CHINESE")
     private String codeInChinese;
+    @TableField("TB_IN_CHINESE")
     private String tbInChinese;
+    @TableField("COL_IN_CHINESE")
     private String colInChinese;
+    @TableField("CREATE_TIME")
     private String createTime;
+    @TableField("UPDATE_TIME")
     private String updateTime;
-
-    public String getTableName() {
-        return tableName;
-    }
-
-    public void setTableName(String tableName) {
-        this.tableName = tableName;
-    }
-
-    public String getColumnName() {
-        return columnName;
-    }
-
-    public void setColumnName(String columnName) {
-        this.columnName = columnName;
-    }
-
-    public String getCode() {
-        return code;
-    }
-
-    public void setCode(String code) {
-        this.code = code;
-    }
-
-    public String getCodeInChinese() {
-        return codeInChinese;
-    }
-
-    public void setCodeInChinese(String codeInChinese) {
-        this.codeInChinese = codeInChinese;
-    }
-
-    public String getObjectId() {
-        return objectId;
-    }
-
-    public void setObjectId(String objectId) {
-        this.objectId = objectId;
-    }
-
-    public String getCreateTime() {
-        return createTime;
-    }
-
-    public void setCreateTime(String createTime) {
-        this.createTime = createTime;
-    }
-
-    public String getUpdateTime() {
-        return updateTime;
-    }
-
-    public void setUpdateTime(String updateTime) {
-        this.updateTime = updateTime;
-    }
-
-    public String getTbInChinese() {
-        return tbInChinese;
-    }
-
-    public void setTbInChinese(String tbInChinese) {
-        this.tbInChinese = tbInChinese;
-    }
-
-    public String getColInChinese() {
-        return colInChinese;
-    }
-
-    public void setColInChinese(String colInChinese) {
-        this.colInChinese = colInChinese;
-    }
 }

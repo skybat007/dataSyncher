@@ -2,7 +2,7 @@ package com.cetc.cloud.test;
 
 import com.alibaba.fastjson.JSONObject;
 import com.cetc.cloud.datasynch.api.model.Token;
-import com.cetc.cloud.datasynch.provider.core.util.HttpClientUtil2;
+import com.cetc.cloud.datasynch.provider.util.HttpClientUtil2;
 import lombok.extern.slf4j.Slf4j;
 
 /**

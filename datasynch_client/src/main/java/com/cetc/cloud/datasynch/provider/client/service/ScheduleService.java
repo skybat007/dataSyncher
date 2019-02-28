@@ -1,9 +1,9 @@
 package com.cetc.cloud.datasynch.provider.client.service;
 
-import com.cetc.cloud.datasynch.api.model.Token;
-import com.cetc.cloud.datasynch.api.service.ScheduleRemoteService;
 import com.cetc.cloud.datasynch.api.model.ScheduleModel;
+import com.cetc.cloud.datasynch.api.service.ScheduleRemoteService;
 import org.springframework.cloud.netflix.feign.FeignClient;
+import org.springframework.scheduling.support.CronTrigger;
 import org.springframework.stereotype.Component;
 
 import java.sql.SQLException;
@@ -29,7 +29,7 @@ public interface ScheduleService extends ScheduleRemoteService {
 
 
         @Override
-        public HashMap createScheduleJob(int connType, String source, int srcDs, int isPagingQuery, String orderByColumnName, String httpParamExpression, String httpToken, String httpPagingType, String httpParamPageSize, String httpParamPageNum, String httpJsonExtractRule, String targetTableName, String pageSize, String cronExpression) throws SQLException {
+        public HashMap createScheduleJob(int connType, String source, int srcDs, int isPagingQuery, String orderByColumnName, String httpParamExpression, String httpToken, String httpPagingType, String httpParamPageSize, String httpParamPageNum, String httpJsonExtractRule, String targetTableName, int needsTruncateTargetTb, String pageSize, String cronExpression) throws SQLException {
             return null;
         }
 
@@ -49,7 +49,12 @@ public interface ScheduleService extends ScheduleRemoteService {
         }
 
         @Override
-        public HashMap<String, String> startOuterScheduleJob(String jobName, String cronExpression) {
+        public HashMap<String, String> startOuterScheduleJob(String jobName, CronTrigger trigger) {
+            return null;
+        }
+
+        @Override
+        public HashMap<String, String> triggerOnceOuterScheduleJobByJobName(String jobName) {
             return null;
         }
 

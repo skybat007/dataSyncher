@@ -1,10 +1,9 @@
 package com.cetc.cloud.datasynch.provider.service.impl;
 
 import com.cetc.cloud.datasynch.api.model.ScheduleModel;
-import com.cetc.cloud.datasynch.provider.core.util.UuIdGeneratorUtil;
 import com.cetc.cloud.datasynch.provider.template.MyScheduleRunnable;
-import com.cetc.cloud.datasynch.provider.template.OuterJobRunnableTemplate;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
@@ -22,17 +21,15 @@ import java.util.concurrent.ScheduledFuture;
  * Created by luolinjie on 2018/10/9.
  */
 @Service("jobManageService")
-@Slf4j
 public class JobManageService {
 
+    Logger logger = LoggerFactory.getLogger(JobManageService.class);
     @Autowired
     DbOperateService dbOperateService;
     @Autowired
     SynchJobLogInfoService synchJobLogInfoService;
     @Autowired
     DbQueryService dbQueryService;
-    @Autowired
-    DbQueryThirdService dbQueryThirdService;
     @Autowired
     HttpOperateService httpOperateService;
     @Autowired
@@ -64,88 +61,51 @@ public class JobManageService {
      * 根据传入的jobId和run方法的执行体创建内容
      */
     public int startScheduledJob(ScheduleModel scheduleModel) {
-
-        MyScheduleRunnable runnableInstance = null;
-        if (scheduleModel.getSrcDs() == 0) {
-            //创建定时任务
-            runnableInstance = new MyScheduleRunnable(scheduleModel, synchJobLogInfoService, scheduleService, dbQueryService, dbOperateService, httpOperateService);
-        } else {
-            runnableInstance = new MyScheduleRunnable(scheduleModel, synchJobLogInfoService, scheduleService, dbQueryThirdService, dbOperateService, httpOperateService);
-        }
-
+        //创建定时任务
+        MyScheduleRunnable runnableInstance = new MyScheduleRunnable(scheduleModel, synchJobLogInfoService, scheduleService, dbQueryService, dbOperateService, httpOperateService);
         String cron = scheduleModel.getCronExpression();
 
         if (null == cron) {
-            try {
-                ScheduledFuture<?> future = threadPoolTaskScheduler.schedule(runnableInstance, new Date());
-                /**将定时任务记录在内存中，供其他功能查询*/
-                futures.put(scheduleModel.getId() + "-" + scheduleModel.getTargetTableName(), future);
-                log.info("\n【job:" + scheduleModel.getId() + "--started!");
-                log.info("cron:" + scheduleModel.getCronExpression());
-                log.info("source:" + scheduleModel.getSource());
-                log.info("target:" + scheduleModel.getTargetTableName() + "】");
-                return scheduleModel.getId();
-            }catch (Exception e) {
-                log.info("job:" + scheduleModel.getId() + "--started error! please check your cron expression!");
-                return -1;
-            }
-        } else {
-            try {
-                //创建定时任务并启动
-                ScheduledFuture<?> future = threadPoolTaskScheduler.schedule(runnableInstance, new CronTrigger(cron));
-
-                /**将定时任务记录在内存中，供其他功能查询*/
-                futures.put(scheduleModel.getId() + "-" + scheduleModel.getTargetTableName(), future);
-                log.info("\n【job:" + scheduleModel.getId() + "--started!");
-                log.info("cron:" + scheduleModel.getCronExpression());
-                log.info("source:" + scheduleModel.getSource());
-                log.info("target:" + scheduleModel.getTargetTableName() + "】");
-                return scheduleModel.getId();
-            } catch (Exception e) {
-                log.info("job:" + scheduleModel.getId() + "--started error! please check your cron expression!");
-                return -1;
-            }
+            cron = "0 0 23 * * ?";//默认是每天晚23点更新
         }
-    }
 
-    public String startOuterScheduledJob(String jobName, OuterJobRunnableTemplate runnableInstance, CronTrigger trigger) {
         try {
             //创建定时任务并启动
-            ScheduledFuture<?> future = threadPoolTaskScheduler.schedule(runnableInstance, trigger);
-            String uuid = UuIdGeneratorUtil.getCetcCloudUuid(jobName);
-            futures.put("jobName:" + jobName, future);
+            ScheduledFuture<?> future = threadPoolTaskScheduler.schedule(runnableInstance, new CronTrigger(cron));
+//            ScheduledFuture<?> future = threadPoolTaskScheduler.schedule(runnableInstance, new Date());
             /**将定时任务记录在内存中，供其他功能查询*/
-            return uuid;
+            futures.put(scheduleModel.getId() + "-" + scheduleModel.getTargetTableName(), future);
+            logger.info("job:" + scheduleModel.getId() + "--started!");
+            logger.info("cron:" + scheduleModel.getCronExpression());
+            logger.info("source:" + scheduleModel.getSource());
+            logger.info("target:" + scheduleModel.getTargetTableName());
+            return scheduleModel.getId();
         } catch (Exception e) {
-            log.info("job:" + "--started error! please check your cron expression!");
-            return String.valueOf(-1);
+            logger.info("job:" + scheduleModel.getId() + "--started error! please check your cron expression!");
+            return -1;
         }
     }
 
     /**
-     * 启动一次性任务
+     *  启动一次性任务
      */
     public int startOnceJob(ScheduleModel scheduleModel) {
-        MyScheduleRunnable runnableInstance = null;
         //创建定时任务
-        if (scheduleModel.getSrcDs() == 0) {
-            runnableInstance = new MyScheduleRunnable(scheduleModel, synchJobLogInfoService, scheduleService, dbQueryService, dbOperateService, httpOperateService);
-        } else {
-            runnableInstance = new MyScheduleRunnable(scheduleModel, synchJobLogInfoService, scheduleService, dbQueryThirdService, dbOperateService, httpOperateService);
-        }
+        MyScheduleRunnable runnableInstance = new MyScheduleRunnable(scheduleModel, synchJobLogInfoService, scheduleService, dbQueryService, dbOperateService, httpOperateService);
+        String cron = scheduleModel.getCronExpression();
 
         try {
             //创建定时任务并启动
             ScheduledFuture<?> future = threadPoolTaskScheduler.schedule(runnableInstance, new Date());
             /**将定时任务记录在内存中，供其他功能查询*/
             futures.put(scheduleModel.getId() + "-" + scheduleModel.getTargetTableName(), future);
-            log.info("job:" + scheduleModel.getId() + "--started!");
-            log.info("cron: Trigger Now");
-            log.info("source:" + scheduleModel.getSource());
-            log.info("target:" + scheduleModel.getTargetTableName());
+            logger.info("job:" + scheduleModel.getId() + "--started!");
+            logger.info("cron:" + scheduleModel.getCronExpression());
+            logger.info("source:" + scheduleModel.getSource());
+            logger.info("target:" + scheduleModel.getTargetTableName());
             return scheduleModel.getId();
         } catch (Exception e) {
-            log.info("job:" + scheduleModel.getId() + "--started error! please check your cron expression!");
+            logger.info("job:" + scheduleModel.getId() + "--started error! please check your cron expression!");
             return -1;
         }
     }
@@ -165,11 +125,11 @@ public class JobManageService {
             } else {
                 boolean cancel = future.cancel(true);
                 if (cancel) {
-                    log.info("job:" + jobID + "--stopped!");
+                    logger.info("job:" + jobID + "--stopped!");
                     futures.remove(jobID);
                     return 1;
                 } else {
-                    log.info("job:" + jobID + "--stopping job occurs error!");
+                    logger.info("job:" + jobID + "--stopping job occurs error!");
                     return -1;
                 }
             }

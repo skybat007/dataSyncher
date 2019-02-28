@@ -4,11 +4,10 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.cetc.cloud.datasynch.api.model.DddOuterURLsModel;
 import com.cetc.cloud.datasynch.provider.common.CommonInstance;
-import com.cetc.cloud.datasynch.provider.core.util.JsonExtractor;
 import com.cetc.cloud.datasynch.provider.service.impl.DbOperateService;
-import com.cetc.cloud.datasynch.provider.service.impl.DbQueryService;
 import com.cetc.cloud.datasynch.provider.service.impl.HttpOperateService;
 import com.cetc.cloud.datasynch.provider.service.impl.OuterUrlsService;
+import com.cetc.cloud.datasynch.provider.util.JsonExtractor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.sql.SQLException;
@@ -27,7 +26,6 @@ import java.util.List;
  **/
 @Slf4j
 public class ChengguanEventAttachRunnable implements OuterJobRunnableTemplate {
-    private DbQueryService dbQueryService;
     private DbOperateService dbOperateService;
     private HttpOperateService httpOperateService;
     private OuterUrlsService outerUrlsService;
@@ -38,8 +36,7 @@ public class ChengguanEventAttachRunnable implements OuterJobRunnableTemplate {
         insertChengguanEventAttach();
     }
 
-    public ChengguanEventAttachRunnable(DbQueryService dbQueryService, DbOperateService dbOperateService, HttpOperateService httpOperateService, OuterUrlsService outerUrlsService) {
-        this.dbQueryService = dbQueryService;
+    public ChengguanEventAttachRunnable( DbOperateService dbOperateService, HttpOperateService httpOperateService, OuterUrlsService outerUrlsService) {
         this.dbOperateService = dbOperateService;
         this.httpOperateService = httpOperateService;
         this.outerUrlsService = outerUrlsService;

@@ -1,11 +1,10 @@
 package com.cetc.cloud.datasynch.provider.service.impl.alarm;
 
-import com.cetc.cloud.datasynch.provider.core.util.SpendTimeUtil;
+import com.cetc.cloud.datasynch.provider.util.SpendTimeUtil;
 import com.cetc.cloud.datasynch.provider.mapper.IotAlarmTriggerMapper;
 import com.cetc.cloud.datasynch.provider.mapper.entity.AlarmInformation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;

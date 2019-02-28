@@ -30,22 +30,25 @@ public class RefreshSanxiaoListRunnableTest extends TestCase {
         refreshSanxiaoListRunnable.run();
     }
 
-
     @Test
     public void testSetContains() {
         HashSet<SanxiaoModel> sanxiaoModelset = new HashSet<>();
-        sanxiaoModelset.add(new SanxiaoModel("123", "1"));
-        sanxiaoModelset.add(new SanxiaoModel("1", "0"));
-        sanxiaoModelset.add(new SanxiaoModel("25", "1"));
-        sanxiaoModelset.add(new SanxiaoModel("36", "0"));
-        sanxiaoModelset.add(new SanxiaoModel("85", "1"));
-        sanxiaoModelset.add(new SanxiaoModel("95", "0"));
-        sanxiaoModelset.add(new SanxiaoModel("02", "1"));
-        SanxiaoModel newModel = new SanxiaoModel("123", "0");
+        sanxiaoModelset.add(new SanxiaoModel("123", "1","123","123"));
+        sanxiaoModelset.add(new SanxiaoModel("1", "0","123","123"));
+        sanxiaoModelset.add(new SanxiaoModel("25", "1","123","123"));
+        sanxiaoModelset.add(new SanxiaoModel("36", "0","123","123"));
+        sanxiaoModelset.add(new SanxiaoModel("85", "1","123","123"));
+        sanxiaoModelset.add(new SanxiaoModel("95", "0","123","123"));
+        sanxiaoModelset.add(new SanxiaoModel("02", "1","123","123"));
+        SanxiaoModel newModel = new SanxiaoModel("123", "0","123","123");
         if (sanxiaoModelset.contains(newModel)) {
             System.out.println(true);
         } else {
             System.out.println(false);
         }
+    }
+
+    public void testRun1() throws Exception {
+
     }
 }

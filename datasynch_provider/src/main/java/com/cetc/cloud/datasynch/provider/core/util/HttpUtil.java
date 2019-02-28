@@ -2,7 +2,8 @@ package com.cetc.cloud.datasynch.provider.core.util;
 
 import com.alibaba.fastjson.JSONObject;
 import com.cetc.cloud.datasynch.api.model.Token;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.net.HttpURLConnection;
@@ -19,8 +20,8 @@ import java.util.Map.Entry;
  * @开始时间: 2017-10-14
  * @开发人员: --
  */
-@Slf4j
 public class HttpUtil {
+    private static Logger logger = LoggerFactory.getLogger(HttpUtil.class);
     public static void main(String[] args) {
         String url = "http://www.baidu.com/";
         JSONObject params = new JSONObject();
@@ -187,7 +188,7 @@ public class HttpUtil {
                         .substring(0, queryString.length() - 1);
 
                 url = url + "?" + queryString;
-                log.info("--->> Http query:  URL: "+url);
+                logger.info("--->> Http query:  URL: "+url);
             }
 
             URLConnection urlConnection = new URL(url).openConnection();
@@ -370,7 +371,7 @@ public class HttpUtil {
                         .substring(0, queryString.length() - 1);
 
                 url = url + "?" + queryString;
-                log.info("--->> Http query:  URL: "+url);
+                logger.info("--->> Http query:  URL: "+url);
             }
 
             URLConnection urlConnection = new URL(url).openConnection();

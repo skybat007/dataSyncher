@@ -1,11 +1,10 @@
 package com.cetc.cloud.datasynch.provider.controller;
 
 import com.cetc.cloud.datasynch.api.service.ExcelRemoteService;
-import com.cetc.cloud.datasynch.provider.core.tools.ExcelTool;
-import com.cetc.cloud.datasynch.provider.core.util.ListUtil;
+import com.cetc.cloud.datasynch.provider.tools.ExcelTool;
+import com.cetc.cloud.datasynch.provider.util.ListUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.web.bind.annotation.RestController;

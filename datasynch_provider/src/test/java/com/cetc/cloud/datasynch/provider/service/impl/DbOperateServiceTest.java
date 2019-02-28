@@ -1,7 +1,6 @@
 package com.cetc.cloud.datasynch.provider.service.impl;
 
-import com.cetc.cloud.datasynch.provider.core.util.ListUtil;
-import com.cetc.cloud.test.ListSortTest;
+import com.cetc.cloud.datasynch.provider.util.ListUtil;
 import junit.framework.TestCase;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -11,7 +10,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**

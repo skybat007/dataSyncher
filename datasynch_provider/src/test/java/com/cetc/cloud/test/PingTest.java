@@ -1,6 +1,6 @@
 package com.cetc.cloud.test;
 
-import com.cetc.cloud.datasynch.provider.core.util.Ping;
+import com.cetc.cloud.datasynch.provider.util.Ping;
 import org.junit.Test;
 
 /**

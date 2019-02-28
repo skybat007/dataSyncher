@@ -2,20 +2,19 @@ package com.cetc.cloud.datasynch.provider.controller;
 
 import com.cetc.cloud.datasynch.api.model.ScheduleModel;
 import com.cetc.cloud.datasynch.api.service.ScheduleRemoteService;
+import com.cetc.cloud.datasynch.provider.common.CommonInstance;
+import com.cetc.cloud.datasynch.provider.core.JobManageService;
 import com.cetc.cloud.datasynch.provider.mapper.XinfangEventMapper;
 import com.cetc.cloud.datasynch.provider.service.impl.*;
-import com.cetc.cloud.datasynch.provider.common.CommonInstance;
 import com.cetc.cloud.datasynch.provider.template.*;
+import com.cetc.cloud.datasynch.provider.util.Date2CronUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.support.CronTrigger;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.Future;
 
 /**
@@ -197,103 +196,57 @@ public class ScheduleController implements ScheduleRemoteService {
     }
 
     @Override
-    public HashMap<String, String> startOuterScheduleJob(String jobName, String cronExpression) {
+    public HashMap<String, String> startOuterScheduleJob(String jobName, CronTrigger trigger) {
         HashMap res = new HashMap();
         String uuid = null;
         if (CommonInstance.JOB_calc_trouble_sanxiao.equals(jobName)) {
-
             SanxiaoCalcRunnable myCalculateRunnable = new SanxiaoCalcRunnable(dbQueryService, dbOperateService, httpOperateService, rePullTableController);
-            CronTrigger trigger = null;
-            try {
-                trigger = new CronTrigger(cronExpression);
-            } catch (Exception e) {
-                log.error("Error cron Expression:" + cronExpression);
-            }
-
             if (trigger != null) {
                 uuid = jobManageService.startOuterScheduledJob(jobName, myCalculateRunnable, trigger);
             }
-            log.info("\n\n>>>>\n\n  >>>> scheduling job:" + jobName + " started!");
         }
         if (CommonInstance.JOB_refresh_sanxiao_list.equals(jobName)) {
 
             RefreshSanxiaoListRunnable myCalculateRunnable = new RefreshSanxiaoListRunnable(dbOperateService_zhft,dbOperateService);
-            CronTrigger trigger = null;
-            try {
-                trigger = new CronTrigger(cronExpression);
-            } catch (Exception e) {
-                log.error("Error cron Expression:" + cronExpression);
-            }
 
             if (trigger != null) {
                 uuid = jobManageService.startOuterScheduledJob(jobName, myCalculateRunnable, trigger);
             }
-            log.info("\n\n>>>>\n\n  >>>> scheduling job:" + jobName + " started!");
         }
         if (CommonInstance.JOB_get_today_xinfang.equals(jobName)) {
 
             XinfangGetRunnable myCalculateRunnable = new XinfangGetRunnable( outerUrlsService, xinfangEventMapper);
-            CronTrigger trigger = null;
-            try {
-                trigger = new CronTrigger(cronExpression);
-            } catch (Exception e) {
-                log.error("Error cron Expression:" + cronExpression);
-            }
             if (trigger != null) {
                 uuid = jobManageService.startOuterScheduledJob(jobName, myCalculateRunnable, trigger);
             }
         }
         if (CommonInstance.JOB_add_chengguanevent_attach.equals(jobName)) {
 
-            ChengguanEventAttachRunnable myCalculateRunnable = new ChengguanEventAttachRunnable(dbQueryService, dbOperateService, httpOperateService, outerUrlsService);
-            CronTrigger trigger = null;
-            try {
-                trigger = new CronTrigger(cronExpression);
-            } catch (Exception e) {
-                log.error("Error cron Expression:" + cronExpression);
-            }
+            ChengguanEventAttachRunnable myCalculateRunnable = new ChengguanEventAttachRunnable( dbOperateService, httpOperateService, outerUrlsService);
             if (trigger != null) {
                 uuid = jobManageService.startOuterScheduledJob(jobName, myCalculateRunnable, trigger);
             }
         }
         if (CommonInstance.JOB_get_weather_alarm_info.equals(jobName)) {
             WeatherAlarmRunnable myCalculateRunnable = new WeatherAlarmRunnable(dbOperateService, outerUrlsService);
-            CronTrigger trigger = null;
-            try {
-                trigger = new CronTrigger(cronExpression);
-            } catch (Exception e) {
-                log.error("Error cron Expression:" + cronExpression);
-            }
             if (trigger != null) {
                 uuid = jobManageService.startOuterScheduledJob(jobName, myCalculateRunnable, trigger);
             }
         }
         if (CommonInstance.JOB_generate_water_AQI_info.equals(jobName)) {
             WaterAQIRunnable myCalculateRunnable = new WaterAQIRunnable(dbOperateService);
-            CronTrigger trigger = null;
-            try {
-                trigger = new CronTrigger(cronExpression);
-            } catch (Exception e) {
-                log.error("Error cron Expression:" + cronExpression);
-            }
             if (trigger != null) {
                 uuid = jobManageService.startOuterScheduledJob(jobName, myCalculateRunnable, trigger);
             }
         }
         if (CommonInstance.JOB_generate_water_AQI_info.equals(jobName)) {
             WaterAQIRunnable myCalculateRunnable = new WaterAQIRunnable(dbOperateService);
-            CronTrigger trigger = null;
-            try {
-                trigger = new CronTrigger(cronExpression);
-            } catch (Exception e) {
-                log.error("Error cron Expression:" + cronExpression);
-            }
             if (trigger != null) {
                 uuid = jobManageService.startOuterScheduledJob(jobName, myCalculateRunnable, trigger);
             }
         }
 
-        log.info("\n\n>>>>\n\n  >>>> scheduling job:" + jobName + " started!");
+        log.info("\n\n>>>>\n\n  >>>> scheduling job:" + jobName + " started! --- cronExpression："+trigger.getExpression());
         if (uuid != null) {
             res.put("result", "success");
             res.put("msg", "start Outer job:" + jobName + " success! job ID:" + uuid);
@@ -303,6 +256,15 @@ public class ScheduleController implements ScheduleRemoteService {
         }
 
         return res;
+    }
+    @Override
+    public HashMap<String, String> triggerOnceOuterScheduleJobByJobName(String jobName) {
+        Calendar instance = Calendar.getInstance();
+        instance.add(Calendar.SECOND,5);
+        String cron = Date2CronUtil.getCron(instance.getTime());
+        CronTrigger trigger = new CronTrigger(cron);
+        HashMap<String, String> map = startOuterScheduleJob(jobName, trigger);
+        return map;
     }
 
     @Override

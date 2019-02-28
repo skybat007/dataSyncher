@@ -7,15 +7,11 @@ import com.cetc.cloud.datasynch.api.model.DddOuterURLsModel;
 import com.cetc.cloud.datasynch.api.model.Token;
 import com.cetc.cloud.datasynch.api.model.XinFangEventModel;
 import com.cetc.cloud.datasynch.api.model.XinFangPeopleModel;
-import com.cetc.cloud.datasynch.provider.core.util.HttpClientUtil2;
-import com.cetc.cloud.datasynch.provider.core.util.JsonExtractor;
+import com.cetc.cloud.datasynch.provider.util.HttpClientUtil2;
+import com.cetc.cloud.datasynch.provider.util.JsonExtractor;
 import com.cetc.cloud.datasynch.provider.mapper.XinfangEventMapper;
-import com.cetc.cloud.datasynch.provider.service.impl.DbOperateService;
-import com.cetc.cloud.datasynch.provider.service.impl.DbQueryService;
-import com.cetc.cloud.datasynch.provider.service.impl.HttpOperateService;
 import com.cetc.cloud.datasynch.provider.service.impl.OuterUrlsService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;

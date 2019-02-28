@@ -1,12 +1,11 @@
 package com.cetc.cloud.datasynch.api.service;
 
 import com.cetc.cloud.datasynch.api.model.ScheduleModel;
-import com.cetc.cloud.datasynch.api.model.SynchJobLogInfoModel;
-import com.cetc.cloud.datasynch.api.model.Token;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import org.springframework.scheduling.support.CronTrigger;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
@@ -67,7 +66,14 @@ public interface ScheduleRemoteService {
             @ApiImplicitParam(name = "jobName", value = "只能在这些集合中选取：[calc_trouble_sanxiao,get_today_xinfang]", required = true, dataType = "int", paramType = "query"),
             @ApiImplicitParam(name = "cronExpression", value = "cron表达式(例：每30秒请求一次：0/30 \\* \\* \\* \\* ? |每1分钟请求一次 0 0/1 \\* \\* \\* ?)", required = false, dataType = "String", paramType = "query")
     })
-    HashMap<String,String> startOuterScheduleJob(String jobName, String cronExpression);
+    HashMap<String,String> startOuterScheduleJob(String jobName, CronTrigger trigger);
+
+    @RequestMapping(value = "/schedule/job/triggerOnce/outerJob/byJobName", produces = "application/json", method = RequestMethod.POST)
+    @ApiOperation(value = "根据jobName启动单次自定义任务", notes = "\"calc_trouble_sanxiao\";\n\"get_today_xinfang\";\n\"add_chengguanevent_attach\";\n\"get_weather_alarm_info\";\n\"refresh_sanxiao_list\";\n\"generate_water_AQI_info\";", produces = "application/json")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "jobName", value = "只能在这些集合中选取：[calc_trouble_sanxiao,get_today_xinfang]", required = true, dataType = "int", paramType = "query"),
+    })
+    HashMap<String, String> triggerOnceOuterScheduleJobByJobName(String jobName);
 
     @RequestMapping(value = "/schedule/job/start/array", produces = "application/json", method = RequestMethod.POST)
     @ApiOperation(value = "根据启动任务List", notes = "job1,job2,...,jobN", produces = "application/json")
