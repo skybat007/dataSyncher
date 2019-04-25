@@ -1,6 +1,5 @@
 package com.cetc.cloud.datasynch.provider.controller;
 
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.cetc.cloud.datasynch.api.service.SequenceManagerRemoteService;
 import com.cetc.cloud.datasynch.provider.service.impl.DbOperateService;
@@ -29,7 +28,7 @@ public class SequenceManagerController implements SequenceManagerRemoteService {
     @Autowired
     DbOperateService dbOperateService;
 
-    private Properties tableSeqMapping;
+//    private Properties tableSeqMapping;
 
     @Override
     public List getAllSequenceNameList() {
@@ -38,30 +37,22 @@ public class SequenceManagerController implements SequenceManagerRemoteService {
 
     @Override
     public String exactAllSequences() throws IOException, SQLException, InterruptedException {
-        //todo 将所有异常序列increment_by 改为+1
-        List<String> list = dbOperateService.oracleQueryList("select sequence_name \n" +
-                "from USER_sequences \n" +
-                "WHERE INCREMENT_BY NOT IN(1)");
-        if (list.size() > 0) {
-            changeIncrementByValueNormal(list);
-        }
-        tableSeqMapping = loadMappingExcel();
         JSONObject result = new JSONObject();
         int successCount = 0;
+        List successTables = new ArrayList<>();
         int failCount = 0;
-        Set<Object> keySet = tableSeqMapping.keySet();
-        Object[] list1 = parseSetToSortedList(keySet);
-
-        JSONArray successTables = new JSONArray();
-        JSONArray failedTables = new JSONArray();
-        for (Object table : list1) {
-            boolean b = exactSequenceByTbName((String) table);
-            if (b == true) {
+        List failedTables = new ArrayList<>();
+        //todo 将所有异常序列increment_by 改为+1
+        List allSequenceNameList = dbOperateService.getAllSequenceNameList();
+        for (Object table : allSequenceNameList) {
+            try {
+                exactSequenceByTbName((String) table);
                 successCount++;
                 successTables.add(table);
-            } else {
+            } catch (Exception e) {
                 failCount++;
                 failedTables.add(table);
+                e.printStackTrace();
             }
         }
         result.put("successCount", successCount);
@@ -83,7 +74,6 @@ public class SequenceManagerController implements SequenceManagerRemoteService {
         return arr;
     }
 
-
     private void changeIncrementByValueNormal(List<String> sequencNameList) throws SQLException {
         for (String sequencName : sequencNameList) {
             String sql = "alter sequence " + sequencName + " increment by 1";
@@ -93,46 +83,60 @@ public class SequenceManagerController implements SequenceManagerRemoteService {
     }
 
     @Override
-    public boolean exactSequenceByTbName(String tableName) throws IOException, SQLException, InterruptedException {
+    public String exactSequenceByTbName(String tableName) throws IOException, SQLException, InterruptedException {
+        JSONObject res = new JSONObject();
         //1.check:表是否存在
         boolean existsTable = dbOperateService.checkIfExistsTable(tableName);
         if (existsTable == false) {
             log.error("table does not exists!" + tableName);
+            res.put("msg", "execute false table does not exists!" + tableName);
+            return res.toJSONString();
         }
-        //2.获取表名对应序列名的 对照名单
-        if (tableSeqMapping == null) {
-            tableSeqMapping = loadMappingExcel();
-        }
+//        //2.获取表名对应序列名的 对照名单
+//        if (tableSeqMapping == null) {
+//            tableSeqMapping = loadMappingExcel();
+//        }
         //3.check:序列是否存在
-        boolean sequenceExists = dbOperateService.checkIfSequenceExists_pure((String) tableSeqMapping.get(tableName));
+        String SEQName = dbOperateService.getSequenceName(tableName);
+
+        boolean sequenceExists = dbOperateService.checkIfSequenceExists(SEQName);
 
         if (sequenceExists == false) {
-            String SEQName = (String) tableSeqMapping.get(tableName);
+
             log.error("sequence :" + SEQName + " does not exists! target tableName: " + tableName);
             log.info("creating SEQ:" + SEQName);
-            if (null != SEQName && !"".equals(SEQName)) {
-                boolean sequence = dbOperateService.createSequence(SEQName);
-                Thread.sleep(50);
-            } else {
-                log.error("sequence name is null :" + SEQName + " target tableName:" + tableName);
-                return false;
+
+            boolean sequence = dbOperateService.createSequence(SEQName);
+            Thread.sleep(50);
+            boolean exists = dbOperateService.checkIfSequenceExists(SEQName);
+            if (exists) {
+                log.info(">> creating sequence success! SEQ_NAME:" + SEQName);
             }
         }
 
         //4.检查该表是否有ObjectId字段
         boolean exists = dbOperateService.checkIfColumnExists(tableName, "OBJECT_ID");
-//        if ("BLK_LEGAL_PERSON".equals(tableName) || "BLK_HOUSE".equals(tableName)) {
-//            System.out.println(tableName);
-//        }
         if (exists == false) {
             log.error("cannot find Column: OBJECT_ID");
-            return false;
+            res.put("code", -1);
+            res.put("msg", "cannot find Column: OBJECT_ID");
+            return res.toJSONString();
         } else {
             // 1.获取Max（ObjectId）
             int maxObjectId = dbOperateService.getMaxObjectId(tableName);
             int tableRowCounts = dbOperateService.getTableRowCounts(tableName);
             if (tableRowCounts <= 1) {
-                return false;
+                boolean b = dbOperateService.dropSequence(SEQName);
+                if (b) {
+                    log.info("drop sequence :" + SEQName + " success!");
+                    log.info("creating sequence :" + SEQName + " success!");
+                    dbOperateService.createSequence(SEQName);
+                    res.put("msg", "RESET sequence:" + SEQName + " SUCCESS!");
+                    return res.toJSONString();
+                } else {
+                    res.put("msg", "recreate sequence:" + SEQName + " error!");
+                    return res.toJSONString();
+                }
             }
             if (maxObjectId == -1 || tableRowCounts > 1 && maxObjectId == 0) {
                 String updateSQL = "UPDATE " + tableName + " SET OBJECT_ID=rownum";
@@ -143,7 +147,7 @@ public class SequenceManagerController implements SequenceManagerRemoteService {
                 maxObjectId = dbOperateService.getMaxObjectId(tableName);
             }
             // 2.获取sequence的nextValue
-            String sequenceName = (String) tableSeqMapping.get(tableName);
+            String sequenceName = dbOperateService.getSequenceName(tableName);
             int nextSeqVal = dbOperateService.getNextSeqVal(sequenceName);
 
             // 3.对比
@@ -152,12 +156,16 @@ public class SequenceManagerController implements SequenceManagerRemoteService {
                 int subResult = maxObjectId - nextSeqVal;
                 if (subResult == 0) {
                     log.info("no need to exact sequence :" + sequenceName);
-                    return false;
+                    res.put("code", -1);
+                    res.put("msg", "no need to exact sequence :" + sequenceName);
+                    return res.toJSONString();
                 }
                 //todo 纠正后的数据不能小于0
                 if (nextSeqVal + subResult < 0) {
                     log.error("error nextSeqValue :" + nextSeqVal);
-                    return false;
+                    res.put("code", -1);
+                    res.put("msg", "error nextSeqValue :" + nextSeqVal);
+                    return res.toJSONString();
                 }
 
                 /**
@@ -168,24 +176,24 @@ public class SequenceManagerController implements SequenceManagerRemoteService {
                  --再将序列的值修改回去
                  alter sequence SEQ_DS_SCHEDULE_JOB_INFO increment by 1;
                  */
-
-
                 boolean i1 = dbOperateService.oracleExecuteSql("alter sequence " + sequenceName + " increment by " + subResult);
 
-
-                if (i1 == false) {
-                    return false;
-                }
                 int nextSeqVal2 = dbOperateService.getNextSeqVal(sequenceName);
                 if (nextSeqVal2 == -1) {
                     log.error("cannot get nextVal from " + sequenceName);
-                    return false;
+                    res.put("msg", "cannot get nextVal from " + sequenceName);
+                    return res.toJSONString();
                 }
                 int i2 = dbOperateService.oracleUpdateSql("alter sequence " + sequenceName + " increment by 1");
                 log.info("\r\nfinished exact sequence value!\nsequenceName:" + sequenceName
                         + "\r\n current sequence value:" + nextSeqVal2);
+                res.put("code", 0);
+                res.put("msg", "successfully exacted sequence：" + sequenceName
+                        + "\r\nfinished exact sequence value!\nsequenceName:" + sequenceName
+                        + "\r\n current sequence value:" + nextSeqVal2);
+                return res.toJSONString();
             }
-            return true;
+            return null;
         }
     }
 
@@ -194,19 +202,16 @@ public class SequenceManagerController implements SequenceManagerRemoteService {
     public boolean resetSequenceBySequenceName(String seqName) throws IOException, SQLException, InterruptedException {
         //1.check:表是否存在
         //2.获取表名对应序列名的 对照名单
-        if (tableSeqMapping == null) {
-            tableSeqMapping = loadMappingExcel();
-        }
         //3.check:序列是否存在
         boolean sequenceExists = dbOperateService.checkIfSequenceExists(seqName);
         if (sequenceExists == true) {
             boolean b = dbOperateService.dropSequence(seqName);
-            if (b==true) {
+            if (b == true) {
                 boolean c = dbOperateService.createSequence(seqName);
-            }else{
+            } else {
                 return false;
             }
-        }else {
+        } else {
             return false;
         }
 

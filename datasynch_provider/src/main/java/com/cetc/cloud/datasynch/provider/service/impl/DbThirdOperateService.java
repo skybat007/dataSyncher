@@ -313,7 +313,7 @@ public class DbThirdOperateService {
         List keyList_SQL = new ArrayList<String>();
 
         if (mapping.size() == 0) {
-            resList.add(CommonInstance.SUCCESS);
+            resList.add(CommonInstance.FAIL);
             resList.add(successCounter);
             resList.add(failCounter);
             return resList;

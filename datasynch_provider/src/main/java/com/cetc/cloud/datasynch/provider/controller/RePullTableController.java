@@ -12,6 +12,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.IOException;
+import java.sql.SQLException;
+
 /**
  * PackageName:   com.cetc.cloud.datasynch.provider.controller
  * projectName:   dataSyncher
@@ -36,6 +39,8 @@ public class RePullTableController implements RePullTableRemoteService {
     JobManageService jobManageService;
     @Autowired
     ScheduleController scheduleController;
+    @Autowired
+    SequenceManagerController sequenceManagerController;
 
     @Override
     public String clearAndPullAgainTableByTableName(String tableName) {
@@ -45,13 +50,25 @@ public class RePullTableController implements RePullTableRemoteService {
         //1.根据表名查询JobId
         ScheduleModel scheduleModel = scheduleService.queryModelByTableName(tableName);
         //disable任务
-        scheduleService.alterJobStatusByJobId(scheduleModel.getId(), CommonInstance.DISABLED);
+        scheduleService.alterJobStatusByJobId(scheduleModel.getId(), CommonInstance.JOB_DISABLED);
 
         //2.清空表
         String copyName = dbOperateService.backUpTable(scheduleModel.getTargetTableName());
         log.info("\n>> BackUpTable:"+scheduleModel.getTargetTableName()+"\nbackup tableName："+copyName);
         //DISABLE任务
         boolean clearRes = dbOperateService.truncateTableByTbName(scheduleModel.getTargetTableName());
+
+        //3.序列归0
+        try {
+            sequenceManagerController.exactSequenceByTbName(scheduleModel.getTargetTableName());
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
 
         //3.通过jobId清空日志
         if (clearRes) {
@@ -61,7 +78,7 @@ public class RePullTableController implements RePullTableRemoteService {
             }
             try {
                 //ENABLE任务
-                scheduleService.alterJobStatusByJobId(scheduleModel.getId(), CommonInstance.ENABLED);
+                scheduleService.alterJobStatusByJobId(scheduleModel.getId(), CommonInstance.JOB_ENABLED);
                 log.info("started once job:");
                 scheduleController.triggerOnceJobByTargetTableName(scheduleModel.getTargetTableName());
             }catch (Exception e){

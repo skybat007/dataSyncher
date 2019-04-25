@@ -81,4 +81,10 @@ public class DbOperateServiceTest extends TestCase {
         String blk_sanxiao_place_count = dbOperateService.backUpTable("BLK_SANXIAO_PLACE_COUNT");
         System.out.println(blk_sanxiao_place_count);
     }
+    @Test
+    public void testGetSequenceName() throws Exception {
+        String blk_population = dbOperateService.getSequenceName("BLK_POPULATIONBLK_SANXIAO_PLACE_COUNT");
+        System.out.println(blk_population);
+
+    }
 }

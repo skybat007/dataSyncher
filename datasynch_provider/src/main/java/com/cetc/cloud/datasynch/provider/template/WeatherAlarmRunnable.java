@@ -5,10 +5,10 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.cetc.cloud.datasynch.api.model.DddOuterURLsModel;
 import com.cetc.cloud.datasynch.api.model.Token;
-import com.cetc.cloud.datasynch.provider.util.HttpClientUtil2;
 import com.cetc.cloud.datasynch.provider.service.impl.DbOperateService;
 import com.cetc.cloud.datasynch.provider.service.impl.OuterUrlsService;
 import com.cetc.cloud.datasynch.provider.tools.DbTools;
+import com.cetc.cloud.datasynch.provider.util.HttpClientUtil2;
 import lombok.extern.slf4j.Slf4j;
 
 import java.sql.SQLException;
@@ -78,10 +78,10 @@ public class WeatherAlarmRunnable implements OuterJobRunnableTemplate {
                         log.error("Field:`alertCategory` cannot be null!");
                         continue;
                     }
-                    if (warningLevel == null || "".equals(warningLevel)) {
-                        log.error("Field:`warningLevel` cannot be null!");
-                        continue;
-                    }
+//                    if (warningLevel == null || "".equals(warningLevel)) {
+//                        log.error("Field:`warningLevel` cannot be null!");
+//                        continue;
+//                    }
                     if (warningContent == null || "".equals(warningContent)) {
                         log.error("Field:`warningContent` cannot be null!");
                         continue;

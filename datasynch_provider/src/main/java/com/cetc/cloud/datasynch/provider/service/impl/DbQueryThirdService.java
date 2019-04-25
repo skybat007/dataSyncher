@@ -99,6 +99,7 @@ public class DbQueryThirdService implements DbQuerySumService {
         List<HashMap> data = new ArrayList<HashMap>();
         log.debug("\r\n-------->------------------->--------------------------->\r\n" +
                 jdbcTemplate.getDataSource().toString());
+        if (null==sql || "".equals(sql)){ return data;}
         SqlRowSet rs = jdbcTemplate.queryForRowSet(sql);
         while (rs.next()) {
             int len = rs.getMetaData().getColumnCount();

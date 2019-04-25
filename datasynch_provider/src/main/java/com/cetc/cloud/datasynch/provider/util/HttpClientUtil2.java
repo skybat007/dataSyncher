@@ -2,6 +2,9 @@ package com.cetc.cloud.datasynch.provider.util;
 
 import com.alibaba.fastjson.JSONObject;
 import com.cetc.cloud.datasynch.api.model.Token;
+import com.cetc.cloud.datasynch.provider.common.CommonInstance;
+import com.cetc.cloud.datasynch.provider.util.entity.GetModel;
+import com.cetc.cloud.datasynch.provider.util.entity.PostModel;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.http.*;
@@ -19,7 +22,7 @@ import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.util.EntityUtils;
 
 import java.io.IOException;
-import java.net.*;
+import java.net.URISyntaxException;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -43,6 +46,9 @@ public class HttpClientUtil2 {
             new ConcurrentHashMap<String, CloseableHttpClient>();
 
     private static synchronized CloseableHttpClient getHttpClient(String url) {
+        if (!url.contains("http://")){
+            url = "http://"+url;
+        }
         String[] ip_port = getIpAndPortFromUrl(url);
         String ip = ip_port[0];
         int port = Integer.parseInt(ip_port[1]);
@@ -92,9 +98,9 @@ public class HttpClientUtil2 {
             }
             httpGet = new HttpGet(builder.build());
             RequestConfig config = RequestConfig.custom()
-                    .setSocketTimeout(6000)
-                    .setConnectTimeout(6000)
-                    .setConnectionRequestTimeout(6000).build();
+                    .setSocketTimeout(CommonInstance.HTTP_SOCKET_TIMEOUT)
+                    .setConnectTimeout(CommonInstance.HTTP_CONNECT_TIMEOUT)
+                    .setConnectionRequestTimeout(CommonInstance.HTTP_CONNECT_RESPONSE_TIMEOUT).build();
             httpGet.setConfig(config);
             HttpResponse response = httpClient.execute(httpGet);
             status = response.getStatusLine();                          //获取返回的状态码
@@ -118,7 +124,119 @@ public class HttpClientUtil2 {
         }
         return result;
     }
+    /**
+     * Get方法：不带Token认证
+     * 注：不能使用url+params集成到params
+     *
+     * @return
+     * @throws URISyntaxException
+     */
+    public static JSONObject doGetWithGetModel(GetModel getModel) {
+        log.info("\n>>Http getMethod:URL:" + toHttpParamStr(getModel.getUrl(), getModel.getParams()) + "\n");
+        CloseableHttpClient httpClient = getHttpClient(getModel.getUrl());
+        JSONObject result = new JSONObject();
+        HttpGet httpGet = null;
+        StatusLine status = null;
+        try {
+            URIBuilder builder = new URIBuilder(getModel.getUrl());
+            JSONObject params = getModel.getParams();
+            if (!MapUtils.isEmpty(params)) {
+                for (String key : params.keySet()) {
+                    builder.setParameter(key, params.getString(key));
+                }
+            }
+            httpGet = new HttpGet(builder.build());
+            RequestConfig config = RequestConfig.custom()
+                    .setSocketTimeout(CommonInstance.HTTP_SOCKET_TIMEOUT)
+                    .setConnectTimeout(CommonInstance.HTTP_CONNECT_TIMEOUT)
+                    .setConnectionRequestTimeout(CommonInstance.HTTP_CONNECT_RESPONSE_TIMEOUT).build();
+            if (getModel.getHeader()!=null) {
+                JSONObject header = getModel.getHeader();
+                Set<String> keySet = header.keySet();
+                for (String key : keySet) {
+                    httpGet.setHeader(key, header.getString(key));
+                }
+            }
+            httpGet.setConfig(config);
+            HttpResponse response = httpClient.execute(httpGet);
+            status = response.getStatusLine();                          //获取返回的状态码
+            HttpEntity entity = response.getEntity();                   //获取响应内容
+            if (status.getStatusCode() == 200) {
+                result.put("success", true);
+                result.put("data", EntityUtils.toString(entity, "UTF-8"));
+                result.put("code", 200);
+                result.put("msg", "请求成功");
+            } else {
+                result.put("success", false);
+                result.put("code", status.getStatusCode());
+                result.put("msg", "请求异常，异常信息:" + status.getReasonPhrase());
+            }
+        } catch (Exception e) {
+            result.put("success", false);
+            result.put("code", status.getStatusCode());
+            result.put("msg", "请求异常，异常信息：" + e.getClass() + "->" + e.getMessage());
+        } finally {
+            httpGet.abort();//中止请求，连接被释放回连接池
+        }
+        return result;
+    }
+    /**
+     * Get方法：带Token认证
+     *
+     * @param url
+     * @param params
+     * @param token
+     * @return
+     */
+    public static JSONObject doGetWithAuthoration(String url, JSONObject params, Token token) {
 
+        log.info("\n>>Http getMethod:URL:" + toHttpParamStr(url, params) + "\n");
+
+        CloseableHttpClient httpClient = getHttpClient(url);
+        JSONObject result = new JSONObject();
+        result.put("success", true);
+        result.put("data", null);
+        result.put("code", 200);
+        result.put("msg", null);
+        HttpGet httpGet = null;
+        StatusLine status = null;
+        try {
+            URIBuilder builder = new URIBuilder(url);
+            if (!MapUtils.isEmpty(params)) {
+                for (String key : params.keySet()) {
+                    builder.setParameter(key, params.getString(key));
+                }
+            }
+            httpGet = new HttpGet(builder.build());
+            RequestConfig config = RequestConfig.custom()
+                    .setSocketTimeout(CommonInstance.HTTP_SOCKET_TIMEOUT)
+                    .setConnectTimeout(CommonInstance.HTTP_CONNECT_TIMEOUT)
+                    .setConnectionRequestTimeout(CommonInstance.HTTP_CONNECT_RESPONSE_TIMEOUT).build();
+            httpGet.setConfig(config);
+            httpGet.setHeader(token.getKey(), token.getValue());
+            HttpResponse response = httpClient.execute(httpGet);
+            status = response.getStatusLine();                          //获取返回的状态码
+            HttpEntity entity = response.getEntity();                   //获取响应内容
+            if (status.getStatusCode() == 200) {
+                result.put("success", true);
+                result.put("data", EntityUtils.toString(entity, "UTF-8"));
+                result.put("code", 200);
+                result.put("msg", "请求成功");
+            } else {
+                result.put("success", false);
+                result.put("code", status.getStatusCode());
+                result.put("msg", "请求异常，异常信息:" + status.getReasonPhrase());
+            }
+        } catch (Exception e) {
+            result.put("success", false);
+            result.put("code", 500);
+            result.put("msg", "请求异常，异常信息：" + e.getClass() + "->" + e.getMessage());
+        } finally {
+            httpGet.abort();//中止请求，连接被释放回连接池
+        }
+        return result;
+
+    }
     public static String toHttpParamStr(String url, JSONObject params) {
         String paramStr = "";
         if (null == params) {
@@ -147,7 +265,7 @@ public class HttpClientUtil2 {
 
     }
 
-    public static JSONObject doPostWithParam_Body_Token(String url, JSONObject params, String bodyContent, String tokenStr) {
+    public static JSONObject doPostWith_param_body_token(String url, JSONObject params, String bodyContent, String tokenStr) {
         log.info("\n>>Http getMethod:URL:" + toHttpParamStr(url, params) + "\n");
         CloseableHttpClient httpClient = getHttpClient(url);
         JSONObject result = new JSONObject();
@@ -165,11 +283,11 @@ public class HttpClientUtil2 {
                     builder.setParameter(key, params.getString(key));
                 }
             }
-            httpPost = new HttpPost(url);
+            httpPost = new HttpPost(builder.build());
             RequestConfig config = RequestConfig.custom()
-                    .setSocketTimeout(6000)
-                    .setConnectTimeout(6000)
-                    .setConnectionRequestTimeout(6000).build();
+                    .setSocketTimeout(CommonInstance.HTTP_SOCKET_TIMEOUT)
+                    .setConnectTimeout(CommonInstance.HTTP_CONNECT_TIMEOUT)
+                    .setConnectionRequestTimeout(CommonInstance.HTTP_CONNECT_RESPONSE_TIMEOUT).build();
             httpPost.setHeader(token.getKey(), token.getValue());
             httpPost.setConfig(config);
             if (null != bodyContent && !"".equals(bodyContent)) {
@@ -200,7 +318,7 @@ public class HttpClientUtil2 {
     }
 
 
-    public static JSONObject doPostWithBody(String url, JSONObject params, String bodyContent) {
+    public static JSONObject doPostWith_param_body(String url, JSONObject params, String bodyContent) {
         log.info("\n>>Http doPostWithBody:URL:" + toHttpParamStr(url, params) + "\n");
         CloseableHttpClient httpClient = getHttpClient(url);
         JSONObject result = new JSONObject();
@@ -219,9 +337,9 @@ public class HttpClientUtil2 {
             }
             httpPost = new HttpPost(url);
             RequestConfig config = RequestConfig.custom()
-                    .setSocketTimeout(6000)
-                    .setConnectTimeout(6000)
-                    .setConnectionRequestTimeout(6000).build();
+                    .setSocketTimeout(CommonInstance.HTTP_SOCKET_TIMEOUT)
+                    .setConnectTimeout(CommonInstance.HTTP_CONNECT_TIMEOUT)
+                    .setConnectionRequestTimeout(CommonInstance.HTTP_CONNECT_RESPONSE_TIMEOUT).build();
             httpPost.setConfig(config);
             if (null != bodyContent && !"".equals(bodyContent)) {
                 HttpEntity entity = new StringEntity(bodyContent);
@@ -250,26 +368,15 @@ public class HttpClientUtil2 {
         }
         return result;
     }
-
-    /**
-     * Get方法：带Token认证
-     *
-     * @param url
-     * @param params
-     * @param token
-     * @return
-     */
-    public static JSONObject doGetWithAuthoration(String url, JSONObject params, Token token) {
-
-        log.info("\n>>Http getMethod:URL:" + toHttpParamStr(url, params) + "\n");
-
+    public static JSONObject doPostWith_param(String url, JSONObject params) {
+        log.info("\n>>Http doPostWithBody:URL:" + toHttpParamStr(url, params) + "\n");
         CloseableHttpClient httpClient = getHttpClient(url);
         JSONObject result = new JSONObject();
         result.put("success", true);
         result.put("data", null);
         result.put("code", 200);
         result.put("msg", null);
-        HttpGet httpGet = null;
+        HttpPost httpPost = null;
         StatusLine status = null;
         try {
             URIBuilder builder = new URIBuilder(url);
@@ -278,14 +385,14 @@ public class HttpClientUtil2 {
                     builder.setParameter(key, params.getString(key));
                 }
             }
-            httpGet = new HttpGet(builder.build());
+            httpPost = new HttpPost(builder.build());
             RequestConfig config = RequestConfig.custom()
-                    .setSocketTimeout(30000)
-                    .setConnectTimeout(30000)
-                    .setConnectionRequestTimeout(30000).build();
-            httpGet.setConfig(config);
-            httpGet.setHeader(token.getKey(), token.getValue());
-            HttpResponse response = httpClient.execute(httpGet);
+                    .setSocketTimeout(CommonInstance.HTTP_SOCKET_TIMEOUT)
+                    .setConnectTimeout(CommonInstance.HTTP_CONNECT_TIMEOUT)
+                    .setConnectionRequestTimeout(CommonInstance.HTTP_CONNECT_RESPONSE_TIMEOUT).build();
+            httpPost.setConfig(config);
+
+            HttpResponse response = httpClient.execute(httpPost);
             status = response.getStatusLine();                          //获取返回的状态码
             HttpEntity entity = response.getEntity();                   //获取响应内容
             if (status.getStatusCode() == 200) {
@@ -303,11 +410,116 @@ public class HttpClientUtil2 {
             result.put("code", 500);
             result.put("msg", "请求异常，异常信息：" + e.getClass() + "->" + e.getMessage());
         } finally {
-            httpGet.abort();//中止请求，连接被释放回连接池
+            httpPost.abort();//中止请求，连接被释放回连接池
         }
         return result;
-
     }
+    public static JSONObject doPostWithPostModel(PostModel postModel) {
+        log.debug("\n>>Http doPostWithPostModel:URL:" + toHttpParamStr(postModel.getUrl(), postModel.getParams()) + "\n");
+        CloseableHttpClient httpClient = getHttpClient(postModel.getUrl());
+        JSONObject result = new JSONObject();
+        result.put("success", true);
+        result.put("data", null);
+        result.put("code", 200);
+        result.put("msg", null);
+        HttpPost httpPost = null;
+        StatusLine status = null;
+        try {
+            URIBuilder builder = new URIBuilder(postModel.getUrl());
+            if (!MapUtils.isEmpty( postModel.getParams())) {
+                for (String key : postModel.getParams().keySet()) {
+                    builder.setParameter(key,  postModel.getParams().getString(key));
+                }
+            }
+            httpPost = new HttpPost(builder.build());
+            RequestConfig config = RequestConfig.custom()
+                    .setSocketTimeout(CommonInstance.HTTP_SOCKET_TIMEOUT)
+                    .setConnectTimeout(CommonInstance.HTTP_CONNECT_TIMEOUT)
+                    .setConnectionRequestTimeout(CommonInstance.HTTP_CONNECT_RESPONSE_TIMEOUT).build();
+            if (postModel.getHeader()!=null) {
+                JSONObject header = postModel.getHeader();
+                Set<String> keySet = header.keySet();
+                for (String key : keySet) {
+                    httpPost.setHeader(key, header.getString(key));
+                }
+            }
+            HttpEntity entityBody = new StringEntity(postModel.getBody().toJSONString());
+            httpPost.setEntity(entityBody);
+            httpPost.setConfig(config);
+            HttpResponse response = httpClient.execute(httpPost);
+            status = response.getStatusLine();                          //获取返回的状态码
+            HttpEntity entity = response.getEntity();                   //获取响应内容
+            if (status.getStatusCode() == 200) {
+                result.put("success", true);
+                result.put("data", EntityUtils.toString(entity, "UTF-8"));
+                result.put("code", 200);
+                result.put("msg", "请求成功");
+            } else {
+                result.put("success", false);
+                result.put("code", status.getStatusCode());
+                result.put("msg", "请求异常，异常信息:" + status.getReasonPhrase());
+            }
+        } catch (Exception e) {
+            result.put("success", false);
+            result.put("code", 500);
+            result.put("msg", "请求异常，异常信息：" + e.getClass() + "->" + e.getMessage());
+        } finally {
+            httpPost.abort();//中止请求，连接被释放回连接池
+        }
+        return result;
+    }
+    public static JSONObject doPostWithParam_Body_Token(String url, JSONObject params, String bodyContent, String tokenStr) {
+        log.info("\n>>Http getMethod:URL:" + toHttpParamStr(url, params) + "\n");
+        CloseableHttpClient httpClient = getHttpClient(url);
+        JSONObject result = new JSONObject();
+        result.put("success", true);
+        result.put("data", null);
+        result.put("code", 200);
+        result.put("msg", null);
+        HttpPost httpPost = null;
+        StatusLine status = null;
+        Token token = parseTokenStr2Token(tokenStr);
+        try {
+            URIBuilder builder = new URIBuilder(url);
+            if (!MapUtils.isEmpty(params)) {
+                for (String key : params.keySet()) {
+                    builder.setParameter(key, params.getString(key));
+                }
+            }
+            httpPost = new HttpPost(url);
+            RequestConfig config = RequestConfig.custom()
+                    .setSocketTimeout(CommonInstance.HTTP_SOCKET_TIMEOUT)
+                    .setConnectTimeout(CommonInstance.HTTP_CONNECT_TIMEOUT)
+                    .setConnectionRequestTimeout(CommonInstance.HTTP_CONNECT_RESPONSE_TIMEOUT).build();
+            httpPost.setHeader(token.getKey(), token.getValue());
+            httpPost.setConfig(config);
+            if (null != bodyContent && !"".equals(bodyContent)) {
+                HttpEntity entity = new StringEntity(bodyContent);
+                httpPost.setEntity(entity);
+            }
+            HttpResponse response = httpClient.execute(httpPost);
+            status = response.getStatusLine();                          //获取返回的状态码
+            HttpEntity entity = response.getEntity();                   //获取响应内容
+            if (status.getStatusCode() == 200) {
+                result.put("success", true);
+                result.put("data", EntityUtils.toString(entity, "UTF-8"));
+                result.put("code", 200);
+                result.put("msg", "请求成功");
+            } else {
+                result.put("success", false);
+                result.put("code", status.getStatusCode());
+                result.put("msg", "请求异常，异常信息:" + status.getReasonPhrase());
+            }
+        } catch (Exception e) {
+            result.put("success", false);
+            result.put("code", 500);
+            result.put("msg", "请求异常，异常信息：" + e.getClass() + "->" + e.getMessage());
+        } finally {
+            httpPost.abort();//中止请求，连接被释放回连接池
+        }
+        return result;
+    }
+
 
     public static JSONObject getParamObject(String httpParamExpression) {
         JSONObject params = new JSONObject();
@@ -358,9 +570,9 @@ public class HttpClientUtil2 {
         }
         HttpGet httpGet = new HttpGet(builder.build());
         RequestConfig config = RequestConfig.custom()
-                .setSocketTimeout(30000)
-                .setConnectTimeout(30000)
-                .setConnectionRequestTimeout(30000).build();
+                .setSocketTimeout(CommonInstance.HTTP_SOCKET_TIMEOUT)
+                .setConnectTimeout(CommonInstance.HTTP_CONNECT_TIMEOUT)
+                .setConnectionRequestTimeout(CommonInstance.HTTP_CONNECT_RESPONSE_TIMEOUT).build();
         httpGet.setConfig(config);
         HttpResponse response = httpClient.execute(httpGet);
         StatusLine status = response.getStatusLine();                   //获取返回的状态码
@@ -421,9 +633,9 @@ public class HttpClientUtil2 {
 
         HttpGet httpGet = new HttpGet(builder.build());
         RequestConfig config = RequestConfig.custom()
-                .setSocketTimeout(30000)
-                .setConnectTimeout(30000)
-                .setConnectionRequestTimeout(30000).build();
+                .setSocketTimeout(CommonInstance.HTTP_SOCKET_TIMEOUT)
+                .setConnectTimeout(CommonInstance.HTTP_CONNECT_TIMEOUT)
+                .setConnectionRequestTimeout(CommonInstance.HTTP_CONNECT_RESPONSE_TIMEOUT).build();
         httpGet.setConfig(config);
         HttpResponse response = httpClient.execute(httpGet);
         StatusLine status = response.getStatusLine();                   //获取返回的状态码

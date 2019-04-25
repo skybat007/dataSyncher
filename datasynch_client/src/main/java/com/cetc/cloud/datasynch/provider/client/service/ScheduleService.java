@@ -29,7 +29,7 @@ public interface ScheduleService extends ScheduleRemoteService {
 
 
         @Override
-        public HashMap createScheduleJob(int connType, String source, int srcDs, int isPagingQuery, String orderByColumnName, String httpParamExpression, String httpToken, String httpPagingType, String httpParamPageSize, String httpParamPageNum, String httpJsonExtractRule, String targetTableName, int needsTruncateTargetTb, String pageSize, String cronExpression) throws SQLException {
+        public HashMap createScheduleJob(int connType, String source, String srcDs, int isPagingQuery, String orderByColumnName, String httpParamExpression, String httpToken, String httpPagingType, String httpParamPageSize, String httpParamPageNum, String httpJsonExtractRule, String targetTableName, int needsTruncateTargetTb, String pageSize, String cronExpression) throws SQLException {
             return null;
         }
 
@@ -60,6 +60,11 @@ public interface ScheduleService extends ScheduleRemoteService {
 
         @Override
         public HashMap<String, String> startScheduleJobArrayByJobId(String jobs) {
+            return null;
+        }
+
+        @Override
+        public HashMap<String, String> startAllDSJobs() {
             return null;
         }
 

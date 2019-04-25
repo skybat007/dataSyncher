@@ -6,18 +6,18 @@ import com.alibaba.fastjson.JSONObject;
 import com.cetc.cloud.datasynch.api.model.*;
 import com.cetc.cloud.datasynch.api.service.SingleJobRemoteService;
 import com.cetc.cloud.datasynch.provider.core.JobManageService;
-import com.cetc.cloud.datasynch.provider.util.HttpClientUtil2;
 import com.cetc.cloud.datasynch.provider.mapper.XinfangEventMapper;
 import com.cetc.cloud.datasynch.provider.service.impl.*;
 import com.cetc.cloud.datasynch.provider.template.SanxiaoCalcRunnable;
 import com.cetc.cloud.datasynch.provider.template.XinfangGetRunnable;
+import com.cetc.cloud.datasynch.provider.util.HttpClientUtil2;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.sql.SQLException;
-import java.util.*;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * PackageName:   com.cetc.cloud.datasynch.provider.controller
@@ -79,7 +79,7 @@ public class SingleJobController implements SingleJobRemoteService {
         sanxiaoCalcRunnable.calculateHasTroubleSanXiao();
     }
 
-    @Scheduled(cron = "00 40 08 * * ?")
+//    @Scheduled(cron = "00 40 08 * * ?")
     public void calculateRealSanXiaoCount() throws SQLException {
         Thread.currentThread().setName("calcSanXiaoCount");
         String SQL = "select count(1) from BLK_SANXIAO_PLACE where status='0'";

@@ -34,7 +34,7 @@ public class WaterAQIRunnable implements OuterJobRunnableTemplate {
         try {
             generateHourlyAQI();
         } catch (SQLException e) {
-            e.printStackTrace();
+            log.error("SQL error !");
         }
     }
 
@@ -110,8 +110,7 @@ public class WaterAQIRunnable implements OuterJobRunnableTemplate {
                 log.info("success! SQL:" + SQL);
             }
         } catch (SQLException e) {
-            log.error("Error SQL :" + SQL);
-            e.printStackTrace();
+            log.error("DuplicateKey error !违反唯一性约束条件" );
         }
         return 0;
     }

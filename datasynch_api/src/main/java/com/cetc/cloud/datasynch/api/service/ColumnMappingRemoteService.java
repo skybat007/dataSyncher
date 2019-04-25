@@ -19,7 +19,7 @@ import java.util.Map;
 @Api(description = "字段映射表维护服务")
 public interface ColumnMappingRemoteService {
 
-    @RequestMapping(value = "/columnmapping/importExcel", produces = "application/json", method = RequestMethod.POST)
+    @RequestMapping(value = "/columnmapping/importExcel", produces = "application/json;charset=UTF-8", method = RequestMethod.POST)
     @ApiOperation(value = "将Excel映射表导入数据库", notes = "将Excel人工维护的 srcTable-targetTable 字段映射表导入数据库进行维护," +
             "\r\n字段排序：\t源,源字段名,目标字段名,目标表\n", produces = "application/json")
     String importExcelIntoDB(MultipartFile file, String sheetName);

@@ -36,6 +36,7 @@ public class ColumnMappingController implements ColumnMappingRemoteService {
 
         JSONObject res = new JSONObject();
 
+
         // 解析Excel，生成List<Model>
         List<ColumnMappingModel> modelList = new ArrayList<ColumnMappingModel>();
         int startRow = CommonInstance.DEFAULT_EXCEL_STARTWROW;
@@ -56,35 +57,62 @@ public class ColumnMappingController implements ColumnMappingRemoteService {
         Sheet sheet = workbook.getSheet(sheetName);
         // getLastRowNum，获取最后一行的行标
         log.debug(String.valueOf(sheet.getLastRowNum()));
-        for (int j = startRow; j < sheet.getLastRowNum()+1; j++) {
+        for (int j = startRow; j < sheet.getLastRowNum() + 1; j++) {
             Row row = sheet.getRow(j);
             String col1 = "";
             String col2 = "";
             String col3 = "";
             String col4 = "";
-            if (null != row.getCell(0) || "".equals(row.getCell(0))) {
+            if (null != row.getCell(0) && !"".equals(row.getCell(0))) {
                 col1 = row.getCell(0).getStringCellValue();
             }
-            if (null != row.getCell(1) || "".equals(row.getCell(1))) {
+            if (null != row.getCell(1) && !"".equals(row.getCell(1))) {
                 col2 = row.getCell(1).getStringCellValue();
             }
-            if (null != row.getCell(2) || "".equals(row.getCell(2))) {
+            if (null != row.getCell(2) && !"".equals(row.getCell(2))) {
                 col3 = row.getCell(2).getStringCellValue();
             }
-            if (null != row.getCell(3) || "".equals(row.getCell(3))) {
+            if (null != row.getCell(3) && !"".equals(row.getCell(3))) {
                 col4 = row.getCell(3).getStringCellValue();
             }
 
             ColumnMappingModel model = new ColumnMappingModel();
             /**源，源字段名，目标字段名，目标表*/
+            if ("".equals(col1)){
+                res.put("result", 0);
+                res.put("msg", "failed importing Excel,cause: colum 源 is Empty!");
+                return res.toJSONString();
+            }
             model.setSource(col1);
+            if ("".equals(col2)){
+                res.put("result", 0);
+                res.put("msg", "failed importing Excel,cause: colum 源字段名 is Empty!");
+                return res.toJSONString();
+            }
             model.setSourceColumnName(col2);
+            if ("".equals(col3)){
+                res.put("result", 0);
+                res.put("msg", "failed importing Excel,cause: colum 目标字段名 is Empty!");
+                return res.toJSONString();
+            }
             model.setTargetColumnName(col3);
+            if ("".equals(col4)){
+                res.put("result",0);
+                res.put("msg","failed importing Excel,cause: colum 目标表 is Empty!");
+                return res.toJSONString();
+            }
+            List<ColumnMappingModel> listInfoByTargetTableName = getListInfoByTargetTableName(col4);
+            if (listInfoByTargetTableName.size()>0){
+                res.put("result",0);
+                res.put("msg","failed importing Excel,cause: table:"+col4+" already imported,please delete first!");
+                return res.toJSONString();
+            }
+
             model.setTargetTable(col4);
 
             modelList.add(model);
         }
-        if (modelList.size()==0){
+        if (modelList.size() == 0) {
             log.error("data content is null!");
             res.put("faild", "faild imported file" + originalFilename + ":data content is null!");
             return res.toJSONString();

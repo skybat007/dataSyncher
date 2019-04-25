@@ -21,7 +21,7 @@
 
             <MaxHistory>10</MaxHistory>
 
-            <maxFileSize>2MB</maxFileSize>
+            <maxFileSize>5MB</maxFileSize>
 
         </rollingPolicy>
         <!-- 输出的格式 -->
@@ -44,7 +44,7 @@
 
             <MaxHistory>10</MaxHistory>
 
-            <maxFileSize>2MB</maxFileSize>
+            <maxFileSize>5MB</maxFileSize>
 
         </rollingPolicy>
         <!-- 输出的格式 -->

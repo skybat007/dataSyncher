@@ -1,10 +1,12 @@
 package com.cetc.cloud.datasynch.provider.controller;
 
+import com.alibaba.fastjson.JSONObject;
 import com.cetc.cloud.datasynch.api.model.DddColumnCommentModel;
 import com.cetc.cloud.datasynch.api.model.DddTableCommentModel;
 import com.cetc.cloud.datasynch.api.service.CommentManageRemoteService;
 import com.cetc.cloud.datasynch.provider.common.CommonInstance;
 import com.cetc.cloud.datasynch.provider.service.impl.CommentManageService;
+import com.cetc.cloud.datasynch.provider.service.impl.DbOperateService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Row;
@@ -35,7 +37,8 @@ public class CommentManageController implements CommentManageRemoteService {
 
     @Autowired
     CommentManageService commentManageService;
-
+    @Autowired
+    DbOperateService dbOperateService;
 
     @Override
     public List<DddTableCommentModel> importTableCommentExcel(MultipartFile file, String sheetName) {
@@ -83,7 +86,7 @@ public class CommentManageController implements CommentManageRemoteService {
     }
 
     @Override
-    public List<DddColumnCommentModel> importColumnCommentExcel(MultipartFile file, String sheetName) {
+    public String importColumnCommentExcel(MultipartFile file, String sheetName) {
 
         // 解析Excel，生成List<Model>
         List<DddColumnCommentModel> modelList = new ArrayList<DddColumnCommentModel>();
@@ -104,21 +107,20 @@ public class CommentManageController implements CommentManageRemoteService {
         // 根据sheet名称获取sheet
         Sheet sheet = workbook.getSheet(sheetName);
         // getLastRowNum，获取最后一行的行标
-        log.debug(String.valueOf(sheet.getLastRowNum()));
+        log.info("\n>>>>> getLastRowNum:" + String.valueOf(sheet.getLastRowNum()));
         for (int j = startRow; j <= sheet.getLastRowNum(); j++) {
             Row row = sheet.getRow(j);
             String tableName = "";
             String columnName = "";
             String columnComment = "";
-            if (null != row.getCell(0) || "".equals(row.getCell(0))) {
+            if (null != row.getCell(0) && !"".equals(row.getCell(0))
+                    && null != row.getCell(1) && !"".equals(row.getCell(1))
+                    && null != row.getCell(2) && !"".equals(row.getCell(2))) {
                 tableName = row.getCell(0).getStringCellValue();
-            }
-            if (null != row.getCell(1) || "".equals(row.getCell(1))) {
                 columnName = row.getCell(1).getStringCellValue();
-            }
-
-            if (null != row.getCell(2) || "".equals(row.getCell(2))) {
                 columnComment = row.getCell(2).getStringCellValue();
+            } else {
+                continue;
             }
 
             DddColumnCommentModel model = new DddColumnCommentModel();
@@ -129,7 +131,17 @@ public class CommentManageController implements CommentManageRemoteService {
 
             modelList.add(model);
         }
-        List<DddColumnCommentModel> failedList = commentManageService.addColumnCommentList(modelList);
-        return failedList;
+
+        boolean exists = dbOperateService.checkIfTableExists(modelList.get(0).getTableName());
+        if (exists==false){
+            return null;
+        }
+
+        List<DddColumnCommentModel> successList = commentManageService.addColumnCommentList(modelList);
+        JSONObject res = new JSONObject();
+        res.put("result","success");
+        res.put("resultSize",successList.size());
+        return res.toJSONString();
     }
+
 }

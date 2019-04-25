@@ -15,6 +15,9 @@ public class SQLCreator {
         ENDROW 包含在内
      */
     public static String createSQLByTbNameAndRowParam(String tableName, int startRow, int endRow, String orderByColumn) {
+        if (startRow>endRow){
+            return null;
+        }
 
         String sql = "select *\n" +
                 " from (select row_.*, rownum rownum_\n" +

@@ -19,12 +19,19 @@ public interface CommonInstance {
     public static final int TYPE_INTERFACE = 1;
 
     /**
-     * 接口开启状态：
+     * 任务开启状态：
      * 0：关闭
      * 1：开启
      */
-    public static final int DISABLED = 0;
-    public static final int ENABLED = 1;
+    public static final int JOB_DISABLED = 0;
+    public static final int JOB_ENABLED = 1;
+
+    /**
+     * 全局Http默认时间参数设定
+     */
+    int HTTP_SOCKET_TIMEOUT = 20000;//默认创建套接字超时时间20s
+    int HTTP_CONNECT_TIMEOUT = 6000;//默认获取连接超时
+    int HTTP_CONNECT_RESPONSE_TIMEOUT = 20000;//默认等待返回值超时时间20s
 
     /**
      * 数据库默认全局字段名称、值
@@ -95,6 +102,7 @@ public interface CommonInstance {
     String JOB_get_weather_alarm_info = "get_weather_alarm_info";
     String JOB_refresh_sanxiao_list = "refresh_sanxiao_list";
     String JOB_generate_water_AQI_info = "generate_water_AQI_info";
+    String JOB_refresh_video = "refresh_video";
 
     /**
      * param 统一组织形式

@@ -1,11 +1,9 @@
 package com.cetc.cloud.datasynch.provider.service.impl;
 
-import com.baomidou.dynamic.datasource.annotation.DS;
 import com.cetc.cloud.datasynch.api.model.DddColumnCommentModel;
 import com.cetc.cloud.datasynch.api.model.DddTableCommentModel;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
@@ -29,7 +27,7 @@ public class CommentManageService {
     @Autowired
     private JdbcTemplate primaryJdbcTemplate;
 
-    @Value("${spring.datasource.dynamic.datasource.readonly.username}")
+    @Value("${spring.datasource.dynamic.datasource.master.username}")
     private String userName;
 
     public List<DddTableCommentModel> addTableCommentList(List<DddTableCommentModel> modelList) {
@@ -55,6 +53,7 @@ public class CommentManageService {
     public List<DddColumnCommentModel> addColumnCommentList(List<DddColumnCommentModel> modelList) {
 
         List<DddColumnCommentModel> resList = new ArrayList<DddColumnCommentModel>();
+
         int successCount = 0;
         int failCount = 0;
         for (DddColumnCommentModel model : modelList) {
@@ -72,6 +71,9 @@ public class CommentManageService {
             }
             successCount++;
         }
+        log.info("\n>>> finished add comment on table:\""+modelList.get(0).getTableName()
+                +"\"\nsuccessed:"+successCount
+                +"\nfailed:"+failCount);
         return resList;
     }
 }

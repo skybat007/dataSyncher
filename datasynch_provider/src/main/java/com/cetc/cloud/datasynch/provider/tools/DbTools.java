@@ -32,7 +32,7 @@ public class DbTools {
     public static final String Type_BLOB = "BLOB"; //注意！！坚决不要使用该数据类型
     public static final String Type_NCLOB = "NCLOB";
 
-    public static final String[] partterns = {"yyyy-MM-dd HH:mm:ss", "yyyy-MM-ddTHH:mm:ss","yyyy-MM-dd HH:mm", "yyyy-MM-dd HH:mm:ss\\.0","yyyy/MM/dd HH:mm:ss"};
+    public static final String[] partterns = {"yyyy-MM-dd HH:mm:ss","yyyy-MM-dd HH:mm", "yyyy-MM-dd HH:mm:ss\\.0","yyyy/MM/dd HH:mm:ss"};
     public static final String parttern = "yyyy-MM-dd HH:mm:ss";
 
     public static SimpleDateFormat formatter = new SimpleDateFormat(parttern);

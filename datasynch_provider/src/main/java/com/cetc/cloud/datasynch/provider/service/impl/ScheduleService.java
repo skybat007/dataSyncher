@@ -67,7 +67,7 @@ public class ScheduleService {
             return 1;
         }
         //修改运行状态
-        if (statusToChange == CommonInstance.ENABLED || statusToChange == CommonInstance.DISABLED) {
+        if (statusToChange == CommonInstance.JOB_ENABLED || statusToChange == CommonInstance.JOB_DISABLED) {
             return scheduleMapper.updateEnableStatusByJobId(jobId, statusToChange);
         } else {
             return -1;
@@ -77,10 +77,10 @@ public class ScheduleService {
     public int enableStatusByJobId(int jobId) {
         //获取运行状态
         int status = scheduleMapper.getStatusByJobId(jobId);
-        if (CommonInstance.ENABLED == status) {
+        if (CommonInstance.JOB_ENABLED == status) {
             return 2;
         } else {
-            return scheduleMapper.updateEnableStatusByJobId(jobId, CommonInstance.ENABLED);
+            return scheduleMapper.updateEnableStatusByJobId(jobId, CommonInstance.JOB_ENABLED);
         }
     }
 

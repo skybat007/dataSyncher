@@ -3,6 +3,7 @@ package com.cetc.cloud.datasynch.provider.controller;
 import com.cetc.cloud.datasynch.api.model.ScheduleModel;
 import com.cetc.cloud.datasynch.api.service.ScheduleRemoteService;
 import com.cetc.cloud.datasynch.provider.common.CommonInstance;
+import com.cetc.cloud.datasynch.provider.config.MyApplicationRunner;
 import com.cetc.cloud.datasynch.provider.core.JobManageService;
 import com.cetc.cloud.datasynch.provider.mapper.XinfangEventMapper;
 import com.cetc.cloud.datasynch.provider.service.impl.*;
@@ -44,6 +45,10 @@ public class ScheduleController implements ScheduleRemoteService {
     RePullTableController rePullTableController;
     @Autowired
     XinfangEventMapper xinfangEventMapper;
+
+    @Autowired
+    MyApplicationRunner runner;
+
     @Override
     public List<ScheduleModel> queryScheduleJobList() {
         List<ScheduleModel> list = scheduleService.queryScheduleJobList();
@@ -52,7 +57,7 @@ public class ScheduleController implements ScheduleRemoteService {
 
 
     @Override
-    public HashMap createScheduleJob(int connType, String source, int srcDs, int isPagingQuery,
+    public HashMap createScheduleJob(int connType, String source, String srcDs, int isPagingQuery,
                                      String orderByColumnName,
                                      String httpParamExpression, String httpToken, String httpPagingType, String httpParamPageSize,
                                      String httpParamPageNum, String httpJsonExtractRule,
@@ -122,10 +127,32 @@ public class ScheduleController implements ScheduleRemoteService {
             }
         }
 
+        //检查shceduleModel是否存在，如果已经存在，则提示需要先删除后再创建
+        ScheduleModel model = scheduleService.queryModelByTableName(targetTableName);
+        if (null!=model){
+            res.put("result","failed");
+            res.put("msg","job for "+targetTableName+" already exists! please delete job first and create again");
+            return res;
+        }
+
+        try {
+            CronTrigger trigger = new CronTrigger(cronExpression);
+        } catch (Exception e) {
+            log.error("cron trigger syntax error! please check and try again!");
+            res.put("result", "failed");
+            res.put("msg", "cron trigger syntax error! please check and try again!");
+            return res;
+        }
+
         ScheduleModel scheduleModel = new ScheduleModel();
         scheduleModel.setConnType(connType);
         scheduleModel.setSource(source);
-        scheduleModel.setSrcDs(srcDs);
+        try {
+            scheduleModel.setSrcDs(Integer.valueOf(srcDs));
+        }catch (Exception e){
+            log.error("cannot parse srcDs from String to Integer:" + srcDs + ",will set a default value:0 on it");
+            scheduleModel.setSrcDs(0);
+        }
         scheduleModel.setIsPagingQuery(isPagingQuery);
         scheduleModel.setOrderByColumnName(orderByColumnName);
         scheduleModel.setHttpParamExpression(httpParamExpression);
@@ -179,12 +206,16 @@ public class ScheduleController implements ScheduleRemoteService {
     public HashMap<String, String> triggerOnceJobByTargetTableName(String tableName) {
         HashMap res = new HashMap();
         ScheduleModel scheduleModel = scheduleService.queryModelByTableName(tableName);
-        scheduleModel.setIsEnabled(CommonInstance.ENABLED);
+        if (null==scheduleModel){
+            res.put("msg","error! job doesn't exists!");
+            return res;
+        }
+        scheduleModel.setIsEnabled(CommonInstance.JOB_ENABLED);
         //启动任务
         int jobid = jobManageService.startOnceJob(scheduleModel);
         if (-1 != jobid) {
             //修改状态
-            if (jobid == scheduleModel.getId() ) {
+            if (jobid == scheduleModel.getId()) {
                 res.put("result", "success");
                 res.put("msg", "start job:" + jobid + " success!");
             }
@@ -207,7 +238,7 @@ public class ScheduleController implements ScheduleRemoteService {
         }
         if (CommonInstance.JOB_refresh_sanxiao_list.equals(jobName)) {
 
-            RefreshSanxiaoListRunnable myCalculateRunnable = new RefreshSanxiaoListRunnable(dbOperateService_zhft,dbOperateService);
+            RefreshSanxiaoListRunnable myCalculateRunnable = new RefreshSanxiaoListRunnable(dbOperateService_zhft, dbOperateService);
 
             if (trigger != null) {
                 uuid = jobManageService.startOuterScheduledJob(jobName, myCalculateRunnable, trigger);
@@ -215,14 +246,14 @@ public class ScheduleController implements ScheduleRemoteService {
         }
         if (CommonInstance.JOB_get_today_xinfang.equals(jobName)) {
 
-            XinfangGetRunnable myCalculateRunnable = new XinfangGetRunnable( outerUrlsService, xinfangEventMapper);
+            XinfangGetRunnable myCalculateRunnable = new XinfangGetRunnable(outerUrlsService, xinfangEventMapper);
             if (trigger != null) {
                 uuid = jobManageService.startOuterScheduledJob(jobName, myCalculateRunnable, trigger);
             }
         }
         if (CommonInstance.JOB_add_chengguanevent_attach.equals(jobName)) {
 
-            ChengguanEventAttachRunnable myCalculateRunnable = new ChengguanEventAttachRunnable( dbOperateService, httpOperateService, outerUrlsService);
+            ChengguanEventAttachRunnable myCalculateRunnable = new ChengguanEventAttachRunnable(dbOperateService, httpOperateService, outerUrlsService);
             if (trigger != null) {
                 uuid = jobManageService.startOuterScheduledJob(jobName, myCalculateRunnable, trigger);
             }
@@ -246,7 +277,7 @@ public class ScheduleController implements ScheduleRemoteService {
             }
         }
 
-        log.info("\n\n>>>>\n\n  >>>> scheduling job:" + jobName + " started! --- cronExpression："+trigger.getExpression());
+        log.info("\n\n>>>>\n\n  >>>> scheduling job:" + jobName + " started! --- cronExpression：" + trigger.getExpression());
         if (uuid != null) {
             res.put("result", "success");
             res.put("msg", "start Outer job:" + jobName + " success! job ID:" + uuid);
@@ -257,10 +288,11 @@ public class ScheduleController implements ScheduleRemoteService {
 
         return res;
     }
+
     @Override
     public HashMap<String, String> triggerOnceOuterScheduleJobByJobName(String jobName) {
         Calendar instance = Calendar.getInstance();
-        instance.add(Calendar.SECOND,5);
+        instance.add(Calendar.SECOND, 5);
         String cron = Date2CronUtil.getCron(instance.getTime());
         CronTrigger trigger = new CronTrigger(cron);
         HashMap<String, String> map = startOuterScheduleJob(jobName, trigger);
@@ -293,6 +325,14 @@ public class ScheduleController implements ScheduleRemoteService {
     }
 
     @Override
+    public HashMap<String, String> startAllDSJobs() {
+        HashMap res = new HashMap();
+        runner.startAllJobs();
+        res.put("res", "started");
+        return res;
+    }
+
+    @Override
     public HashMap<String, String> startAllEnabledScheduleJobs() {
         HashMap res = new HashMap();
         List<Integer> list = scheduleService.queryEnabledJobIdList();
@@ -313,7 +353,7 @@ public class ScheduleController implements ScheduleRemoteService {
     public HashMap<String, String> disableJobStatusByJobId(int jobId) {
         HashMap res = new HashMap();
         //更新当前任务状态
-        int updateRes = scheduleService.alterJobStatusByJobId(jobId, CommonInstance.DISABLED);
+        int updateRes = scheduleService.alterJobStatusByJobId(jobId, CommonInstance.JOB_DISABLED);
         if (updateRes > 0) {
             res.put("result", "success");
             res.put("msg", "disable JobStatus By JobId:" + jobId + " success!");
@@ -328,7 +368,7 @@ public class ScheduleController implements ScheduleRemoteService {
     public HashMap<String, String> enableJobStatusByJobId(int jobId) {
         HashMap res = new HashMap();
         //更新当前任务状态
-        int updateRes = scheduleService.alterJobStatusByJobId(jobId, CommonInstance.ENABLED);
+        int updateRes = scheduleService.alterJobStatusByJobId(jobId, CommonInstance.JOB_ENABLED);
         if (updateRes > 0) {
             res.put("result", "success");
             res.put("msg", "enable JobStatus By JobId:" + jobId + " success!");
@@ -380,7 +420,7 @@ public class ScheduleController implements ScheduleRemoteService {
         HashMap<String, String> restartRes = startScheduleJobByJobId(jobId);
         if ("success".equals(restartRes.get("result"))) {
             //更改当前任务状态为Disabled
-            scheduleService.alterJobStatusByJobId(jobId, CommonInstance.DISABLED);
+            scheduleService.alterJobStatusByJobId(jobId, CommonInstance.JOB_DISABLED);
             result.put("result" + jobId, "success");
             result.put("msg", "alterScheduleJobCron:" + jobId + ", success!");
             return result;

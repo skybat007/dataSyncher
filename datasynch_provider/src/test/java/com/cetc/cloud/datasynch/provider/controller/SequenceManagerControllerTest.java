@@ -48,8 +48,8 @@ public class SequenceManagerControllerTest extends TestCase {
                 "BLK_CHENGGUAN_EVENT"
         };
         for (String table: tables) {
-            boolean b = sequenceManagerController.exactSequenceByTbName(table);
-            System.out.println(table+"--"+b+"\n");
+            String res = sequenceManagerController.exactSequenceByTbName(table);
+            System.out.println(table+"--"+res+"\n");
         }
 
 

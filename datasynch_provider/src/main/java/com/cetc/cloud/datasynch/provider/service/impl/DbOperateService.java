@@ -189,7 +189,7 @@ public class DbOperateService {
     }
 
     /**
-     * 注意：只能指定返回2个字段
+     * 注意：只能指定返回4个字段
      *
      * @param sql
      * @return
@@ -373,8 +373,13 @@ public class DbOperateService {
                 log.error("");
             }
         }
+        String sequenceName = getSequenceName(scheduleModel.getTargetTableName());
+        boolean exists = checkIfSequenceExists(sequenceName);
+        if (exists == false) {
+            createSequence(sequenceName);
+        }
         List<Integer> resList = new ArrayList<Integer>();
-        //获取 "字段-字段类型" 映射map
+        //获取目标表的"字段-字段类型" 映射map
         HashMap<String, HashMap> tbStructureMap = queryTableStructureByTableName(scheduleModel.getTargetTableName());
 
         //根据targetTable获取对应的字段映射表(需要过滤掉为null的字段)
@@ -383,8 +388,8 @@ public class DbOperateService {
         int failCounter = 0;
         List keyList_SQL = new ArrayList<String>();
 
-        if (mapping.size() == 0) {
-            resList.add(CommonInstance.SUCCESS);
+        if (null == mapping || mapping.size() == 0) {
+            resList.add(CommonInstance.FAIL);
             resList.add(successCounter);
             resList.add(failCounter);
             return resList;
@@ -423,7 +428,7 @@ public class DbOperateService {
             }
 
             //获取序列nextval值
-            SqlRowSet sqlRowSet = jdbcTemplate.queryForRowSet("SELECT " + tbSeqMappingProp.getProperty(targetTableName) + ".NEXTVAL FROM DUAL");
+            SqlRowSet sqlRowSet = jdbcTemplate.queryForRowSet("SELECT " + sequenceName + ".NEXTVAL FROM DUAL");
             int nextValue = 0;
             while (sqlRowSet.next()) {
                 nextValue = sqlRowSet.getInt(1);
@@ -437,7 +442,14 @@ public class DbOperateService {
                     " VALUES (" + nextValue + "," + tableValues + ")";
 
             log.debug("sql: " + sql);
-            int count = jdbcTemplate.update(sql);
+            int count = -1;
+            try {
+                count = jdbcTemplate.update(sql);
+            } catch (Exception e) {
+                log.error("insert error");
+                log.error(e.getLocalizedMessage());
+//                log.info("sql:" + sql);
+            }
             if (count > 0) {
                 log.debug("insert successful！");
                 successCounter++;
@@ -460,7 +472,7 @@ public class DbOperateService {
             try {
                 tbSeqMappingProp = sequenceManagerController.loadMappingExcel();
             } catch (Exception e) {
-                log.error("");
+                log.error("load file:\"TableSeqNameMapping.properties\" error!");
             }
         }
         List<Integer> resList = new ArrayList<Integer>();
@@ -607,8 +619,12 @@ public class DbOperateService {
                 log.error("cannot find target table:\"" + targetTableName + "\" in targetDB");
                 return new int[]{0, queryResult.size()};
             }
-            String sequenceName = tbSeqMappingProp.getProperty(targetTableName);
 
+            String sequenceName = getSequenceName(targetTableName);
+            boolean seq_blk_cg_evt_atts = checkIfSequenceExists(sequenceName);
+            if (seq_blk_cg_evt_atts == false) {
+                createSequence(sequenceName);
+            }
             String sql = "INSERT INTO \"" + targetTableName + "\"(" +
                     CommonInstance.GLOBAL_COLNAME_INCRE_ID + "," +
                     //组装key列表
@@ -632,6 +648,31 @@ public class DbOperateService {
     }
 
     /**
+     * 获取序列名称的策略：
+     * 优先级1:支持自定义序列名称，需要在\datasynch_provider\src\main\resources\TableSeqNameMapping.properties
+     * 路径下面指定表名和序列名的映射关系
+     * 优先级2:当在使用默认序列生成规则，sequenceName = SEQ_ + tablename ,当长度超过30时将自动截断
+     *
+     * @param targetTableName
+     * @return
+     */
+    public String getSequenceName(String targetTableName) {
+        String property = null;
+        try {
+            property = tbSeqMappingProp.getProperty(targetTableName);
+        } catch (Exception e) {
+            log.error("cannot find mapping in \\datasynch_provider\\src\\main\\resources\\TableSeqNameMapping.properties");
+        }
+        if (null == property) {
+            property = "SEQ_" + targetTableName;
+            if (property.length() > 30) {
+                property = property.substring(0, 30);
+            }
+        }
+        return property;
+    }
+
+    /**
      * 根据表名、字段名称、字段类型组装SQL插入值
      *
      * @param tableName      表名
@@ -650,13 +691,16 @@ public class DbOperateService {
                 //根据字段类型判断输出值的形式（加""或者to_date()）, 拼接至值列表中
                 String decoratedColumn = DbTools.getDecoratedColumn(column_type, valueList_sql.get(i));
                 if (null == decoratedColumn) {
-                    log.error("DbOperateService.getTableValuesSQLString():\"tbStructureMap\" cannot find :\"" + tableName + "\"对应字段\"" + keyList_SQL.get(i) + "\"对应的字段类型，请在对应的表中补全后重试！！！");
+                    log.error("DbOperateService.getTableValuesSQLString():\"tbStructureMap\" cannot find :\""
+                            + tableName + "\"corresponding column\"" + keyList_SQL.get(i)
+                            + "\"correct column type ,please complete method getDecoratedColumn() ");
+                    log.info("relative value:" + valueList_sql.get(i));
                     return null;
                 } else {
                     valueList.add(decoratedColumn);
                 }
             } catch (Exception e) {
-                log.error("DbOperateService.getTableValuesSQLString()方法中的\"tbStructureMap\"没有找到表\"" + tableName + "\"对应字段\"" + keyList_SQL.get(i) + "\"对应的字段类型，请在对应的表中补全后重试！！！");
+                log.error("column type of " + keyList_SQL.get(i) + " is null! value:" + valueList_sql.get(i));
                 return null;
             }
         }
@@ -697,10 +741,13 @@ public class DbOperateService {
                 "where sequence_owner='" + orclUsername + "' and SEQUENCE_NAME='" + sequenceName + "'";
         SqlRowSet sqlRowSet = jdbcTemplate.queryForRowSet(SQL);
         int count = 0;
-        log.info("\nsql:" + SQL);
         while (sqlRowSet.next()) {
             count = sqlRowSet.getInt("COUNT");
-            log.info("\nCOUNT:" + count);
+            if (count > 0) {
+                log.info("\ncheckIfSequenceExists(" + sequenceName + "):" + true);
+            } else {
+                log.info("\ncheckIfSequenceExists(" + sequenceName + "):" + false);
+            }
         }
         if (count > 0) {
             return true;
@@ -708,22 +755,22 @@ public class DbOperateService {
         return false;
     }
 
-    public boolean checkIfSequenceExists_pure(String targetTableName) {
-        String SQL = "select count(1) COUNT \n" +
-                "from dba_sequences \n" +
-                "where sequence_owner='" + orclUsername + "' and SEQUENCE_NAME='" + targetTableName + "'";
-        SqlRowSet sqlRowSet = jdbcTemplate.queryForRowSet(SQL);
-        int count = 0;
-        log.info("\nsql:" + SQL);
-        while (sqlRowSet.next()) {
-            count = sqlRowSet.getInt("COUNT");
-            log.info("\nCOUNT:" + count);
-        }
-        if (count > 0) {
-            return true;
-        }
-        return false;
-    }
+//    public boolean checkIfSequenceExists_pure(String targetTableName) {
+//        String SQL = "select count(1) COUNT \n" +
+//                "from dba_sequences \n" +
+//                "where sequence_owner='" + orclUsername + "' and SEQUENCE_NAME='" + targetTableName + "'";
+//        SqlRowSet sqlRowSet = jdbcTemplate.queryForRowSet(SQL);
+//        int count = 0;
+//        log.info("\nsql:" + SQL);
+//        while (sqlRowSet.next()) {
+//            count = sqlRowSet.getInt("COUNT");
+//            log.info("\nCOUNT:" + count);
+//        }
+//        if (count > 0) {
+//            return true;
+//        }
+//        return false;
+//    }
 
     public boolean checkIfSequenceExists_prefix_seq(String targetTableName) {
         String SQL = "select count(1) COUNT \n" +
@@ -814,19 +861,28 @@ public class DbOperateService {
         }
     }
 
+    /**
+     * 执行备份
+     */
     public String backUpTable(String tableName) {
-        //todo 执行备份
+
         int count = 0;
-        String newCopyName = tableName + "_COPY" + count;
+        String newCopyName = tableName + "_CP" + count;
+
+        //oracle表名长度规范：不能超过30字符
+        if (newCopyName.length() > 30) {
+            newCopyName = newCopyName.replaceAll("_", "");
+        }
+
         boolean ifExistsTable = false;
         while (true) {
             ifExistsTable = checkIfExistsTable(newCopyName);
             if (ifExistsTable == true) {
-                newCopyName = tableName + "_COPY" + count;
+                newCopyName = tableName + "_CP" + count;
                 count++;
 
             } else {
-                log.info("success! Do backup by TableName:" + tableName + "_COPY" + count);
+                log.info("success! Do backup by TableName:" + tableName + "_CP" + count);
                 break;
             }
         }
@@ -843,7 +899,7 @@ public class DbOperateService {
     public void deleteRedundantTableCopies(String tableName) throws SQLException {
 
         String SQL = "SELECT TABLE_NAME FROM USER_ALL_TABLES " +
-                "WHERE TABLE_NAME LIKE '" + tableName + "_COPY%'";
+                "WHERE TABLE_NAME LIKE '" + tableName + "_CP%'";
         List<String> list = oracleQueryList(SQL);
         log.info(SQL);
         log.info("\nCopy counts:" + list.size());
@@ -979,8 +1035,8 @@ public class DbOperateService {
             String column_name = (String) map.get("COLUMN_NAME");
             String data_default = (String) map.get("DATA_DEFAULT");
             int i = executeAlterTableSQL(bkTableName, column_name, data_default);
-            if (i>0){
-                log.info("Add Table Constraint:executeAlterTableSQL(bkTableName, column_name, data_default)"+bkTableName+ column_name+ data_default);
+            if (i > 0) {
+                log.info("Add Table Constraint:executeAlterTableSQL(bkTableName, column_name, data_default)" + bkTableName + column_name + data_default);
             }
         }
     }
